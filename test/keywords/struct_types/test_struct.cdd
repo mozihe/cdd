@@ -1,0 +1,371 @@
+/**
+ * @file test_struct.cdd
+ * @brief struct 关键字测试用例
+ * 
+ * 测试结构体的各种用法
+ */
+
+// ============== 基本结构体定义 ==============
+
+// 1. 基本结构体
+struct Point {
+    int x;
+    int y;
+};
+
+// 2. 结构体变量声明
+struct Point global_point;
+
+// 3. 带初始化的结构体变量
+struct Point origin = {0, 0};
+
+// 4. 指定成员初始化（C99）
+struct Point point_c99 = {.x = 10, .y = 20};
+
+// 5. 匿名结构体
+struct {
+    int a;
+    int b;
+} anonymous_struct = {1, 2};
+
+// 6. 结构体类型和变量同时定义
+struct Rectangle {
+    int width;
+    int height;
+} rect1, rect2;
+
+// ============== 复杂结构体 ==============
+
+// 7. 包含不同类型的结构体
+struct Person {
+    char name[50];
+    int age;
+    float height;
+    double weight;
+};
+
+// 8. 嵌套结构体
+struct Circle {
+    struct Point center;
+    int radius;
+};
+
+// 9. 自引用结构体（链表节点）
+struct ListNode {
+    int data;
+    struct ListNode* next;
+};
+
+// 10. 二叉树节点
+struct TreeNode {
+    int value;
+    struct TreeNode* left;
+    struct TreeNode* right;
+};
+
+// 11. 双向链表节点
+struct DListNode {
+    int data;
+    struct DListNode* prev;
+    struct DListNode* next;
+};
+
+// 12. 包含数组的结构体
+struct Array {
+    int data[100];
+    int size;
+};
+
+// 13. 包含指针的结构体
+struct Buffer {
+    char* data;
+    int length;
+    int capacity;
+};
+
+// 14. 包含函数指针的结构体
+struct Operations {
+    int (*add)(int, int);
+    int (*sub)(int, int);
+    int (*mul)(int, int);
+    int (*div)(int, int);
+};
+
+// 15. 包含位域的结构体
+struct BitFields {
+    unsigned int flag1 : 1;
+    unsigned int flag2 : 1;
+    unsigned int value : 6;
+    unsigned int count : 8;
+};
+
+// 16. 多级嵌套
+struct Level3 {
+    int value;
+};
+
+struct Level2 {
+    struct Level3 l3;
+    int data;
+};
+
+struct Level1 {
+    struct Level2 l2;
+    char name[20];
+};
+
+// ============== 结构体指针 ==============
+
+// 17. 结构体指针
+struct Point* point_ptr;
+
+// 18. 结构体指针数组
+struct Point* point_ptr_array[10];
+
+// 19. 指向结构体数组的指针
+struct Point (*ptr_to_point_array)[10];
+
+// 20. const 结构体指针
+const struct Point* const_point_ptr;
+
+// 21. 结构体的 const 指针
+struct Point* const point_const_ptr = 0;
+
+// ============== 结构体数组 ==============
+
+// 22. 结构体数组
+struct Point points[100];
+
+// 23. 结构体数组初始化
+struct Point init_points[] = {
+    {0, 0},
+    {1, 1},
+    {2, 2},
+    {3, 3}
+};
+
+// 24. 多维结构体数组
+struct Point point_matrix[3][3];
+
+// ============== 结构体函数 ==============
+
+// 25. 返回结构体的函数
+struct Point create_point(int x, int y) {
+    struct Point p;
+    p.x = x;
+    p.y = y;
+    return p;
+}
+
+// 26. 结构体参数
+int point_distance_sq(struct Point p1, struct Point p2) {
+    int dx = p1.x - p2.x;
+    int dy = p1.y - p2.y;
+    return dx * dx + dy * dy;
+}
+
+// 27. 结构体指针参数
+void point_move(struct Point* p, int dx, int dy) {
+    p->x = p->x + dx;
+    p->y = p->y + dy;
+}
+
+// 28. const 结构体指针参数
+void print_point_info(const struct Point* p) {
+    // p->x = 10;  // 非法，不能修改
+    int x = p->x;
+    int y = p->y;
+}
+
+// 29. 返回结构体指针的函数
+struct Point* get_origin(void) {
+    return &origin;
+}
+
+// 30. 接受并返回结构体的函数
+struct Point point_add(struct Point a, struct Point b) {
+    struct Point result;
+    result.x = a.x + b.x;
+    result.y = a.y + b.y;
+    return result;
+}
+
+// ============== 结构体操作 ==============
+
+// 31. 成员访问 - 点运算符
+int test_dot_operator(void) {
+    struct Point p = {10, 20};
+    int x = p.x;
+    int y = p.y;
+    p.x = 30;
+    return p.x;
+}
+
+// 32. 成员访问 - 箭头运算符
+int test_arrow_operator(void) {
+    struct Point p = {10, 20};
+    struct Point* ptr = &p;
+    int x = ptr->x;
+    int y = ptr->y;
+    ptr->x = 30;
+    return ptr->x;
+}
+
+// 33. 结构体赋值
+void test_struct_assign(void) {
+    struct Point p1 = {10, 20};
+    struct Point p2;
+    p2 = p1;  // 整体赋值
+}
+
+// 34. 结构体比较（逐成员）
+int point_equal(struct Point a, struct Point b) {
+    return (a.x == b.x) && (a.y == b.y);
+}
+
+// 35. sizeof 结构体
+int test_struct_sizeof(void) {
+    return sizeof(struct Point);
+}
+
+// ============== 链表操作示例 ==============
+
+// 36. 创建链表节点
+struct ListNode* create_node(int data) {
+    // 假设有动态内存分配
+    static struct ListNode nodes[100];
+    static int node_count = 0;
+    
+    struct ListNode* node = &nodes[node_count];
+    node_count = node_count + 1;
+    node->data = data;
+    node->next = 0;
+    return node;
+}
+
+// 37. 链表遍历
+int sum_list(struct ListNode* head) {
+    int sum = 0;
+    struct ListNode* current = head;
+    while (current != 0) {
+        sum = sum + current->data;
+        current = current->next;
+    }
+    return sum;
+}
+
+// 38. 链表长度
+int list_length(struct ListNode* head) {
+    int length = 0;
+    struct ListNode* current = head;
+    while (current != 0) {
+        length = length + 1;
+        current = current->next;
+    }
+    return length;
+}
+
+// ============== 复杂用法 ==============
+
+// 39. 结构体内的结构体指针
+struct Container {
+    struct Point* points;
+    int count;
+};
+
+// 40. 前向声明
+struct ForwardDeclared;
+struct UsesForward {
+    struct ForwardDeclared* ptr;
+    int value;
+};
+struct ForwardDeclared {
+    int data;
+};
+
+// 41. 结构体与 typedef
+typedef struct {
+    int x;
+    int y;
+    int z;
+} Point3D;
+
+// 42. 命名结构体与 typedef
+typedef struct TaggedPoint {
+    int x;
+    int y;
+} TaggedPoint;
+
+// 43. 结构体与 static
+static struct Point static_point = {100, 200};
+
+// 44. 结构体与 const
+const struct Point const_point = {50, 50};
+
+// 45. volatile 结构体
+volatile struct Point volatile_point;
+
+// 46. 结构体作为函数返回类型的函数指针
+struct Point (*point_factory)(int, int) = create_point;
+
+// 47. 包含联合体的结构体
+struct Mixed {
+    int type;
+    union {
+        int i;
+        float f;
+        char c;
+    } value;
+};
+
+// 48. 对齐和填充测试
+struct Padded {
+    char a;      // 1 byte + 3 padding
+    int b;       // 4 bytes
+    char c;      // 1 byte + 3 padding
+    int d;       // 4 bytes
+};
+
+// 49. 紧凑结构体（理论上）
+struct Compact {
+    int a;
+    int b;
+    int c;
+    int d;
+};
+
+// 50. 结构体作为数组元素类型
+void init_point_array(struct Point* arr, int n) {
+    int i;
+    for (i = 0; i < n; i = i + 1) {
+        arr[i].x = i;
+        arr[i].y = i * 2;
+    }
+}
+
+int main(void) {
+    // 结构体变量
+    struct Point p1 = {10, 20};
+    struct Point p2;
+    p2.x = 30;
+    p2.y = 40;
+    
+    // 结构体指针
+    struct Point* ptr = &p1;
+    ptr->x = 50;
+    
+    // 嵌套结构体
+    struct Circle circle;
+    circle.center.x = 100;
+    circle.center.y = 100;
+    circle.radius = 50;
+    
+    // 结构体数组
+    struct Point arr[3] = {{0, 0}, {1, 1}, {2, 2}};
+    
+    // 函数调用
+    struct Point p3 = create_point(5, 10);
+    int dist = point_distance_sq(p1, p2);
+    
+    return 0;
+}

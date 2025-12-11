@@ -1,0 +1,29 @@
+/**
+ * 测试头文件：test_header1.hdd
+ * 用于测试 #include 指令
+ */
+
+#ifndef TEST_HEADER1_HDD
+#define TEST_HEADER1_HDD
+
+// 类型定义
+typedef struct {
+    int x;
+    int y;
+} HeaderType1;
+
+// 宏定义
+#define HEADER1_CONSTANT 100
+#define HEADER1_VERSION "1.0"
+
+// 函数实现
+int header_function1(int value) {
+    return value + HEADER1_CONSTANT;
+}
+
+void header1_init(HeaderType1* obj) {
+    obj->x = 0;
+    obj->y = 0;
+}
+
+#endif // TEST_HEADER1_HDD

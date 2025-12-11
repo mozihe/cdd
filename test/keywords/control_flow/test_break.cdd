@@ -1,0 +1,481 @@
+/**
+ * @file test_break.cdd
+ * @brief break 关键字测试用例
+ * 
+ * 测试 break 语句的各种用法
+ * break 用于跳出循环或 switch 语句
+ */
+
+// 1. break 跳出 for 循环
+int test_break_for(int n, int target) {
+    for (int i = 0; i < n; i++) {
+        if (i == target) {
+            break;
+        }
+    }
+    return target;
+}
+
+// 2. break 跳出 while 循环
+int test_break_while(int n) {
+    int i = 0;
+    while (i < 100) {
+        if (i >= n) {
+            break;
+        }
+        i = i + 1;
+    }
+    return i;
+}
+
+// 3. break 跳出 do-while 循环
+int test_break_do_while(int limit) {
+    int i = 0;
+    do {
+        if (i >= limit) {
+            break;
+        }
+        i = i + 1;
+    } while (i < 100);
+    return i;
+}
+
+// 4. break 跳出 switch
+int test_break_switch(int val) {
+    int result;
+    switch (val) {
+        case 1:
+            result = 10;
+            break;
+        case 2:
+            result = 20;
+            break;
+        case 3:
+            result = 30;
+            break;
+        default:
+            result = 0;
+            break;
+    }
+    return result;
+}
+
+// 5. break 在嵌套循环中（只跳出最内层）
+int test_break_nested(int n, int m) {
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (j == 3) {
+                break;  // 只跳出内层循环
+            }
+            count = count + 1;
+        }
+    }
+    return count;
+}
+
+// 6. break 在数组搜索
+int test_break_search(int* arr, int size, int target) {
+    int found = -1;
+    for (int i = 0; i < size; i++) {
+        if (arr[i] == target) {
+            found = i;
+            break;
+        }
+    }
+    return found;
+}
+
+// 7. break 在字符串搜索
+int test_break_string_search(char* str, char target) {
+    int index = -1;
+    for (int i = 0; str[i] != '\0'; i++) {
+        if (str[i] == target) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+}
+
+// 8. break 在条件满足时
+int test_break_condition(int* arr, int size) {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        if (sum > 100) {
+            break;
+        }
+        sum = sum + arr[i];
+    }
+    return sum;
+}
+
+// 9. break 在无限循环中
+int test_break_infinite(int n) {
+    int i = 0;
+    while (1) {
+        if (i >= n) {
+            break;
+        }
+        i = i + 1;
+    }
+    return i;
+}
+
+// 10. break 在 for(;;) 中
+int test_break_for_infinite(int limit) {
+    int count = 0;
+    for (;;) {
+        if (count >= limit) {
+            break;
+        }
+        count = count + 1;
+    }
+    return count;
+}
+
+// 11. break 与 if-else
+int test_break_if_else(int* arr, int size) {
+    int result = 0;
+    for (int i = 0; i < size; i++) {
+        if (arr[i] < 0) {
+            break;
+        } else if (arr[i] == 0) {
+            continue;
+        } else {
+            result = result + arr[i];
+        }
+    }
+    return result;
+}
+
+// 12. break 提前终止
+int test_break_early(int* arr, int size) {
+    for (int i = 0; i < size; i++) {
+        if (arr[i] == -1) {
+            return i;  // 返回终止位置
+        }
+    }
+    return size;
+}
+
+// 13. break 在 switch 中（fall-through 对比）
+int test_break_fallthrough(int val) {
+    int sum = 0;
+    switch (val) {
+        case 3:
+            sum = sum + 3;
+            break;  // 有 break
+        case 2:
+            sum = sum + 2;
+            // 无 break，fall through
+        case 1:
+            sum = sum + 1;
+            break;
+        default:
+            break;
+    }
+    return sum;
+}
+
+// 14. break 在双重 while 中
+int test_break_double_while(int n) {
+    int outer = 0;
+    while (outer < n) {
+        int inner = 0;
+        while (inner < n) {
+            if (inner == 5) {
+                break;  // 只跳出内层
+            }
+            inner = inner + 1;
+        }
+        outer = outer + 1;
+    }
+    return outer;
+}
+
+// 15. break 检测条件
+int test_break_detect(int* arr, int size) {
+    int has_negative = 0;
+    for (int i = 0; i < size; i++) {
+        if (arr[i] < 0) {
+            has_negative = 1;
+            break;
+        }
+    }
+    return has_negative;
+}
+
+// 16. break 在验证中
+int test_break_validate(int* arr, int size) {
+    int valid = 1;
+    for (int i = 0; i < size; i++) {
+        if (arr[i] < 0 || arr[i] > 100) {
+            valid = 0;
+            break;
+        }
+    }
+    return valid;
+}
+
+// 17. break 限制处理数量
+int test_break_limit(int* arr, int size, int max_count) {
+    int count = 0;
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        if (count >= max_count) {
+            break;
+        }
+        sum = sum + arr[i];
+        count = count + 1;
+    }
+    return sum;
+}
+
+// 18. break 在比较中
+int test_break_compare(int* a, int* b, int size) {
+    int equal = 1;
+    for (int i = 0; i < size; i++) {
+        if (a[i] != b[i]) {
+            equal = 0;
+            break;
+        }
+    }
+    return equal;
+}
+
+// 19. break 在嵌套 switch-for 中
+int test_break_switch_for(int* arr, int size) {
+    int result = 0;
+    for (int i = 0; i < size; i++) {
+        switch (arr[i]) {
+            case 0:
+                break;  // switch 的 break
+            case -1:
+                return result;  // 跳出函数
+            default:
+                result = result + arr[i];
+                break;
+        }
+    }
+    return result;
+}
+
+// 20. break 多条件
+int test_break_multi_cond(int a, int b) {
+    int count = 0;
+    while (a > 0 && b > 0) {
+        if (a == b) {
+            break;
+        }
+        if (a > b) {
+            a = a - 1;
+        } else {
+            b = b - 1;
+        }
+        count = count + 1;
+    }
+    return count;
+}
+
+// 21. break 在链表遍历中
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+int test_break_linked_list(struct Node* head, int target) {
+    struct Node* curr = head;
+    int index = 0;
+    while (curr != 0) {
+        if (curr->data == target) {
+            break;
+        }
+        curr = curr->next;
+        index = index + 1;
+    }
+    return (curr != 0) ? index : -1;
+}
+
+// 22. break 在超时模拟中
+int test_break_timeout(int max_iterations) {
+    int iterations = 0;
+    int found = 0;
+    while (1) {
+        iterations = iterations + 1;
+        // 模拟查找
+        if (iterations == 50) {
+            found = 1;
+        }
+        if (found || iterations >= max_iterations) {
+            break;
+        }
+    }
+    return iterations;
+}
+
+// 23. break 在错误处理中
+int test_break_error(int* operations, int count) {
+    int result = 0;
+    int error = 0;
+    for (int i = 0; i < count; i++) {
+        if (operations[i] < 0) {
+            error = 1;
+            break;
+        }
+        result = result + operations[i];
+    }
+    return error ? -1 : result;
+}
+
+// 24. break 与标志变量
+int test_break_flag(int* matrix, int rows, int cols, int target) {
+    int found = 0;
+    int row = -1, col = -1;
+    for (int i = 0; i < rows && !found; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (matrix[i * cols + j] == target) {
+                row = i;
+                col = j;
+                found = 1;
+                break;
+            }
+        }
+    }
+    return found ? row * cols + col : -1;
+}
+
+// 25. break 在do-while无限循环
+int test_break_do_infinite(int target) {
+    int i = 0;
+    do {
+        if (i == target) {
+            break;
+        }
+        i = i + 1;
+    } while (1);
+    return i;
+}
+
+// 26. break 在复杂switch
+int test_break_complex_switch(int op, int a, int b) {
+    int result;
+    switch (op) {
+        case '+':
+            result = a + b;
+            break;
+        case '-':
+            result = a - b;
+            break;
+        case '*':
+            result = a * b;
+            break;
+        case '/':
+            if (b == 0) {
+                result = 0;
+            } else {
+                result = a / b;
+            }
+            break;
+        default:
+            result = 0;
+            break;
+    }
+    return result;
+}
+
+// 27. break 在状态机中
+int test_break_state_machine(int* inputs, int count) {
+    int state = 0;
+    for (int i = 0; i < count; i++) {
+        switch (state) {
+            case 0:
+                if (inputs[i] == 1) state = 1;
+                break;
+            case 1:
+                if (inputs[i] == 2) state = 2;
+                else state = 0;
+                break;
+            case 2:
+                // 最终状态
+                break;
+        }
+        if (state == 2) {
+            break;  // for 循环的 break
+        }
+    }
+    return state;
+}
+
+// 28. break 在资源限制中
+int test_break_resource(int* requests, int count, int capacity) {
+    int used = 0;
+    int processed = 0;
+    for (int i = 0; i < count; i++) {
+        if (used + requests[i] > capacity) {
+            break;
+        }
+        used = used + requests[i];
+        processed = processed + 1;
+    }
+    return processed;
+}
+
+// 29. break 单语句
+int test_break_single(int n) {
+    for (int i = 0; i < 100; i++)
+        if (i >= n) break;
+    return n;
+}
+
+// 30. break 在空循环
+int test_break_empty_loop(int* arr, int size) {
+    int i;
+    for (i = 0; i < size; i++) {
+        if (arr[i] == 0) {
+            break;
+        }
+    }
+    return i;
+}
+
+int main(void) {
+    // break 跳出 for
+    for (int i = 0; i < 100; i++) {
+        if (i == 10) {
+            break;
+        }
+    }
+    
+    // break 跳出 while
+    int x = 0;
+    while (x < 100) {
+        if (x >= 20) {
+            break;
+        }
+        x = x + 1;
+    }
+    
+    // break 跳出 switch
+    int val = 2;
+    switch (val) {
+        case 1:
+            break;
+        case 2:
+            break;
+        default:
+            break;
+    }
+    
+    // break 在嵌套循环中
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            if (j == 3) {
+                break;  // 只跳出内层
+            }
+        }
+        // 外层继续
+    }
+    
+    return 0;
+}

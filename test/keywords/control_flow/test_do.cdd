@@ -1,0 +1,415 @@
+/**
+ * @file test_do.cdd
+ * @brief do 关键字测试用例
+ * 
+ * 测试 do-while 循环的各种用法
+ * do-while 至少执行一次循环体
+ */
+
+// 1. 基本 do-while 循环
+int test_basic_do(void) {
+    int i = 0;
+    int sum = 0;
+    do {
+        sum = sum + i;
+        i = i + 1;
+    } while (i < 10);
+    return sum;
+}
+
+// 2. do-while 至少执行一次
+int test_do_once(void) {
+    int count = 0;
+    do {
+        count = count + 1;
+    } while (0);  // 条件为假，但仍执行一次
+    return count;  // 返回 1
+}
+
+// 3. do-while 与 while 对比
+int test_do_vs_while(int n) {
+    int do_count = 0;
+    int while_count = 0;
+    
+    // do-while: 即使 n <= 0 也执行一次
+    do {
+        do_count = do_count + 1;
+    } while (n > 0);
+    
+    // while: 如果 n <= 0 则不执行
+    while (n > 0) {
+        while_count = while_count + 1;
+    }
+    
+    return do_count - while_count;
+}
+
+// 4. do-while 递减
+int test_do_decrement(int n) {
+    int sum = 0;
+    if (n <= 0) return 0;
+    do {
+        sum = sum + n;
+        n = n - 1;
+    } while (n > 0);
+    return sum;
+}
+
+// 5. do-while 与自增
+int test_do_increment(int n) {
+    int i = 0;
+    int count = 0;
+    do {
+        count = count + 1;
+        i++;
+    } while (i < n);
+    return count;
+}
+
+// 6. do-while 嵌套
+int test_do_nested(int n, int m) {
+    int i = 0;
+    int sum = 0;
+    do {
+        int j = 0;
+        do {
+            sum = sum + 1;
+            j = j + 1;
+        } while (j < m);
+        i = i + 1;
+    } while (i < n);
+    return sum;
+}
+
+// 7. do-while 与 break
+int test_do_break(int limit) {
+    int i = 0;
+    do {
+        if (i >= limit) {
+            break;
+        }
+        i = i + 1;
+    } while (i < 100);
+    return i;
+}
+
+// 8. do-while 与 continue
+int test_do_continue(int n) {
+    int i = 0;
+    int sum = 0;
+    do {
+        i = i + 1;
+        if (i % 2 == 0) {
+            continue;  // 跳过偶数
+        }
+        sum = sum + i;
+    } while (i < n);
+    return sum;
+}
+
+// 9. do-while 无限循环（带 break）
+int test_do_infinite(int target) {
+    int i = 0;
+    do {
+        if (i == target) {
+            break;
+        }
+        i = i + 1;
+    } while (1);
+    return i;
+}
+
+// 10. do-while 读取输入模拟
+int test_do_input_sim(int* values, int count) {
+    int i = 0;
+    int sum = 0;
+    do {
+        sum = sum + values[i];
+        i = i + 1;
+    } while (i < count && values[i - 1] != -1);
+    return sum;
+}
+
+// 11. do-while 菜单模拟
+int test_do_menu(int* choices, int count) {
+    int i = 0;
+    int result = 0;
+    do {
+        int choice = choices[i];
+        if (choice == 0) {
+            break;  // 退出
+        }
+        result = result + choice;
+        i = i + 1;
+    } while (i < count);
+    return result;
+}
+
+// 12. do-while 验证输入
+int test_do_validate(int* inputs, int count) {
+    int i = 0;
+    int valid_count = 0;
+    do {
+        if (inputs[i] >= 0 && inputs[i] <= 100) {
+            valid_count = valid_count + 1;
+        }
+        i = i + 1;
+    } while (i < count);
+    return valid_count;
+}
+
+// 13. do-while 计算阶乘
+int test_do_factorial(int n) {
+    if (n < 0) return -1;
+    if (n == 0) return 1;
+    int result = 1;
+    do {
+        result = result * n;
+        n = n - 1;
+    } while (n > 0);
+    return result;
+}
+
+// 14. do-while 数字处理
+int test_do_digits(int n) {
+    int count = 0;
+    do {
+        count = count + 1;
+        n = n / 10;
+    } while (n != 0);
+    return count;
+}
+
+// 15. do-while 求和
+int test_do_sum_digits(int n) {
+    if (n < 0) n = -n;
+    int sum = 0;
+    do {
+        sum = sum + n % 10;
+        n = n / 10;
+    } while (n > 0);
+    return sum;
+}
+
+// 16. do-while 与指针
+int test_do_pointer(int* arr, int size) {
+    if (size <= 0) return 0;
+    int* p = arr;
+    int* end = arr + size;
+    int sum = 0;
+    do {
+        sum = sum + *p;
+        p = p + 1;
+    } while (p < end);
+    return sum;
+}
+
+// 17. do-while 字符串处理
+int test_do_string(char* str) {
+    if (!str || *str == '\0') return 0;
+    int len = 0;
+    do {
+        len = len + 1;
+        str = str + 1;
+    } while (*str != '\0');
+    return len;
+}
+
+// 18. do-while 查找
+int test_do_search(int* arr, int size, int target) {
+    if (size <= 0) return -1;
+    int i = 0;
+    do {
+        if (arr[i] == target) {
+            return i;
+        }
+        i = i + 1;
+    } while (i < size);
+    return -1;
+}
+
+// 19. do-while 计算平均值
+int test_do_average(int* arr, int size) {
+    if (size <= 0) return 0;
+    int i = 0;
+    int sum = 0;
+    do {
+        sum = sum + arr[i];
+        i = i + 1;
+    } while (i < size);
+    return sum / size;
+}
+
+// 20. do-while 复杂条件
+int test_do_complex(int a, int b) {
+    int count = 0;
+    do {
+        a = a - 1;
+        b = b - 1;
+        count = count + 1;
+    } while (a > 0 && b > 0);
+    return count;
+}
+
+// 21. do-while 与逻辑或
+int test_do_or(int a, int b) {
+    int count = 0;
+    do {
+        if (a > 0) a = a - 1;
+        if (b > 0) b = b - 1;
+        count = count + 1;
+    } while (a > 0 || b > 0);
+    return count;
+}
+
+// 22. do-while 迭代算法（牛顿法求平方根近似）
+int test_do_newton(int n) {
+    if (n <= 0) return 0;
+    int guess = n;
+    int prev;
+    do {
+        prev = guess;
+        guess = (guess + n / guess) / 2;
+    } while (guess < prev);
+    return guess;
+}
+
+// 23. do-while 状态机
+int test_do_state_machine(int* events, int count) {
+    int state = 0;
+    int i = 0;
+    do {
+        int event = events[i];
+        switch (state) {
+            case 0:
+                if (event == 1) state = 1;
+                break;
+            case 1:
+                if (event == 2) state = 2;
+                else if (event == 0) state = 0;
+                break;
+            case 2:
+                if (event == 0) state = 0;
+                break;
+        }
+        i = i + 1;
+    } while (i < count && state != 2);
+    return state;
+}
+
+// 24. do-while 与数组填充
+void test_do_fill(int* arr, int size, int val) {
+    if (size <= 0) return;
+    int i = 0;
+    do {
+        arr[i] = val;
+        i = i + 1;
+    } while (i < size);
+}
+
+// 25. do-while 重试逻辑
+int test_do_retry(int max_retries) {
+    int attempts = 0;
+    int success = 0;
+    do {
+        attempts = attempts + 1;
+        // 模拟：第 3 次成功
+        if (attempts >= 3) {
+            success = 1;
+        }
+    } while (!success && attempts < max_retries);
+    return attempts;
+}
+
+// 26. do-while 与结构体
+struct Counter {
+    int value;
+    int max;
+};
+
+int test_do_struct(struct Counter* c) {
+    int count = 0;
+    do {
+        c->value = c->value + 1;
+        count = count + 1;
+    } while (c->value < c->max);
+    return count;
+}
+
+// 27. do-while 单语句体
+int test_do_single_stmt(int n) {
+    int i = 0;
+    do
+        i = i + 1;
+    while (i < n);
+    return i;
+}
+
+// 28. do-while 处理位
+int test_do_bits(unsigned int n) {
+    int count = 0;
+    do {
+        count = count + (n & 1);
+        n = n >> 1;
+    } while (n);
+    return count;
+}
+
+// 29. do-while 游戏循环模拟
+int test_do_game_loop(int* inputs, int count) {
+    int score = 0;
+    int i = 0;
+    int game_over = 0;
+    do {
+        int input = inputs[i];
+        if (input == -1) {
+            game_over = 1;
+        } else {
+            score = score + input;
+        }
+        i = i + 1;
+    } while (!game_over && i < count);
+    return score;
+}
+
+// 30. do-while 与函数调用
+int process(int x) {
+    return x * 2;
+}
+
+int test_do_function(int start, int end) {
+    int value = start;
+    int sum = 0;
+    do {
+        sum = sum + value;
+        value = process(value);
+    } while (value < end);
+    return sum;
+}
+
+int main(void) {
+    // 基本 do-while
+    int i = 0;
+    do {
+        i = i + 1;
+    } while (i < 10);
+    
+    // do-while 至少执行一次
+    int x = 100;
+    do {
+        x = x + 1;
+    } while (x < 0);  // 条件为假，但执行了一次
+    // x 现在是 101
+    
+    // 嵌套 do-while
+    int a = 0;
+    do {
+        int b = 0;
+        do {
+            b = b + 1;
+        } while (b < 3);
+        a = a + 1;
+    } while (a < 3);
+    
+    return 0;
+}

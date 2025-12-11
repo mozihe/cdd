@@ -1,0 +1,478 @@
+/**
+ * @file test_function_pointers.cdd
+ * @brief 函数指针和指针函数测试用例
+ * 
+ * 测试函数指针、指针函数、回调等复杂用法
+ */
+
+// ============== 基本函数定义 ==============
+
+// 1. 普通函数
+int add(int a, int b) {
+    return a + b;
+}
+
+int sub(int a, int b) {
+    return a - b;
+}
+
+int mul(int a, int b) {
+    return a * b;
+}
+
+int divide(int a, int b) {
+    if (b == 0) return 0;
+    return a / b;
+}
+
+// 2. 返回指针的函数（指针函数）
+int global_value = 100;
+
+int* get_global_ptr(void) {
+    return &global_value;
+}
+
+int* find_max(int* a, int* b) {
+    return *a > *b ? a : b;
+}
+
+int* find_in_array(int* arr, int size, int target) {
+    for (int i = 0; i < size; i++) {
+        if (arr[i] == target) {
+            return &arr[i];
+        }
+    }
+    return 0;  // NULL
+}
+
+// 3. 返回静态数组指针
+int* get_static_array(void) {
+    static int arr[5] = {1, 2, 3, 4, 5};
+    return arr;
+}
+
+// ============== 函数指针声明和使用 ==============
+
+// 4. 基本函数指针
+int test_basic_func_ptr(void) {
+    int (*fp)(int, int);
+    fp = add;
+    return fp(3, 4);  // 7
+}
+
+// 5. 函数指针初始化
+int test_func_ptr_init(void) {
+    int (*fp)(int, int) = add;
+    return fp(5, 3);  // 8
+}
+
+// 6. 通过函数名赋值
+int test_func_name_assign(void) {
+    int (*fp)(int, int);
+    fp = add;           // 函数名
+    int a = fp(1, 2);
+    fp = &sub;          // 取地址方式（等效）
+    int b = fp(5, 3);
+    return a + b;       // 3 + 2 = 5
+}
+
+// 7. 显式解引用调用
+int test_explicit_deref(void) {
+    int (*fp)(int, int) = mul;
+    int a = fp(3, 4);       // 直接调用
+    int b = (*fp)(3, 4);    // 显式解引用
+    return a + b;           // 12 + 12 = 24
+}
+
+// 8. 函数指针数组
+int test_func_ptr_array(void) {
+    int (*ops[4])(int, int) = {add, sub, mul, divide};
+    int a = ops[0](10, 5);  // add: 15
+    int b = ops[1](10, 5);  // sub: 5
+    int c = ops[2](10, 5);  // mul: 50
+    int d = ops[3](10, 5);  // div: 2
+    return a + b + c + d;   // 72
+}
+
+// 9. 函数指针作为参数
+int apply(int (*op)(int, int), int a, int b) {
+    return op(a, b);
+}
+
+int test_func_ptr_param(void) {
+    int a = apply(add, 10, 5);
+    int b = apply(sub, 10, 5);
+    int c = apply(mul, 10, 5);
+    return a + b + c;  // 15 + 5 + 50 = 70
+}
+
+// 10. 返回函数指针的函数
+int (*get_operator(char op))(int, int) {
+    switch (op) {
+        case '+': return add;
+        case '-': return sub;
+        case '*': return mul;
+        case '/': return divide;
+        default: return 0;
+    }
+}
+
+int test_return_func_ptr(void) {
+    int (*fp)(int, int) = get_operator('+');
+    int a = fp(10, 5);
+    fp = get_operator('-');
+    int b = fp(10, 5);
+    return a + b;  // 15 + 5 = 20
+}
+
+// 11. 使用 typedef 简化
+typedef int (*BinaryOp)(int, int);
+
+int apply_op(BinaryOp op, int a, int b) {
+    return op(a, b);
+}
+
+BinaryOp select_op(int choice) {
+    switch (choice) {
+        case 0: return add;
+        case 1: return sub;
+        case 2: return mul;
+        default: return divide;
+    }
+}
+
+int test_typedef_func_ptr(void) {
+    BinaryOp op1 = add;
+    BinaryOp op2 = select_op(1);
+    return apply_op(op1, 10, 5) + apply_op(op2, 10, 5);  // 15 + 5 = 20
+}
+
+// ============== 回调函数 ==============
+
+// 12. 简单回调
+typedef void (*Callback)(int);
+
+void do_work(int value, Callback callback) {
+    int result = value * 2;
+    if (callback) {
+        callback(result);
+    }
+}
+
+int callback_result = 0;
+
+void my_callback(int value) {
+    callback_result = value;
+}
+
+int test_callback(void) {
+    do_work(10, my_callback);
+    return callback_result;  // 20
+}
+
+// 13. 比较回调
+typedef int (*Comparator)(int, int);
+
+int compare_asc(int a, int b) {
+    return a - b;
+}
+
+int compare_desc(int a, int b) {
+    return b - a;
+}
+
+void bubble_sort(int* arr, int size, Comparator cmp) {
+    for (int i = 0; i < size - 1; i++) {
+        for (int j = 0; j < size - 1 - i; j++) {
+            if (cmp(arr[j], arr[j + 1]) > 0) {
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+int test_sort_callback(void) {
+    int arr1[5] = {5, 2, 8, 1, 9};
+    bubble_sort(arr1, 5, compare_asc);
+    
+    int arr2[5] = {5, 2, 8, 1, 9};
+    bubble_sort(arr2, 5, compare_desc);
+    
+    return arr1[0] + arr2[0];  // 1 + 9 = 10
+}
+
+// 14. 过滤回调
+typedef int (*Filter)(int);
+
+int is_even(int n) {
+    return n % 2 == 0;
+}
+
+int is_positive(int n) {
+    return n > 0;
+}
+
+int count_if(int* arr, int size, Filter filter) {
+    int count = 0;
+    for (int i = 0; i < size; i++) {
+        if (filter(arr[i])) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int test_filter_callback(void) {
+    int arr[] = {1, -2, 3, -4, 5, -6, 7, -8};
+    int even_count = count_if(arr, 8, is_even);
+    int pos_count = count_if(arr, 8, is_positive);
+    return even_count + pos_count;  // 4 + 4 = 8
+}
+
+// ============== 复杂函数指针 ==============
+
+// 15. 指向返回指针函数的函数指针
+int* (*ptr_func_ptr)(int*, int*);
+
+int test_ptr_func_ptr(void) {
+    ptr_func_ptr = find_max;
+    int a = 10, b = 20;
+    int* result = ptr_func_ptr(&a, &b);
+    return *result;  // 20
+}
+
+// 16. 函数指针的指针
+int test_func_ptr_ptr(void) {
+    int (*fp)(int, int) = add;
+    int (**fpp)(int, int) = &fp;
+    return (*fpp)(3, 4);  // 7
+}
+
+// 17. 函数指针数组的指针
+int test_func_ptr_array_ptr(void) {
+    int (*ops[2])(int, int) = {add, sub};
+    int (**ops_ptr)(int, int) = ops;
+    return ops_ptr[0](10, 5) + ops_ptr[1](10, 5);  // 15 + 5 = 20
+}
+
+// 18. void 参数函数指针
+typedef void (*VoidFunc)(void);
+
+int void_func_called = 0;
+
+void void_function(void) {
+    void_func_called = 1;
+}
+
+int test_void_func_ptr(void) {
+    VoidFunc fp = void_function;
+    fp();
+    return void_func_called;  // 1
+}
+
+// 19. 可变参数函数指针（简化）
+typedef int (*VarArgsFunc)(int, ...);
+
+int test_varargs_concept(void) {
+    // 简化演示
+    return 0;
+}
+
+// ============== 结构体与函数指针 ==============
+
+// 20. 结构体包含函数指针
+struct Calculator {
+    int (*add)(int, int);
+    int (*sub)(int, int);
+    int (*mul)(int, int);
+    int (*div)(int, int);
+};
+
+int test_struct_func_ptr(void) {
+    struct Calculator calc;
+    calc.add = add;
+    calc.sub = sub;
+    calc.mul = mul;
+    calc.div = divide;
+    
+    int a = calc.add(10, 5);
+    int b = calc.sub(10, 5);
+    int c = calc.mul(10, 5);
+    int d = calc.div(10, 5);
+    
+    return a + b + c + d;  // 15 + 5 + 50 + 2 = 72
+}
+
+// 21. 函数表（虚函数表概念）
+struct VTable {
+    void (*init)(void*);
+    void (*destroy)(void*);
+    int (*process)(void*, int);
+};
+
+int process_value = 0;
+
+void my_init(void* self) {
+    process_value = 0;
+}
+
+void my_destroy(void* self) {
+    process_value = -1;
+}
+
+int my_process(void* self, int value) {
+    process_value = value * 2;
+    return process_value;
+}
+
+int test_vtable(void) {
+    struct VTable vtable = {my_init, my_destroy, my_process};
+    vtable.init(0);
+    int result = vtable.process(0, 10);
+    return result;  // 20
+}
+
+// 22. 策略模式
+typedef int (*Strategy)(int, int);
+
+struct Context {
+    Strategy strategy;
+};
+
+int execute_strategy(struct Context* ctx, int a, int b) {
+    if (ctx->strategy) {
+        return ctx->strategy(a, b);
+    }
+    return 0;
+}
+
+int test_strategy_pattern(void) {
+    struct Context ctx;
+    ctx.strategy = add;
+    int a = execute_strategy(&ctx, 10, 5);
+    
+    ctx.strategy = mul;
+    int b = execute_strategy(&ctx, 10, 5);
+    
+    return a + b;  // 15 + 50 = 65
+}
+
+// ============== 链式操作 ==============
+
+// 23. 返回自身指针
+struct Builder {
+    int value;
+};
+
+struct Builder* set_value(struct Builder* b, int v) {
+    b->value = v;
+    return b;
+}
+
+struct Builder* add_value(struct Builder* b, int v) {
+    b->value += v;
+    return b;
+}
+
+int test_chain(void) {
+    struct Builder b;
+    set_value(add_value(set_value(&b, 10), 5), 0);
+    // 等同于：set_value(&b, 10); add_value(&b, 5); set_value(&b, 0);
+    return b.value;  // 0
+}
+
+// 24. 事件处理器
+typedef void (*EventHandler)(int event_type, void* data);
+
+struct EventSystem {
+    EventHandler handlers[10];
+    int handler_count;
+};
+
+void register_handler(struct EventSystem* sys, EventHandler handler) {
+    if (sys->handler_count < 10) {
+        sys->handlers[sys->handler_count++] = handler;
+    }
+}
+
+int event_sum = 0;
+
+void handler1(int type, void* data) {
+    event_sum += type;
+}
+
+void handler2(int type, void* data) {
+    event_sum += type * 2;
+}
+
+int test_event_system(void) {
+    struct EventSystem sys;
+    sys.handler_count = 0;
+    
+    register_handler(&sys, handler1);
+    register_handler(&sys, handler2);
+    
+    event_sum = 0;
+    for (int i = 0; i < sys.handler_count; i++) {
+        sys.handlers[i](5, 0);
+    }
+    
+    return event_sum;  // 5 + 10 = 15
+}
+
+// 25. 命令模式
+typedef int (*Command)(int);
+
+int cmd_double(int x) { return x * 2; }
+int cmd_square(int x) { return x * x; }
+int cmd_negate(int x) { return -x; }
+
+int execute_commands(int value, Command* cmds, int count) {
+    for (int i = 0; i < count; i++) {
+        value = cmds[i](value);
+    }
+    return value;
+}
+
+int test_command_pattern(void) {
+    Command cmds[3] = {cmd_double, cmd_square, cmd_negate};
+    // 5 -> 10 -> 100 -> -100
+    return execute_commands(5, cmds, 3);  // -100
+}
+
+int main(void) {
+    // 基本函数指针
+    int (*fp)(int, int) = add;
+    int result1 = fp(10, 5);
+    
+    // 函数指针数组
+    int (*ops[3])(int, int) = {add, sub, mul};
+    int result2 = ops[0](10, 5);
+    
+    // 使用 typedef
+    BinaryOp op = sub;
+    int result3 = op(10, 5);
+    
+    // 函数指针作为参数
+    int result4 = apply(mul, 10, 5);
+    
+    // 返回函数指针
+    int (*fp2)(int, int) = get_operator('+');
+    int result5 = fp2(10, 5);
+    
+    // 指针函数
+    int* ptr = get_global_ptr();
+    int result6 = *ptr;
+    
+    // 回调
+    do_work(10, my_callback);
+    
+    // 结构体中的函数指针
+    struct Calculator calc;
+    calc.add = add;
+    int result7 = calc.add(10, 5);
+    
+    return 0;
+}

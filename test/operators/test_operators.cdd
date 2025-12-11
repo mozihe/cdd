@@ -1,0 +1,546 @@
+/**
+ * @file test_operators.cdd
+ * @brief 运算符测试用例
+ * 
+ * 测试所有运算符：算术、位、逻辑、比较、赋值等
+ */
+
+// ============== 算术运算符 ==============
+
+// 1. 加法 +
+int test_add(void) {
+    int a = 10 + 5;
+    int b = -3 + 8;
+    int c = 0 + 0;
+    int d = 1 + 2 + 3 + 4;
+    return a + b + c + d;
+}
+
+// 2. 减法 -
+int test_sub(void) {
+    int a = 10 - 5;
+    int b = 5 - 10;
+    int c = 0 - 0;
+    int d = 10 - 3 - 2 - 1;
+    return a + b + c + d;
+}
+
+// 3. 乘法 *
+int test_mul(void) {
+    int a = 10 * 5;
+    int b = -3 * 4;
+    int c = 0 * 100;
+    int d = 2 * 3 * 4;
+    return a + b + c + d;
+}
+
+// 4. 除法 /
+int test_div(void) {
+    int a = 10 / 5;
+    int b = 10 / 3;  // 整数除法
+    int c = -10 / 3;
+    int d = 0 / 5;
+    return a + b + c + d;
+}
+
+// 5. 取模 %
+int test_mod(void) {
+    int a = 10 % 3;
+    int b = 10 % 5;
+    int c = -10 % 3;
+    int d = 7 % 2;
+    return a + b + c + d;
+}
+
+// 6. 一元正号 +
+int test_unary_plus(void) {
+    int a = +5;
+    int b = +(-3);
+    int c = +(+10);
+    return a + b + c;
+}
+
+// 7. 一元负号 -
+int test_unary_minus(void) {
+    int a = -5;
+    int b = -(-3);
+    int c = -(+10);
+    int d = -0;
+    return a + b + c + d;
+}
+
+// 8. 自增 ++
+int test_increment(void) {
+    int a = 5;
+    int b = ++a;  // 前缀
+    int c = a++;  // 后缀
+    int d = a;
+    return b + c + d;
+}
+
+// 9. 自减 --
+int test_decrement(void) {
+    int a = 5;
+    int b = --a;  // 前缀
+    int c = a--;  // 后缀
+    int d = a;
+    return b + c + d;
+}
+
+// ============== 位运算符 ==============
+
+// 10. 按位与 &
+int test_bitwise_and(void) {
+    int a = 0xFF & 0x0F;      // 0x0F
+    int b = 0b1100 & 0b1010;  // 模拟：12 & 10 = 8
+    int c = 12 & 10;
+    int d = -1 & 0xFF;
+    return a + c + d;
+}
+
+// 11. 按位或 |
+int test_bitwise_or(void) {
+    int a = 0xF0 | 0x0F;      // 0xFF
+    int b = 12 | 10;          // 14
+    int c = 0 | 100;
+    return a + b + c;
+}
+
+// 12. 按位异或 ^
+int test_bitwise_xor(void) {
+    int a = 0xFF ^ 0x0F;      // 0xF0
+    int b = 12 ^ 10;          // 6
+    int c = 5 ^ 5;            // 0
+    int d = 0 ^ 100;          // 100
+    return a + b + c + d;
+}
+
+// 13. 按位取反 ~
+int test_bitwise_not(void) {
+    int a = ~0;               // -1
+    int b = ~(-1);            // 0
+    unsigned int c = ~0u;     // 最大无符号整数
+    return a + b;
+}
+
+// 14. 左移 <<
+int test_left_shift(void) {
+    int a = 1 << 0;           // 1
+    int b = 1 << 1;           // 2
+    int c = 1 << 4;           // 16
+    int d = 3 << 2;           // 12
+    return a + b + c + d;
+}
+
+// 15. 右移 >>
+int test_right_shift(void) {
+    int a = 16 >> 1;          // 8
+    int b = 16 >> 4;          // 1
+    int c = 100 >> 2;         // 25
+    int d = -8 >> 1;          // 实现定义
+    return a + b + c;
+}
+
+// ============== 逻辑运算符 ==============
+
+// 16. 逻辑与 &&
+int test_logical_and(void) {
+    int a = 1 && 1;           // 1
+    int b = 1 && 0;           // 0
+    int c = 0 && 1;           // 0
+    int d = 0 && 0;           // 0
+    int e = 5 && 3;           // 1
+    return a + b + c + d + e;
+}
+
+// 17. 逻辑或 ||
+int test_logical_or(void) {
+    int a = 1 || 1;           // 1
+    int b = 1 || 0;           // 1
+    int c = 0 || 1;           // 1
+    int d = 0 || 0;           // 0
+    int e = 0 || 5;           // 1
+    return a + b + c + d + e;
+}
+
+// 18. 逻辑非 !
+int test_logical_not(void) {
+    int a = !0;               // 1
+    int b = !1;               // 0
+    int c = !100;             // 0
+    int d = !(-1);            // 0
+    int e = !!5;              // 1
+    return a + b + c + d + e;
+}
+
+// 19. 短路求值
+int test_short_circuit(void) {
+    int x = 0;
+    int a = 0 && (x = 1);     // x 不被赋值
+    int b = 1 || (x = 2);     // x 不被赋值
+    return x;                  // 仍为 0
+}
+
+// ============== 比较运算符 ==============
+
+// 20. 等于 ==
+int test_equal(void) {
+    int a = (5 == 5);         // 1
+    int b = (5 == 3);         // 0
+    int c = (0 == 0);         // 1
+    int d = (-1 == -1);       // 1
+    return a + b + c + d;
+}
+
+// 21. 不等于 !=
+int test_not_equal(void) {
+    int a = (5 != 3);         // 1
+    int b = (5 != 5);         // 0
+    int c = (0 != 1);         // 1
+    return a + b + c;
+}
+
+// 22. 小于 <
+int test_less_than(void) {
+    int a = (3 < 5);          // 1
+    int b = (5 < 3);          // 0
+    int c = (5 < 5);          // 0
+    int d = (-1 < 0);         // 1
+    return a + b + c + d;
+}
+
+// 23. 大于 >
+int test_greater_than(void) {
+    int a = (5 > 3);          // 1
+    int b = (3 > 5);          // 0
+    int c = (5 > 5);          // 0
+    int d = (0 > -1);         // 1
+    return a + b + c + d;
+}
+
+// 24. 小于等于 <=
+int test_less_equal(void) {
+    int a = (3 <= 5);         // 1
+    int b = (5 <= 5);         // 1
+    int c = (5 <= 3);         // 0
+    return a + b + c;
+}
+
+// 25. 大于等于 >=
+int test_greater_equal(void) {
+    int a = (5 >= 3);         // 1
+    int b = (5 >= 5);         // 1
+    int c = (3 >= 5);         // 0
+    return a + b + c;
+}
+
+// ============== 赋值运算符 ==============
+
+// 26. 简单赋值 =
+int test_assign(void) {
+    int a = 5;
+    int b = a;
+    int c = b = 10;
+    return a + b + c;
+}
+
+// 27. 加法赋值 +=
+int test_add_assign(void) {
+    int a = 5;
+    a += 3;                   // a = 8
+    a += -2;                  // a = 6
+    return a;
+}
+
+// 28. 减法赋值 -=
+int test_sub_assign(void) {
+    int a = 10;
+    a -= 3;                   // a = 7
+    a -= -2;                  // a = 9
+    return a;
+}
+
+// 29. 乘法赋值 *=
+int test_mul_assign(void) {
+    int a = 5;
+    a *= 3;                   // a = 15
+    a *= 2;                   // a = 30
+    return a;
+}
+
+// 30. 除法赋值 /=
+int test_div_assign(void) {
+    int a = 100;
+    a /= 2;                   // a = 50
+    a /= 5;                   // a = 10
+    return a;
+}
+
+// 31. 取模赋值 %=
+int test_mod_assign(void) {
+    int a = 17;
+    a %= 5;                   // a = 2
+    a %= 3;                   // a = 2
+    return a;
+}
+
+// 32. 按位与赋值 &=
+int test_and_assign(void) {
+    int a = 0xFF;
+    a &= 0x0F;                // a = 0x0F
+    a &= 0x07;                // a = 0x07
+    return a;
+}
+
+// 33. 按位或赋值 |=
+int test_or_assign(void) {
+    int a = 0x0F;
+    a |= 0xF0;                // a = 0xFF
+    a |= 0x100;               // a = 0x1FF
+    return a;
+}
+
+// 34. 按位异或赋值 ^=
+int test_xor_assign(void) {
+    int a = 0xFF;
+    a ^= 0x0F;                // a = 0xF0
+    a ^= 0xF0;                // a = 0x00
+    return a;
+}
+
+// 35. 左移赋值 <<=
+int test_shl_assign(void) {
+    int a = 1;
+    a <<= 4;                  // a = 16
+    a <<= 1;                  // a = 32
+    return a;
+}
+
+// 36. 右移赋值 >>=
+int test_shr_assign(void) {
+    int a = 256;
+    a >>= 4;                  // a = 16
+    a >>= 2;                  // a = 4
+    return a;
+}
+
+// ============== 其他运算符 ==============
+
+// 37. 三元运算符 ?:
+int test_ternary(void) {
+    int a = 5 > 3 ? 10 : 20;  // 10
+    int b = 3 > 5 ? 10 : 20;  // 20
+    int c = 0 ? 1 : 2;        // 2
+    int d = 1 ? 1 : 2;        // 1
+    return a + b + c + d;
+}
+
+// 38. 逗号运算符 ,
+int test_comma(void) {
+    int a = (1, 2, 3);        // a = 3
+    int b = 0;
+    int c = (b = 5, b * 2);   // c = 10
+    return a + c;
+}
+
+// 39. sizeof 运算符
+int test_sizeof_op(void) {
+    int s1 = sizeof(int);
+    int s2 = sizeof(char);
+    int x;
+    int s3 = sizeof x;
+    int arr[10];
+    int s4 = sizeof arr;
+    return s1 + s2 + s3 + s4;
+}
+
+// 40. 取地址 &
+int test_address_of(void) {
+    int x = 100;
+    int* p = &x;
+    return *p;
+}
+
+// 41. 解引用 *
+int test_dereference(void) {
+    int x = 100;
+    int* p = &x;
+    int a = *p;
+    *p = 200;
+    return x;
+}
+
+// 42. 数组下标 []
+int test_subscript(void) {
+    int arr[5] = {10, 20, 30, 40, 50};
+    int a = arr[0];
+    int b = arr[2];
+    int c = 3[arr];           // 等同于 arr[3]
+    return a + b + c;
+}
+
+// 43. 成员访问 .
+struct Point {
+    int x;
+    int y;
+};
+
+int test_member_access(void) {
+    struct Point p;
+    p.x = 10;
+    p.y = 20;
+    return p.x + p.y;
+}
+
+// 44. 指针成员访问 ->
+int test_ptr_member(void) {
+    struct Point p;
+    struct Point* pp = &p;
+    pp->x = 30;
+    pp->y = 40;
+    return pp->x + pp->y;
+}
+
+// 45. 函数调用 ()
+int add(int a, int b) {
+    return a + b;
+}
+
+int test_func_call_op(void) {
+    return add(3, 5);
+}
+
+// 46. 类型转换 (type)
+int test_cast_op(void) {
+    double d = 3.14;
+    int i = (int)d;
+    float f = (float)i;
+    char c = (char)i;
+    return i;
+}
+
+// ============== 运算符优先级 ==============
+
+// 47. 算术优先级
+int test_arith_precedence(void) {
+    int a = 2 + 3 * 4;        // 14
+    int b = (2 + 3) * 4;      // 20
+    int c = 10 / 2 + 3;       // 8
+    int d = 10 / (2 + 3);     // 2
+    return a + b + c + d;
+}
+
+// 48. 位运算优先级
+int test_bit_precedence(void) {
+    int a = 1 << 2 + 1;       // 1 << 3 = 8
+    int b = (1 << 2) + 1;     // 4 + 1 = 5
+    int c = 5 & 3 | 8;        // (5 & 3) | 8 = 1 | 8 = 9
+    int d = 5 & (3 | 8);      // 5 & 11 = 1
+    return a + b + c + d;
+}
+
+// 49. 比较与逻辑优先级
+int test_cmp_logic_precedence(void) {
+    int a = 1 < 2 && 3 < 4;   // 1
+    int b = 1 || 0 && 0;      // 1 (|| 低于 &&)
+    int c = (1 || 0) && 0;    // 0
+    return a + b + c;
+}
+
+// 50. 赋值优先级
+int test_assign_precedence(void) {
+    int a, b, c;
+    a = b = c = 10;           // 右结合
+    int d = a + (b = 5);      // d = 15, b = 5
+    return a + b + c + d;
+}
+
+// ============== 复杂表达式 ==============
+
+// 51. 混合运算
+int test_mixed_ops(void) {
+    int a = 5;
+    int b = 3;
+    int c = a++ + ++b;        // 5 + 4 = 9
+    int d = a * b - c / 2;    // 6 * 4 - 4 = 20
+    return c + d;
+}
+
+// 52. 条件表达式链
+int test_chained_ternary(int x) {
+    return x < 0 ? -1 : x > 0 ? 1 : 0;
+}
+
+// 53. 复杂位操作
+int test_complex_bits(void) {
+    int flags = 0;
+    flags |= (1 << 0);        // 设置位 0
+    flags |= (1 << 2);        // 设置位 2
+    flags &= ~(1 << 0);       // 清除位 0
+    flags ^= (1 << 2);        // 翻转位 2
+    return flags;
+}
+
+// 54. 逻辑表达式
+int test_logic_expr(int a, int b, int c) {
+    return (a > 0 && b > 0) || (c > 0 && (a > 0 || b > 0));
+}
+
+// 55. 所有赋值运算符
+int test_all_assign(void) {
+    int a = 100;
+    a += 10;    // 110
+    a -= 5;     // 105
+    a *= 2;     // 210
+    a /= 3;     // 70
+    a %= 9;     // 7
+    a &= 0xFF;  // 7
+    a |= 0x10;  // 23
+    a ^= 0x03;  // 20
+    a <<= 1;    // 40
+    a >>= 2;    // 10
+    return a;
+}
+
+int main(void) {
+    // 算术运算符
+    int a = 10 + 5 - 3 * 2 / 1 % 4;
+    int b = ++a;
+    int c = a--;
+    
+    // 位运算符
+    int d = (a & b) | (c ^ 0xFF);
+    int e = ~d;
+    int f = d << 2;
+    int g = d >> 1;
+    
+    // 逻辑运算符
+    int h = (a > 0) && (b < 100);
+    int i = (c == 0) || (d != 0);
+    int j = !h;
+    
+    // 比较运算符
+    int k = (a < b);
+    int l = (a <= b);
+    int m = (a > b);
+    int n = (a >= b);
+    int o = (a == b);
+    int p = (a != b);
+    
+    // 赋值运算符
+    a += 10;
+    b -= 5;
+    c *= 2;
+    d /= 3;
+    e %= 7;
+    f &= 0xFF;
+    g |= 0x0F;
+    
+    // 其他运算符
+    int q = a > b ? a : b;
+    int r = sizeof(a);
+    int* s = &a;
+    int t = *s;
+    
+    return 0;
+}

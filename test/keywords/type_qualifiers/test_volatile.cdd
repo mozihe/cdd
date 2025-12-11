@@ -1,0 +1,199 @@
+/**
+ * @file test_volatile.cdd
+ * @brief volatile 关键字测试用例
+ * 
+ * 测试 volatile 类型限定符的各种用法
+ * volatile 用于告诉编译器不要优化对该变量的访问
+ */
+
+// 1. volatile 基本类型
+volatile int volatile_int;
+
+// 2. volatile char
+volatile char volatile_char;
+
+// 3. volatile float
+volatile float volatile_float;
+
+// 4. volatile double
+volatile double volatile_double;
+
+// 5. volatile long
+volatile long volatile_long;
+
+// 6. volatile short
+volatile short volatile_short;
+
+// 7. volatile unsigned
+volatile unsigned volatile_unsigned;
+
+// 8. volatile signed
+volatile signed volatile_signed;
+
+// 9. volatile 初始化
+volatile int vol_init = 100;
+
+// 10. volatile 指针（指针本身可变，指向的内容是 volatile）
+volatile int* ptr_to_volatile;
+
+// 11. volatile 指针（指针本身是 volatile）
+int* volatile volatile_ptr;
+
+// 12. volatile 指针指向 volatile
+volatile int* volatile vol_ptr_to_vol;
+
+// 13. volatile 数组
+volatile int volatile_array[10];
+
+// 14. volatile 多维数组
+volatile int vol_2d[5][5];
+
+// 15. const volatile（硬件只读寄存器）
+const volatile int readonly_hardware_reg = 0;
+
+// 16. 指向 const volatile 的指针
+const volatile int* ptr_to_cv;
+
+// 17. volatile 结构体成员
+struct VolatileMember {
+    volatile int vol_field;
+    int normal_field;
+};
+
+// 18. volatile 结构体
+volatile struct VolatileStruct {
+    int x;
+    int y;
+} vol_struct;
+
+// 19. 返回 volatile 指针的函数
+volatile int* get_volatile_ptr(void) {
+    return &volatile_int;
+}
+
+// 20. volatile 参数
+void accept_volatile_param(volatile int value) {
+    return;
+}
+
+// 21. volatile 指针参数
+void accept_volatile_ptr_param(volatile int* ptr) {
+    *ptr = 100;
+    return;
+}
+
+// 22. volatile 函数指针
+int (*volatile volatile_func_ptr)(void);
+
+// 23. 指向返回 volatile 的函数的指针
+volatile int* (*func_ptr_returning_volatile)(void);
+
+// 24. volatile 用于硬件寄存器模拟
+void hardware_register_simulation() {
+    volatile unsigned int* const PORTA = (volatile unsigned int*)0x40000000;
+    volatile unsigned int* const PORTB = (volatile unsigned int*)0x40000004;
+    
+    // 每次访问都会真正读取
+    unsigned int val = *PORTA;
+    
+    // 每次赋值都会真正写入
+    *PORTB = 0xFF;
+}
+
+// 25. volatile 用于信号处理模拟
+volatile int signal_flag = 0;
+
+void signal_handler_sim(void) {
+    signal_flag = 1;
+}
+
+void wait_for_signal_sim(void) {
+    while (signal_flag == 0) {
+        // 因为 volatile，编译器不会优化掉这个循环
+    }
+}
+
+// 26. volatile 用于多线程模拟（简化）
+volatile int shared_counter = 0;
+
+void increment_counter(void) {
+    shared_counter = shared_counter + 1;
+}
+
+int read_counter(void) {
+    return shared_counter;
+}
+
+// 27. volatile 与内存映射 I/O
+struct MemoryMappedIO {
+    volatile unsigned int status;
+    volatile unsigned int data;
+    volatile unsigned int control;
+};
+
+void mmio_operation(struct MemoryMappedIO* io) {
+    // 等待设备就绪
+    while ((io->status & 0x01) == 0) {
+        // volatile 确保每次都读取
+    }
+    
+    // 读取数据
+    unsigned int val = io->data;
+    
+    // 发送命令
+    io->control = 0x01;
+}
+
+// 28. volatile 局部变量
+int volatile_local_test(void) {
+    volatile int local_vol = 0;
+    local_vol = 10;
+    local_vol = 20;
+    return local_vol;
+}
+
+// 29. volatile 数组指针
+volatile int (*ptr_to_vol_array)[10];
+
+// 30. volatile long long
+volatile long long vol_ll;
+
+// 31. volatile unsigned long long
+volatile unsigned long long vol_ull;
+
+// 32. volatile 指针的指针
+volatile int** ptr_to_ptr_to_volatile;
+
+// 33. volatile 与 static
+static volatile int static_volatile = 0;
+
+// 34. volatile 与 extern
+extern volatile int extern_volatile;
+
+// 35. volatile 访问不能被重排
+void volatile_ordering(void) {
+    volatile int a = 0;
+    volatile int b = 0;
+    volatile int c = 0;
+    
+    a = 1;
+    b = 2;
+    c = 3;
+    // 编译器必须按此顺序执行
+}
+
+int main(void) {
+    volatile_int = 100;
+    
+    ptr_to_volatile = &volatile_int;
+    
+    volatile int local_v = 50;
+    
+    // volatile 读取
+    int val = volatile_int;
+    
+    // volatile 写入
+    volatile_int = val + 1;
+    
+    return 0;
+}

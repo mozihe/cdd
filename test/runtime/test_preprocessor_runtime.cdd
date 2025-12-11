@@ -1,0 +1,47 @@
+/**
+ * @file test_preprocessor_runtime.cdd
+ * @brief 预处理指令、宏替换与条件编译的运行期校验
+ *
+ * EXPECT_EXIT: 31
+ */
+
+// EXPECT_EXIT: 31
+
+#include "../preprocessor/debug.hdd"
+#include "../preprocessor/advanced.hdd"
+#include "../common_header.hdd"
+
+#define BASE_VALUE 10
+#define INC_THREE(x) ((x) + 3)
+
+#ifdef DEBUG_ENABLED
+#define DEBUG_BONUS 5
+#else
+#define DEBUG_BONUS 0
+#endif
+
+#if ADVANCED_FEATURE_A
+#define ADV_BONUS 7
+#else
+#define ADV_BONUS 1
+#endif
+
+#if defined(COMMON_VERSION_MAJOR) && (COMMON_VERSION_MAJOR == 1)
+#define VERSION_BONUS 4
+#else
+#define VERSION_BONUS 0
+#endif
+
+int main(void) {
+    int value = BASE_VALUE;      // 10
+    value = INC_THREE(value);    // 13
+    value = value + DEBUG_BONUS; // +5 => 18
+    value = value + ADV_BONUS;   // +7 => 25
+    value = value + VERSION_BONUS;  // +4 => 29
+
+#undef BASE_VALUE
+#define BASE_VALUE 2
+    value = value + BASE_VALUE;  // +2 => 31
+
+    return value;  // 31
+}

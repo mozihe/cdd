@@ -1,0 +1,19 @@
+/**
+ * @file version.h
+ * @brief CDD 编译器版本信息（自动生成）
+ * 
+ * 此文件由 CMake 在配置时自动生成，请勿手动编辑。
+ */
+
+#ifndef CDD_VERSION_H
+#define CDD_VERSION_H
+
+#define CDD_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define CDD_VERSION_MINOR @PROJECT_VERSION_MINOR@
+#define CDD_VERSION_PATCH @PROJECT_VERSION_PATCH@
+#define CDD_VERSION_STRING "@PROJECT_VERSION@"
+
+#define CDD_PROJECT_NAME "@PROJECT_NAME@"
+#define CDD_PROJECT_DESCRIPTION "@PROJECT_DESCRIPTION@"
+
+#endif // CDD_VERSION_H

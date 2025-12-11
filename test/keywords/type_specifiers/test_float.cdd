@@ -1,0 +1,153 @@
+/**
+ * @file test_float.cdd
+ * @brief float 关键字测试用例
+ * 
+ * 测试 float 类型的各种用法
+ */
+
+// 1. 基本 float 变量
+float basic_float;
+
+// 2. float 初始化 - 小数形式
+float decimal_float = 3.14;
+
+// 3. float 初始化 - 带 f 后缀
+float with_suffix = 3.14f;
+
+// 4. float 初始化 - 科学计数法
+float scientific = 1.5e10;
+
+// 5. float 初始化 - 科学计数法带 f 后缀
+float scientific_f = 1.5e10f;
+
+// 6. float 初始化 - 负指数
+float neg_exp = 1.5e-10;
+
+// 7. float 初始化 - 大写 E
+float upper_e = 2.5E5;
+
+// 8. float 初始化 - 正指数符号
+float pos_exp = 1.5e+10;
+
+// 9. float 初始化 - 整数部分为0
+float no_int_part = .5f;
+
+// 10. float 初始化 - 小数部分为0
+float no_frac_part = 5.f;
+
+// 11. float 数组
+float float_array[100];
+
+// 12. float 数组初始化
+float init_array[] = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
+
+// 13. float 指针
+float* float_ptr;
+
+// 14. const float
+const float const_float = 3.14159f;
+
+// 15. volatile float
+volatile float volatile_float;
+
+// 16. float 指针的指针
+float** ptr_to_float_ptr;
+
+// 17. float 数组的指针
+float (*ptr_to_float_array)[10];
+
+// 18. 返回 float 的函数
+float get_float(void) {
+    return 2.718f;
+}
+
+// 19. float 参数
+void accept_float(float f) {
+    return;
+}
+
+// 20. 函数指针，返回 float
+float (*float_func_ptr)(void);
+
+// 21. 多维 float 数组
+float multi_float[3][4];
+
+// 22. float 算术运算
+float float_arithmetic() {
+    float a = 10.5f;
+    float b = 3.2f;
+    float sum = a + b;
+    float diff = a - b;
+    float prod = a * b;
+    float quot = a / b;
+    return sum;
+}
+
+// 23. float 比较
+int float_compare() {
+    float a = 1.5f;
+    float b = 2.5f;
+    if (a < b) {
+        return 1;
+    }
+    return 0;
+}
+
+// 24. float 类型转换
+int float_to_int(float f) {
+    return (int)f;
+}
+
+// 25. int 到 float 转换
+float int_to_float(int n) {
+    return (float)n;
+}
+
+// 26. float 自增自减
+float float_incr_decr() {
+    float a = 10.5f;
+    float b = ++a;
+    float c = a++;
+    float d = --a;
+    float e = a--;
+    return a;
+}
+
+// 27. float 复合赋值
+float float_compound() {
+    float a = 100.0f;
+    a += 10.0f;
+    a -= 5.0f;
+    a *= 2.0f;
+    a /= 3.0f;
+    return a;
+}
+
+// 28. float 三元运算
+float float_ternary(int cond) {
+    return cond ? 1.0f : 0.0f;
+}
+
+// 29. 特殊 float 值（近似表示）
+float special_values() {
+    float very_small = 1.17549435e-38f;  // 接近最小正浮点数
+    float very_large = 3.40282347e+38f;  // 接近最大浮点数
+    return very_small;
+}
+
+// 30. float 与整数混合运算
+float mixed_arithmetic() {
+    float f = 3.5f;
+    int i = 2;
+    float result = f * i;
+    return result;
+}
+
+int main(void) {
+    basic_float = 1.5f;
+    float_ptr = &basic_float;
+    
+    float local_f = 2.5f;
+    
+    return 0;
+}

@@ -1,0 +1,230 @@
+/**
+ * @file test_register.cdd
+ * @brief register 关键字测试用例
+ * 
+ * register 建议编译器将变量存储在寄存器中以加快访问
+ * 现代编译器通常会忽略这个提示，自行优化
+ */
+
+// 1. register 基本用法
+int test_basic_register(void) {
+    register int x = 10;
+    return x;
+}
+
+// 2. register 循环计数器（最常见用法）
+int test_register_loop(void) {
+    int sum = 0;
+    register int i;
+    for (i = 0; i < 100; i = i + 1) {
+        sum = sum + i;
+    }
+    return sum;
+}
+
+// 3. register 不同类型
+int test_register_types(void) {
+    register char c = 'A';
+    register short s = 100;
+    register int i = 1000;
+    register long l = 100000;
+    return i;
+}
+
+// 4. register unsigned
+int test_register_unsigned(void) {
+    register unsigned int u = 100;
+    return u;
+}
+
+// 5. register signed
+int test_register_signed(void) {
+    register signed int s = -100;
+    return s;
+}
+
+// 6. register 在嵌套循环中
+int test_register_nested_loops(void) {
+    int sum = 0;
+    register int i;
+    register int j;
+    for (i = 0; i < 10; i = i + 1) {
+        for (j = 0; j < 10; j = j + 1) {
+            sum = sum + i + j;
+        }
+    }
+    return sum;
+}
+
+// 7. register 多个变量
+int test_multiple_register(void) {
+    register int a = 1;
+    register int b = 2;
+    register int c = 3;
+    return a + b + c;
+}
+
+// 8. register 与算术运算
+int test_register_arithmetic(void) {
+    register int a = 100;
+    register int b = 50;
+    register int sum = a + b;
+    register int diff = a - b;
+    register int prod = a * b;
+    return sum + diff + prod;
+}
+
+// 9. register 在 while 循环中
+int test_register_while(void) {
+    register int count = 0;
+    while (count < 100) {
+        count = count + 1;
+    }
+    return count;
+}
+
+// 10. register 在 do-while 循环中
+int test_register_do_while(void) {
+    register int count = 0;
+    do {
+        count = count + 1;
+    } while (count < 100);
+    return count;
+}
+
+// 11. register 位运算
+int test_register_bitwise(void) {
+    register int a = 0x0F;
+    register int b = 0xF0;
+    register int result = a | b;
+    return result;
+}
+
+// 12. register 移位运算
+int test_register_shift(void) {
+    register int val = 1;
+    register int i;
+    for (i = 0; i < 8; i = i + 1) {
+        val = val << 1;
+    }
+    return val;
+}
+
+// 13. register 递增递减
+int test_register_incr_decr(void) {
+    register int a = 10;
+    register int b = ++a;
+    register int c = a++;
+    register int d = --a;
+    register int e = a--;
+    return a;
+}
+
+// 14. register 作为函数参数
+int test_register_param(register int param) {
+    return param * 2;
+}
+
+// 15. register 与 const 组合
+int test_register_const(void) {
+    register const int readonly = 50;
+    return readonly;
+}
+
+// 16. register long
+int test_register_long(void) {
+    register long l = 1000000;
+    return (int)l;
+}
+
+// 17. register short
+int test_register_short(void) {
+    register short s = 1000;
+    return s;
+}
+
+// 18. register char
+int test_register_char(void) {
+    register char c = 'Z';
+    return c;
+}
+
+// 19. register 在复杂表达式中
+int test_register_complex_expr(void) {
+    register int a = 5;
+    register int b = 10;
+    register int c = 15;
+    register int result = (a + b) * c - a * b;
+    return result;
+}
+
+// 20. register 比较运算
+int test_register_compare(void) {
+    register int a = 10;
+    register int b = 20;
+    register int result = 0;
+    if (a < b) {
+        result = 1;
+    }
+    return result;
+}
+
+// 21. register 逻辑运算
+int test_register_logical(void) {
+    register int a = 1;
+    register int b = 0;
+    register int and_r = a && b;
+    register int or_r = a || b;
+    register int not_r = !a;
+    return or_r;
+}
+
+// 22. register 三元运算
+int test_register_ternary(void) {
+    register int cond = 1;
+    register int result = cond ? 100 : 200;
+    return result;
+}
+
+// 23. register 用于累加
+int test_register_accumulate(void) {
+    int data[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    register int sum = 0;
+    register int i;
+    for (i = 0; i < 10; i = i + 1) {
+        sum = sum + data[i];
+    }
+    return sum;
+}
+
+// 24. register 用于数组遍历索引
+int test_register_array_index(void) {
+    int arr[10];
+    register int i;
+    for (i = 0; i < 10; i = i + 1) {
+        arr[i] = i * i;
+    }
+    return arr[9];
+}
+
+// 25. register 在块作用域中
+int test_register_block(void) {
+    int result = 0;
+    {
+        register int inner = 100;
+        result = inner;
+    }
+    return result;
+}
+
+// 注意：不能取 register 变量的地址
+// int* ptr = &reg_var;  // 非法
+
+int main(void) {
+    int r1 = test_basic_register();
+    int r2 = test_register_loop();
+    int r3 = test_register_nested_loops();
+    int r4 = test_register_param(50);
+    
+    return 0;
+}

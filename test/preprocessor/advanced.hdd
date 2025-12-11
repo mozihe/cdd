@@ -1,0 +1,28 @@
+/**
+ * 高级功能头文件：advanced.hdd
+ * 用于测试条件包含
+ */
+
+#ifndef ADVANCED_HDD
+#define ADVANCED_HDD
+
+// 高级功能宏
+#define ADVANCED_FEATURE_A 1
+#define ADVANCED_FEATURE_B 1
+
+// 高级类型
+typedef struct {
+    int advanced_field1;
+    float advanced_field2;
+} AdvancedType;
+
+// 高级函数实现
+void advanced_init(void) {
+    // 初始化高级功能
+}
+
+int advanced_process(AdvancedType* obj) {
+    return obj->advanced_field1;
+}
+
+#endif // ADVANCED_HDD

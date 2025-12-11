@@ -1,0 +1,429 @@
+/**
+ * @file test_union.cdd
+ * @brief union 关键字测试用例
+ * 
+ * 测试联合体的各种用法
+ * 联合体的所有成员共享同一块内存
+ */
+
+// ============== 基本联合体定义 ==============
+
+// 1. 基本联合体
+union IntFloat {
+    int i;
+    float f;
+};
+
+// 2. 联合体变量声明
+union IntFloat global_union;
+
+// 3. 带初始化的联合体变量（初始化第一个成员）
+union IntFloat init_union = {42};
+
+// 4. 指定成员初始化（C99）
+union IntFloat c99_union = {.f = 3.14f};
+
+// 5. 匿名联合体
+union {
+    int a;
+    float b;
+} anonymous_union;
+
+// 6. 联合体类型和变量同时定义
+union Value {
+    int integer;
+    float floating;
+    char character;
+} val1, val2;
+
+// ============== 复杂联合体 ==============
+
+// 7. 多类型联合体
+union MultiType {
+    char c;
+    short s;
+    int i;
+    long l;
+    long long ll;
+    float f;
+    double d;
+};
+
+// 8. 包含数组的联合体
+union ByteInt {
+    int value;
+    char bytes[4];
+};
+
+// 9. 包含结构体的联合体
+struct Point {
+    int x;
+    int y;
+};
+
+union ShapeData {
+    struct Point point;
+    int radius;
+    int size[2];
+};
+
+// 10. 嵌套联合体
+union Outer {
+    union {
+        int a;
+        float b;
+    } inner;
+    double d;
+};
+
+// 11. 联合体内的指针
+union Pointer {
+    int* iptr;
+    float* fptr;
+    char* cptr;
+    void* vptr;
+};
+
+// ============== 联合体用途 ==============
+
+// 12. 类型双关（Type Punning）
+int float_to_int_bits(float f) {
+    union {
+        float f;
+        int i;
+    } u;
+    u.f = f;
+    return u.i;
+}
+
+// 13. 反向转换
+float int_bits_to_float(int i) {
+    union {
+        int i;
+        float f;
+    } u;
+    u.i = i;
+    return u.f;
+}
+
+// 14. 检查字节序
+int check_endianness(void) {
+    union {
+        int i;
+        char c[4];
+    } test;
+    test.i = 0x01020304;
+    // 小端: c[0] = 0x04
+    // 大端: c[0] = 0x01
+    return test.c[0];
+}
+
+// 15. 节省内存的变体类型
+struct Variant {
+    int type;  // 0=int, 1=float, 2=string
+    union {
+        int i;
+        float f;
+        char s[20];
+    } data;
+};
+
+// 16. 网络协议解析
+union IPAddress {
+    unsigned int addr;
+    unsigned char octets[4];
+};
+
+// 17. 寄存器模拟
+union Register {
+    unsigned int full;
+    struct {
+        unsigned short low;
+        unsigned short high;
+    } half;
+    struct {
+        unsigned char ll;
+        unsigned char lh;
+        unsigned char hl;
+        unsigned char hh;
+    } quarter;
+};
+
+// ============== 联合体指针 ==============
+
+// 18. 联合体指针
+union IntFloat* union_ptr;
+
+// 19. const 联合体指针
+const union IntFloat* const_union_ptr;
+
+// 20. 联合体的 const 指针
+union IntFloat* const union_const_ptr = 0;
+
+// 21. 联合体指针数组
+union IntFloat* union_ptr_array[10];
+
+// ============== 联合体数组 ==============
+
+// 22. 联合体数组
+union IntFloat unions[50];
+
+// 23. 联合体数组初始化
+union IntFloat init_unions[] = {{1}, {2}, {3}};
+
+// ============== 联合体函数 ==============
+
+// 24. 返回联合体的函数
+union IntFloat create_int_union(int i) {
+    union IntFloat u;
+    u.i = i;
+    return u;
+}
+
+// 25. 返回联合体的函数（float）
+union IntFloat create_float_union(float f) {
+    union IntFloat u;
+    u.f = f;
+    return u;
+}
+
+// 26. 联合体参数
+int get_union_int(union IntFloat u) {
+    return u.i;
+}
+
+// 27. 联合体指针参数
+void set_union_float(union IntFloat* u, float f) {
+    u->f = f;
+}
+
+// 28. 返回联合体指针的函数
+union IntFloat* get_global_union(void) {
+    return &global_union;
+}
+
+// ============== 联合体操作 ==============
+
+// 29. 成员访问 - 点运算符
+int test_union_dot(void) {
+    union IntFloat u;
+    u.i = 42;
+    return u.i;
+}
+
+// 30. 成员访问 - 箭头运算符
+int test_union_arrow(void) {
+    union IntFloat u;
+    u.i = 42;
+    union IntFloat* ptr = &u;
+    return ptr->i;
+}
+
+// 31. sizeof 联合体
+int test_union_sizeof(void) {
+    // 联合体大小等于最大成员的大小
+    return sizeof(union MultiType);
+}
+
+// 32. 联合体赋值
+void test_union_assign(void) {
+    union IntFloat u1;
+    union IntFloat u2;
+    u1.i = 42;
+    u2 = u1;  // 整体赋值
+}
+
+// ============== 高级用法 ==============
+
+// 33. 带标签的联合体（Tagged Union）
+enum DataType {
+    TYPE_INT,
+    TYPE_FLOAT,
+    TYPE_STRING
+};
+
+struct TaggedUnion {
+    enum DataType type;
+    union {
+        int i;
+        float f;
+        char str[32];
+    } value;
+};
+
+int get_tagged_int(struct TaggedUnion* tu) {
+    if (tu->type == TYPE_INT) {
+        return tu->value.i;
+    }
+    return 0;
+}
+
+void set_tagged_int(struct TaggedUnion* tu, int val) {
+    tu->type = TYPE_INT;
+    tu->value.i = val;
+}
+
+void set_tagged_float(struct TaggedUnion* tu, float val) {
+    tu->type = TYPE_FLOAT;
+    tu->value.f = val;
+}
+
+// 34. 位操作辅助
+union BitAccess {
+    unsigned int value;
+    struct {
+        unsigned int bit0 : 1;
+        unsigned int bit1 : 1;
+        unsigned int bit2 : 1;
+        unsigned int bit3 : 1;
+        unsigned int nibble1 : 4;
+        unsigned int byte1 : 8;
+        unsigned int rest : 16;
+    } bits;
+};
+
+// 35. 颜色表示
+union Color {
+    unsigned int rgba;
+    struct {
+        unsigned char r;
+        unsigned char g;
+        unsigned char b;
+        unsigned char a;
+    } channels;
+};
+
+// 36. 联合体与 typedef
+typedef union {
+    int i;
+    float f;
+} NumericValue;
+
+typedef union IntFloat IntFloatType;
+
+// 37. 联合体与 static
+static union IntFloat static_union = {100};
+
+// 38. 联合体与 const
+const union IntFloat const_union = {42};
+
+// 39. volatile 联合体
+volatile union IntFloat volatile_union;
+
+// 40. 联合体作为函数指针参数
+typedef void (*UnionHandler)(union IntFloat*);
+UnionHandler handler_ptr;
+
+// 41. 数据打包/解包
+void pack_data(unsigned char* dest, int value) {
+    union {
+        int i;
+        unsigned char b[4];
+    } u;
+    u.i = value;
+    dest[0] = u.b[0];
+    dest[1] = u.b[1];
+    dest[2] = u.b[2];
+    dest[3] = u.b[3];
+}
+
+int unpack_data(unsigned char* src) {
+    union {
+        int i;
+        unsigned char b[4];
+    } u;
+    u.b[0] = src[0];
+    u.b[1] = src[1];
+    u.b[2] = src[2];
+    u.b[3] = src[3];
+    return u.i;
+}
+
+// 42. 联合体用于消息系统
+struct Message {
+    int msg_type;
+    union {
+        struct {
+            int x;
+            int y;
+        } mouse;
+        struct {
+            int key;
+            int modifiers;
+        } keyboard;
+        struct {
+            int width;
+            int height;
+        } resize;
+    } data;
+};
+
+// 43. 前向声明
+union ForwardUnion;
+struct UsesUnion {
+    union ForwardUnion* ptr;
+};
+union ForwardUnion {
+    int a;
+    float b;
+};
+
+// 44. 联合体嵌入结构体数组
+struct DataRecord {
+    int id;
+    union {
+        int values[4];
+        float fvalues[4];
+    } data;
+};
+
+// 45. 64位整数与double互转
+union Int64Double {
+    long long ll;
+    double d;
+};
+
+long long double_to_bits(double d) {
+    union Int64Double u;
+    u.d = d;
+    return u.ll;
+}
+
+double bits_to_double(long long ll) {
+    union Int64Double u;
+    u.ll = ll;
+    return u.d;
+}
+
+int main(void) {
+    // 基本使用
+    union IntFloat u;
+    u.i = 42;
+    int i = u.i;
+    
+    u.f = 3.14f;
+    float f = u.f;
+    // 注意：此时 u.i 的值不再是 42
+    
+    // 联合体指针
+    union IntFloat* ptr = &u;
+    ptr->i = 100;
+    
+    // 联合体数组
+    union IntFloat arr[3];
+    arr[0].i = 1;
+    arr[1].f = 2.0f;
+    arr[2].i = 3;
+    
+    // 类型双关
+    int bits = float_to_int_bits(1.0f);
+    
+    // 字节序检查
+    int endian = check_endianness();
+    
+    // 带标签联合体
+    struct TaggedUnion tu;
+    set_tagged_int(&tu, 42);
+    
+    return 0;
+}

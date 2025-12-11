@@ -1,0 +1,168 @@
+/**
+ * @file test_const.cdd
+ * @brief const 关键字测试用例
+ * 
+ * 测试 const 类型限定符的各种用法
+ */
+
+// 1. const 基本类型
+const int const_int = 100;
+
+// 2. const char
+const char const_char = 'A';
+
+// 3. const float
+const float const_float = 3.14f;
+
+// 4. const double
+const double const_double = 3.14159265358979;
+
+// 5. const long
+const long const_long = 1000000;
+
+// 6. const short
+const short const_short = 1000;
+
+// 7. const unsigned
+const unsigned const_unsigned = 500;
+
+// 8. const signed
+const signed const_signed = -500;
+
+// 9. const 字符串（字符数组）
+const char const_str[] = "Hello, const!";
+
+// 10. const 指针（指针本身可变，指向的内容不可变）
+const int* ptr_to_const;
+
+// 11. 指向 const 的指针（另一种写法）
+int const* ptr_to_const_alt;
+
+// 12. const 指针（指针本身不可变，指向的内容可变）
+int* const const_ptr = 0;
+
+// 13. const 指针指向 const（都不可变）
+const int* const const_ptr_to_const = 0;
+
+// 14. const 数组
+const int const_array[] = {1, 2, 3, 4, 5};
+
+// 15. const 多维数组
+const int const_2d_array[3][3] = {
+    {1, 2, 3},
+    {4, 5, 6},
+    {7, 8, 9}
+};
+
+// 16. const 结构体成员
+struct ConstMember {
+    const int const_field;
+    int normal_field;
+};
+
+// 17. 返回 const 指针的函数
+const int* get_const_ptr(void) {
+    return &const_int;
+}
+
+// 18. const 参数
+void accept_const_param(const int value) {
+    // value 在函数内不可修改
+    return;
+}
+
+// 19. const 指针参数
+void accept_const_ptr_param(const int* ptr) {
+    // *ptr 不可修改
+    return;
+}
+
+// 20. const 引用（通过指针模拟）
+void accept_const_ref(const int* const ptr) {
+    // ptr 和 *ptr 都不可修改
+    return;
+}
+
+// 21. const 与 volatile 组合
+const volatile int const_volatile_int = 42;
+
+// 22. 指向 const volatile 的指针
+const volatile int* ptr_to_cv;
+
+// 23. const 函数指针（指针本身不可变）
+int (*const const_func_ptr)(void) = 0;
+
+// 24. 指向返回 const 的函数的指针
+const int* (*func_ptr_returning_const)(void);
+
+// 25. const 用于字符串字面量
+void string_literals() {
+    const char* s1 = "literal 1";
+    const char* s2 = "literal 2";
+    // s1[0] = 'L';  // 非法，不能修改字符串字面量
+}
+
+// 26. const 数组指针
+const int (*ptr_to_const_array)[5];
+
+// 27. const 结构体
+struct Point {
+    int x;
+    int y;
+};
+
+const struct Point origin = {0, 0};
+
+// 28. const 与 typedef
+typedef const int ConstInt;
+ConstInt ci = 100;
+
+// 29. const 局部变量
+int use_const_local(void) {
+    const int local_const = 50;
+    // local_const = 100;  // 非法
+    return local_const;
+}
+
+// 30. const 全局变量用于数组大小（C99 VLA 例外）
+const int ARRAY_SIZE = 10;
+// int vla_like[ARRAY_SIZE];  // 某些编译器支持
+
+// 31. const 表达式
+int const_expr_test(void) {
+    const int a = 5;
+    const int b = 10;
+    const int c = a + b;  // 编译时常量表达式
+    return c;
+}
+
+// 32. const 与数组下标
+int const_indexing(void) {
+    const int arr[] = {10, 20, 30, 40, 50};
+    const int idx = 2;
+    return arr[idx];
+}
+
+// 33. 多层 const 指针
+const int* const* ptr_to_const_ptr_to_const;
+
+// 34. const 在声明中的位置
+int const same_as_const_int = 42;  // 等价于 const int
+
+// 35. const 用于函数返回类型限定
+const int return_const_int(void) {
+    return 42;
+}
+
+int main(void) {
+    // 使用 const 变量
+    int x = const_int;
+    
+    // 使用 const 指针
+    ptr_to_const = &const_int;
+    
+    // const 局部变量
+    const int local = 100;
+    
+    return 0;
+}

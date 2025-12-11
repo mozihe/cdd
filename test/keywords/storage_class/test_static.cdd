@@ -1,0 +1,267 @@
+/**
+ * @file test_static.cdd
+ * @brief static 关键字测试用例
+ * 
+ * static 有两种用途：
+ * 1. 局部静态变量：值在函数调用之间保持
+ * 2. 文件作用域：限制变量/函数只在当前文件可见
+ */
+
+// ============== 文件作用域 static ==============
+
+// 1. static 全局变量（仅本文件可见）
+static int file_scope_var = 100;
+
+// 2. static const 全局变量
+static const int static_const = 42;
+
+// 3. static 数组
+static int static_array[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+// 4. static 多维数组
+static int static_2d[3][3] = {
+    {1, 2, 3},
+    {4, 5, 6},
+    {7, 8, 9}
+};
+
+// 5. static 指针
+static int* static_ptr = 0;
+
+// 6. static 函数（仅本文件可见）
+static int static_helper(int x) {
+    return x * 2;
+}
+
+// 7. static 返回指针的函数
+static int* static_get_ptr(void) {
+    return &file_scope_var;
+}
+
+// 8. static 接受指针的函数
+static void static_accept_ptr(int* ptr) {
+    *ptr = 100;
+}
+
+// ============== 局部静态变量 ==============
+
+// 9. 基本局部 static 变量
+int test_local_static(void) {
+    static int count = 0;
+    count = count + 1;
+    return count;
+}
+
+// 10. 局部 static 数组
+int test_local_static_array(int idx) {
+    static int arr[5] = {10, 20, 30, 40, 50};
+    return arr[idx];
+}
+
+// 11. 局部 static 指针
+int* test_local_static_ptr(void) {
+    static int value = 42;
+    static int* ptr = &value;
+    return ptr;
+}
+
+// 12. 局部 static const
+int test_local_static_const(void) {
+    static const int readonly = 100;
+    return readonly;
+}
+
+// 13. 局部 static 字符串
+const char* test_local_static_string(void) {
+    static char str[] = "Hello, Static!";
+    return str;
+}
+
+// 14. 局部 static 结构体
+struct Counter {
+    int value;
+    int max;
+};
+
+struct Counter* test_local_static_struct(void) {
+    static struct Counter counter = {0, 100};
+    counter.value = counter.value + 1;
+    return &counter;
+}
+
+// 15. 局部 static 用于缓存
+int fibonacci_cached(int n) {
+    static int cache[100];
+    static int initialized = 0;
+    
+    if (!initialized) {
+        cache[0] = 0;
+        cache[1] = 1;
+        int i;
+        for (i = 2; i < 100; i = i + 1) {
+            cache[i] = -1;  // 未计算标记
+        }
+        initialized = 1;
+    }
+    
+    if (n < 0 || n >= 100) {
+        return -1;
+    }
+    
+    if (cache[n] >= 0) {
+        return cache[n];
+    }
+    
+    cache[n] = fibonacci_cached(n - 1) + fibonacci_cached(n - 2);
+    return cache[n];
+}
+
+// 16. 局部 static 用于计数调用次数
+int call_counter(void) {
+    static int calls = 0;
+    calls = calls + 1;
+    return calls;
+}
+
+// 17. 局部 static 用于单例模式模拟
+int* get_singleton(void) {
+    static int instance = 0;
+    static int initialized = 0;
+    
+    if (!initialized) {
+        instance = 42;
+        initialized = 1;
+    }
+    
+    return &instance;
+}
+
+// 18. static 与不同类型组合
+void test_static_types(void) {
+    static char sc = 'A';
+    static short ss = 100;
+    static int si = 1000;
+    static long sl = 100000;
+    static float sf = 3.14f;
+    static double sd = 3.14159;
+    static unsigned su = 500;
+}
+
+// 19. static 与 unsigned 组合
+unsigned test_static_unsigned(void) {
+    static unsigned count = 0;
+    count = count + 1;
+    return count;
+}
+
+// 20. static 与 long long 组合
+long long test_static_long_long(void) {
+    static long long big_count = 0;
+    big_count = big_count + 1;
+    return big_count;
+}
+
+// 21. static 在循环中（只初始化一次）
+int test_static_in_loop(int n) {
+    int sum = 0;
+    int i;
+    for (i = 0; i < n; i = i + 1) {
+        static int base = 10;  // 只初始化一次
+        sum = sum + base;
+        base = base + 1;       // 每次调用都会增加
+    }
+    return sum;
+}
+
+// 22. static 在嵌套块中
+int test_static_nested_block(void) {
+    int result = 0;
+    {
+        static int inner = 0;
+        inner = inner + 1;
+        result = inner;
+    }
+    return result;
+}
+
+// 23. static 函数指针
+static int add(int a, int b) {
+    return a + b;
+}
+
+static int sub(int a, int b) {
+    return a - b;
+}
+
+int test_static_func_ptr(int op) {
+    static int (*ops[2])(int, int) = {add, sub};
+    return ops[op](10, 5);
+}
+
+// 24. static 用于生成唯一 ID
+int get_unique_id(void) {
+    static int next_id = 1;
+    int id = next_id;
+    next_id = next_id + 1;
+    return id;
+}
+
+// 25. 多个 static 变量
+int test_multiple_static(void) {
+    static int a = 1;
+    static int b = 2;
+    static int c = 3;
+    a = a + 1;
+    b = b + 1;
+    c = c + 1;
+    return a + b + c;
+}
+
+// 26. static 与 volatile 组合
+volatile int* test_static_volatile(void) {
+    static volatile int vol_var = 0;
+    return &vol_var;
+}
+
+// 27. static 初始化为表达式（只能是常量表达式）
+static int static_expr = 10 + 20 * 3;
+
+// 28. static 字符数组
+static char static_message[] = "Static Message";
+
+// 29. static 指针数组
+static const char* static_strings[] = {
+    "First",
+    "Second",
+    "Third"
+};
+
+// 30. static 函数声明（前向声明）
+static int forward_declared_static(int x);
+
+static int forward_declared_static(int x) {
+    return x * 3;
+}
+
+int main(void) {
+    // 测试局部 static
+    int r1 = test_local_static();
+    int r2 = test_local_static();
+    int r3 = test_local_static();
+    // r1=1, r2=2, r3=3
+    
+    // 测试调用计数
+    int c1 = call_counter();
+    int c2 = call_counter();
+    int c3 = call_counter();
+    // c1=1, c2=2, c3=3
+    
+    // 测试文件作用域 static
+    int r4 = static_helper(10);
+    
+    // 测试唯一 ID
+    int id1 = get_unique_id();
+    int id2 = get_unique_id();
+    
+    return 0;
+}

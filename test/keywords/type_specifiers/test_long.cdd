@@ -1,0 +1,196 @@
+/**
+ * @file test_long.cdd
+ * @brief long 关键字测试用例
+ * 
+ * 测试 long 类型的各种用法，包括 long long 组合
+ */
+
+// 1. 基本 long 变量
+long basic_long;
+
+// 2. long 初始化
+long init_long = 1000000;
+
+// 3. long int
+long int long_int_var = 2000000;
+
+// 4. signed long
+signed long signed_l = -1000000;
+
+// 5. signed long int
+signed long int signed_long_int = -2000000;
+
+// 6. unsigned long
+unsigned long unsigned_l = 4000000000;
+
+// 7. unsigned long int
+unsigned long int unsigned_long_int = 3000000000;
+
+// 8. long long（64位整数）
+long long basic_long_long;
+
+// 9. long long 初始化
+long long init_ll = 9223372036854775807;
+
+// 10. long long int
+long long int ll_int_var = 1000000000000;
+
+// 11. signed long long
+signed long long signed_ll = -9223372036854775807;
+
+// 12. signed long long int
+signed long long int signed_ll_int = -1000000000000;
+
+// 13. unsigned long long
+unsigned long long unsigned_ll = 18446744073709551615;
+
+// 14. unsigned long long int
+unsigned long long int unsigned_ll_int = 10000000000000;
+
+// 15. long 数组
+long long_array[50];
+
+// 16. long long 数组
+long long ll_array[50];
+
+// 17. long 数组初始化
+long init_long_arr[] = {100, 200, 300, 400, 500};
+
+// 18. long 指针
+long* long_ptr;
+
+// 19. long long 指针
+long long* ll_ptr;
+
+// 20. const long
+const long const_long = 999999;
+
+// 21. const long long
+const long long const_ll = 999999999999;
+
+// 22. volatile long
+volatile long volatile_long;
+
+// 23. volatile long long
+volatile long long volatile_ll;
+
+// 24. long 指针的指针
+long** ptr_to_long_ptr;
+
+// 25. long long 指针的指针
+long long** ptr_to_ll_ptr;
+
+// 26. long 数组的指针
+long (*ptr_to_long_array)[10];
+
+// 27. long long 数组的指针
+long long (*ptr_to_ll_array)[10];
+
+// 28. 返回 long 的函数
+long get_long(void) {
+    return 123456789;
+}
+
+// 29. 返回 long long 的函数
+long long get_long_long(void) {
+    return 123456789012345;
+}
+
+// 30. long 参数
+void accept_long(long l) {
+    return;
+}
+
+// 31. long long 参数
+void accept_long_long(long long ll) {
+    return;
+}
+
+// 32. 函数指针，返回 long
+long (*long_func_ptr)(void);
+
+// 33. 函数指针，返回 long long
+long long (*ll_func_ptr)(void);
+
+// 34. 多维 long 数组
+long multi_long[5][10];
+
+// 35. 多维 long long 数组
+long long multi_ll[5][10];
+
+// 36. long 运算
+long long_arithmetic() {
+    long a = 1000000;
+    long b = 500000;
+    long sum = a + b;
+    long diff = a - b;
+    long prod = a * b;
+    long quot = a / b;
+    long rem = a % b;
+    return sum;
+}
+
+// 37. long long 运算
+long long ll_arithmetic() {
+    long long a = 10000000000;
+    long long b = 5000000000;
+    long long sum = a + b;
+    long long diff = a - b;
+    long long prod = a * b;
+    long long quot = a / b;
+    long long rem = a % b;
+    return sum;
+}
+
+// 38. long 位运算
+long long_bitwise() {
+    long a = 0x0F0F0F0F;
+    long b = 0xF0F0F0F0;
+    long and_result = a & b;
+    long or_result = a | b;
+    long xor_result = a ^ b;
+    long not_result = ~a;
+    long left_shift = a << 4;
+    long right_shift = b >> 4;
+    return or_result;
+}
+
+// 39. long long 位运算
+long long ll_bitwise() {
+    long long a = 0x0F0F0F0F0F0F0F0F;
+    long long b = 0xF0F0F0F0F0F0F0F0;
+    long long and_result = a & b;
+    long long or_result = a | b;
+    long long xor_result = a ^ b;
+    long long not_result = ~a;
+    long long left_shift = a << 8;
+    long long right_shift = b >> 8;
+    return or_result;
+}
+
+// 40. long double（最高精度浮点）
+long double long_double_var;
+
+// 41. long double 初始化
+long double init_ld = 3.14159265358979323846;
+
+// 42. long double 运算
+long double ld_arithmetic() {
+    long double a = 3.14159265358979323846;
+    long double b = 2.71828182845904523536;
+    long double sum = a + b;
+    long double diff = a - b;
+    long double prod = a * b;
+    long double quot = a / b;
+    return sum;
+}
+
+int main(void) {
+    basic_long = 123456;
+    basic_long_long = 123456789012;
+    
+    long_ptr = &basic_long;
+    ll_ptr = &basic_long_long;
+    
+    return 0;
+}

@@ -1,0 +1,44 @@
+/**
+ * @file test_sizeof_and_longlong.cdd
+ * @brief sizeof、数组/指针大小与 long long 算术的运行期校验
+ *
+ * EXPECT_EXIT: 88
+ */
+
+// EXPECT_EXIT: 88
+
+typedef long long ll;
+
+int main(void) {
+    int total = 0;
+
+    int arr[3] = {1, 2, 3};
+    ll big = 9LL;
+    ll other = 4LL;
+
+    // sizeof 基本类型与数组、指针
+    total = total + (int)sizeof(int);        // +4
+    total = total + (int)sizeof(long long);  // +8 => 12
+    total = total + (int)sizeof arr;         // +12 => 24 (3 * sizeof(int))
+    total = total + (int)sizeof(&arr[0]);    // pointer size (assume 8) => 32
+
+    // 结构体与 typedef sizeof
+    struct S { char c; int x; };
+    typedef struct S S;
+    total = total + (int)sizeof(S);          // +? typically 8 => 40
+
+    // long long 算术与转换
+    ll mix = big * other;    // 36
+    mix = mix + (big / other); // +2 => 38
+    total = total + (int)mix;  // => 78
+
+    // 校验 long long 左移与按位操作
+    ll shifted = 1LL << 3;   // 8
+    total = total + (int)shifted; // 86
+
+    // 再加一个 sizeof 表达式
+    total = total + (int)sizeof(shifted); // assume 8 => 94
+
+    // 调整到可控退出码
+    return total - 6; // 88
+}

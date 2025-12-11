@@ -1,0 +1,131 @@
+/**
+ * @file test_stdlib.cdd
+ * @brief CDD 标准库函数测试
+ *
+ * 测试 cddlib 中的所有函数：
+ *   - 字符串函数: strlen, strcpy, strcmp, strcat
+ *   - 内存函数: memcpy, memset, malloc, free
+ *   - 数学函数: abs
+ *   - I/O 函数: putchar, puts, printf (输出验证)
+ *
+ * EXPECT_EXIT: 100
+ */
+
+// EXPECT_EXIT: 100
+
+#include <cddlib.hdd>
+
+int main(void) {
+    int score = 0;
+
+    // ========================================
+    // 1. strlen 测试
+    // ========================================
+    if (strlen("") == 0) score = score + 5;
+    if (strlen("hello") == 5) score = score + 5;
+    if (strlen("test string") == 11) score = score + 5;
+
+    // ========================================
+    // 2. strcmp 测试
+    // ========================================
+    if (strcmp("abc", "abc") == 0) score = score + 5;
+    if (strcmp("abc", "abd") < 0) score = score + 5;
+    if (strcmp("abd", "abc") > 0) score = score + 5;
+    if (strcmp("", "") == 0) score = score + 5;
+
+    // ========================================
+    // 3. strcpy 测试
+    // ========================================
+    char buf1[32];
+    strcpy(buf1, "hello");
+    if (strcmp(buf1, "hello") == 0) score = score + 5;
+    
+    strcpy(buf1, "world");
+    if (strcmp(buf1, "world") == 0) score = score + 5;
+
+    // ========================================
+    // 4. strcat 测试
+    // ========================================
+    char buf2[64];
+    strcpy(buf2, "Hello");
+    strcat(buf2, " ");
+    strcat(buf2, "World");
+    if (strcmp(buf2, "Hello World") == 0) score = score + 10;
+
+    // ========================================
+    // 5. memset 测试
+    // ========================================
+    char buf3[16];
+    memset((void*)buf3, 0, (long)16);
+    int memset_ok = 1;
+    int i = 0;
+    while (i < 16) {
+        if (buf3[i] != 0) memset_ok = 0;
+        i = i + 1;
+    }
+    if (memset_ok) score = score + 5;
+    
+    memset((void*)buf3, 65, (long)5);  // 'A' = 65
+    buf3[5] = 0;
+    if (strcmp(buf3, "AAAAA") == 0) score = score + 5;
+
+    // ========================================
+    // 6. memcpy 测试
+    // ========================================
+    char src[8];
+    char dst[8];
+    src[0] = 'T';
+    src[1] = 'E';
+    src[2] = 'S';
+    src[3] = 'T';
+    src[4] = 0;
+    memcpy((void*)dst, (void*)src, (long)5);
+    if (strcmp(dst, "TEST") == 0) score = score + 10;
+
+    // ========================================
+    // 7. abs 测试
+    // ========================================
+    if (abs(5) == 5) score = score + 3;
+    if (abs(-5) == 5) score = score + 3;
+    if (abs(0) == 0) score = score + 4;
+
+    // ========================================
+    // 8. malloc/free 测试
+    // ========================================
+    int* ptr = (int*)malloc((long)(sizeof(int) * 4));
+    if (ptr != NULL) {
+        ptr[0] = 10;
+        ptr[1] = 20;
+        ptr[2] = 30;
+        ptr[3] = 40;
+        if (ptr[0] + ptr[1] + ptr[2] + ptr[3] == 100) {
+            score = score + 10;
+        }
+        free(ptr);
+    }
+
+    // ========================================
+    // 9. putchar 测试 (输出 'O' 和 'K')
+    // ========================================
+    int c1 = putchar(79);  // 'O'
+    int c2 = putchar(75);  // 'K'
+    putchar(10);  // '\n'
+    // putchar 应返回输出的字符
+    if (c1 == 79 && c2 == 75) score = score + 5;
+
+    // ========================================
+    // 10. puts 测试
+    // ========================================
+    puts("stdlib test passed!");
+    // 不影响分数，仅验证输出
+
+    // ========================================
+    // 11. printf 测试
+    // ========================================
+    printf("Score: %d/100\n", score);
+    printf("Test: %s, Value: %d, Hex: %x\n", "printf", 255, 255);
+    // 不影响分数，仅验证输出
+
+    // 最终分数应该是 100
+    return score;
+}

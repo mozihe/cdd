@@ -1,0 +1,394 @@
+/**
+ * @file test_else.cdd
+ * @brief else 关键字测试用例
+ * 
+ * 测试 else 分支语句的各种用法
+ */
+
+// 1. 基本 if-else
+int test_basic_if_else(int x) {
+    if (x > 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+// 2. if-else 不带大括号
+int test_if_else_no_brace(int x) {
+    if (x > 0)
+        return 1;
+    else
+        return 0;
+}
+
+// 3. if-else if
+int test_if_else_if(int x) {
+    if (x > 0) {
+        return 1;
+    } else if (x < 0) {
+        return -1;
+    }
+    return 0;
+}
+
+// 4. if-else if-else
+int test_if_else_if_else(int x) {
+    if (x > 0) {
+        return 1;
+    } else if (x < 0) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+// 5. 多个 else if
+int test_multiple_else_if(int x) {
+    if (x < 0) {
+        return -1;
+    } else if (x == 0) {
+        return 0;
+    } else if (x < 10) {
+        return 1;
+    } else if (x < 100) {
+        return 2;
+    } else if (x < 1000) {
+        return 3;
+    } else {
+        return 4;
+    }
+}
+
+// 6. 嵌套 if-else
+int test_nested_if_else(int x, int y) {
+    if (x > 0) {
+        if (y > 0) {
+            return 1;
+        } else {
+            return 2;
+        }
+    } else {
+        if (y > 0) {
+            return 3;
+        } else {
+            return 4;
+        }
+    }
+}
+
+// 7. 悬挂 else 问题（else 匹配最近的 if）
+int test_dangling_else(int a, int b) {
+    if (a > 0)
+        if (b > 0)
+            return 1;
+        else
+            return 2;  // 这个 else 匹配 if (b > 0)
+    return 0;
+}
+
+// 8. 使用大括号避免悬挂 else
+int test_dangling_else_fixed(int a, int b) {
+    if (a > 0) {
+        if (b > 0) {
+            return 1;
+        }
+    } else {
+        return 2;  // 现在这个 else 匹配 if (a > 0)
+    }
+    return 0;
+}
+
+// 9. if-else 与逻辑运算
+int test_if_else_logical(int a, int b) {
+    if (a && b) {
+        return 1;
+    } else if (a || b) {
+        return 2;
+    } else {
+        return 0;
+    }
+}
+
+// 10. if-else 与指针
+int test_if_else_pointer(int* ptr) {
+    if (ptr) {
+        return *ptr;
+    } else {
+        return -1;
+    }
+}
+
+// 11. if-else 与结构体
+struct Point {
+    int x;
+    int y;
+};
+
+int test_if_else_struct(struct Point p) {
+    if (p.x > 0 && p.y > 0) {
+        return 1;
+    } else if (p.x < 0 && p.y < 0) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+// 12. if-else 与函数调用
+int is_positive(int x) {
+    return x > 0;
+}
+
+int test_if_else_function(int x) {
+    if (is_positive(x)) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+// 13. if-else 赋值
+int test_if_else_assign(int x) {
+    int result;
+    if (x > 0) {
+        result = 1;
+    } else {
+        result = 0;
+    }
+    return result;
+}
+
+// 14. if-else 多语句
+int test_if_else_multi(int x) {
+    int a;
+    int b;
+    if (x > 0) {
+        a = x;
+        b = x * 2;
+        return a + b;
+    } else {
+        a = -x;
+        b = -x * 2;
+        return a + b;
+    }
+}
+
+// 15. if-else 与枚举
+enum Status {
+    SUCCESS,
+    FAILURE,
+    PENDING
+};
+
+enum Status test_if_else_enum(int code) {
+    if (code == 0) {
+        return SUCCESS;
+    } else if (code < 0) {
+        return FAILURE;
+    } else {
+        return PENDING;
+    }
+}
+
+// 16. if-else 与位运算
+int test_if_else_bitwise(int x) {
+    if (x & 1) {
+        return 1;  // 奇数
+    } else {
+        return 0;  // 偶数
+    }
+}
+
+// 17. if-else 与字符
+char test_if_else_char(char c) {
+    if (c >= 'a' && c <= 'z') {
+        return c - 'a' + 'A';  // 转大写
+    } else if (c >= 'A' && c <= 'Z') {
+        return c - 'A' + 'a';  // 转小写
+    } else {
+        return c;
+    }
+}
+
+// 18. if-else 绝对值
+int absolute(int x) {
+    if (x >= 0) {
+        return x;
+    } else {
+        return -x;
+    }
+}
+
+// 19. if-else 最大值
+int max(int a, int b) {
+    if (a > b) {
+        return a;
+    } else {
+        return b;
+    }
+}
+
+// 20. if-else 最小值
+int min(int a, int b) {
+    if (a < b) {
+        return a;
+    } else {
+        return b;
+    }
+}
+
+// 21. if-else 三数最大
+int max3(int a, int b, int c) {
+    if (a >= b && a >= c) {
+        return a;
+    } else if (b >= a && b >= c) {
+        return b;
+    } else {
+        return c;
+    }
+}
+
+// 22. if-else 范围判断
+const char* get_range(int score) {
+    if (score >= 90) {
+        return "A";
+    } else if (score >= 80) {
+        return "B";
+    } else if (score >= 70) {
+        return "C";
+    } else if (score >= 60) {
+        return "D";
+    } else {
+        return "F";
+    }
+}
+
+// 23. if-else 与浮点数
+int compare_float(float a, float b) {
+    float diff = a - b;
+    if (diff > 0.0001f) {
+        return 1;
+    } else if (diff < -0.0001f) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+// 24. if-else 空 else 块
+int test_empty_else(int x) {
+    if (x > 0) {
+        return 1;
+    } else {
+        ;  // 空语句
+    }
+    return 0;
+}
+
+// 25. if-else 与数组
+int test_if_else_array(int arr[], int size, int index) {
+    if (index >= 0 && index < size) {
+        return arr[index];
+    } else {
+        return -1;
+    }
+}
+
+// 26. if-else 链式比较
+int classify(int x) {
+    if (x < -100) {
+        return -3;
+    } else if (x < -10) {
+        return -2;
+    } else if (x < 0) {
+        return -1;
+    } else if (x == 0) {
+        return 0;
+    } else if (x < 10) {
+        return 1;
+    } else if (x < 100) {
+        return 2;
+    } else {
+        return 3;
+    }
+}
+
+// 27. if-else 与 return
+int early_return(int x, int y) {
+    if (x < 0) {
+        return -1;
+    }
+    if (y < 0) {
+        return -2;
+    }
+    return x + y;
+}
+
+// 28. if-else 复杂条件
+int complex_condition(int a, int b, int c) {
+    if ((a > 0 && b > 0) || (c > 0 && a < 0)) {
+        return 1;
+    } else if ((a < 0 && b < 0) || (c < 0 && a > 0)) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+// 29. if-else 与局部变量
+int test_if_else_local(int x) {
+    if (x > 0) {
+        int local = x * 2;
+        return local;
+    } else {
+        int local = x * 3;
+        return local;
+    }
+}
+
+// 30. if-else 作为表达式求值的替代
+int sign(int x) {
+    if (x > 0) {
+        return 1;
+    } else if (x < 0) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+int main(void) {
+    int a = 10;
+    int b = -5;
+    
+    // 基本 if-else
+    int result;
+    if (a > 0) {
+        result = 1;
+    } else {
+        result = 0;
+    }
+    
+    // if-else if-else
+    if (a > b) {
+        result = a;
+    } else if (a < b) {
+        result = b;
+    } else {
+        result = 0;
+    }
+    
+    // 嵌套 if-else
+    if (a > 0) {
+        if (b > 0) {
+            result = 1;
+        } else {
+            result = 2;
+        }
+    } else {
+        result = 3;
+    }
+    
+    return 0;
+}

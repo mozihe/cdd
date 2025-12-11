@@ -1,0 +1,106 @@
+/**
+ * @file test_char.cdd
+ * @brief char 关键字测试用例
+ * 
+ * 测试 char 类型的各种用法
+ */
+
+// 1. 基本 char 变量
+char basic_char;
+
+// 2. char 初始化
+char init_char = 'A';
+
+// 3. signed char
+signed char signed_c = -128;
+
+// 4. unsigned char
+unsigned char unsigned_c = 255;
+
+// 5. char 数组（字符串）
+char str_array[100];
+
+// 6. char 数组初始化
+char hello[] = "Hello";
+
+// 7. char 指针
+char* char_ptr;
+
+// 8. const char 指针（字符串字面量）
+const char* const_str = "constant string";
+
+// 9. char 指针的指针
+char** ptr_to_char_ptr;
+
+// 10. char 数组的指针
+char (*ptr_to_array)[10];
+
+// 11. 返回 char 的函数
+char get_char(void) {
+    return 'X';
+}
+
+// 12. char 参数
+void accept_char(char c) {
+    return;
+}
+
+// 13. char 数组参数
+void accept_char_array(char arr[]) {
+    return;
+}
+
+// 14. 函数指针，返回 char
+char (*char_func_ptr)(void);
+
+// 15. 多维 char 数组
+char multi_dim[10][20];
+
+// 16. char 类型转换
+int char_to_int(char c) {
+    return (int)c;
+}
+
+// 17. 转义字符
+char escape_chars() {
+    char newline = '\n';
+    char tab = '\t';
+    char backslash = '\\';
+    char quote = '\'';
+    char dquote = '\"';
+    char null_char = '\0';
+    char bell = '\a';
+    char backspace = '\b';
+    char formfeed = '\f';
+    char carriage = '\r';
+    char vtab = '\v';
+    return newline;
+}
+
+// 18. 八进制转义
+char octal_escape() {
+    char oct = '\101';  // 'A'
+    return oct;
+}
+
+// 19. 十六进制转义
+char hex_escape() {
+    char hex = '\x41';  // 'A'
+    return hex;
+}
+
+// 20. char 运算
+char char_arithmetic() {
+    char a = 'A';
+    char b = a + 1;  // 'B'
+    return b;
+}
+
+int main(void) {
+    basic_char = 'Z';
+    char_ptr = &basic_char;
+    
+    char local_arr[5] = {'a', 'b', 'c', 'd', '\0'};
+    
+    return 0;
+}

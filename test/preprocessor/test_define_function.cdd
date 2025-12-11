@@ -1,0 +1,266 @@
+/**
+ * 测试文件：test_define_function.cdd
+ * 测试目标：#define 函数式宏（参数宏）
+ * 
+ * 覆盖场景：
+ * 1. 单参数宏
+ * 2. 多参数宏
+ * 3. 无参数函数宏
+ * 4. 可变参数宏 (__VA_ARGS__)
+ * 5. 字符串化运算符 (#)
+ * 6. 连接运算符 (##)
+ * 7. 参数宏的常见陷阱和正确写法
+ */
+
+#include <cddlib.hdd>
+
+// ============================================
+// 测试1：单参数函数宏
+// ============================================
+
+// 基本单参数宏
+#define SQUARE(x) ((x) * (x))
+#define CUBE(x) ((x) * (x) * (x))
+#define DOUBLE(x) ((x) + (x))
+#define NEGATE(x) (-(x))
+
+// 类型转换宏
+#define TO_INT(x) ((int)(x))
+#define TO_FLOAT(x) ((float)(x))
+#define TO_CHAR(x) ((char)(x))
+
+// 指针操作宏
+#define DEREF(p) (*(p))
+#define ADDR(x) (&(x))
+
+// 数组访问宏
+#define ARRAY_AT(arr, i) ((arr)[i])
+
+
+// ============================================
+// 测试2：多参数函数宏
+// ============================================
+
+// 两参数宏
+#define ADD(a, b) ((a) + (b))
+#define SUB(a, b) ((a) - (b))
+#define MUL(a, b) ((a) * (b))
+#define DIV(a, b) ((a) / (b))
+#define MOD(a, b) ((a) % (b))
+
+// 比较宏
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define EQUAL(a, b) ((a) == (b))
+
+// 三参数宏
+#define CLAMP(x, lo, hi) ((x) < (lo) ? (lo) : ((x) > (hi) ? (hi) : (x)))
+#define IN_RANGE(x, lo, hi) ((x) >= (lo) && (x) <= (hi))
+#define LERP(a, b, t) ((a) + ((b) - (a)) * (t))
+
+// 四参数宏
+#define RGBA(r, g, b, a) (((a) << 24) | ((r) << 16) | ((g) << 8) | (b))
+#define MAKE_RECT(x, y, w, h) { (x), (y), (w), (h) }
+
+
+// ============================================
+// 测试3：无参数函数宏
+// ============================================
+
+// 注意：无参数函数宏与对象宏的区别
+// 函数宏需要调用时带括号 FUNC()，对象宏不需要 OBJ
+
+#define GET_ZERO() 0
+#define GET_ONE() 1
+#define NEW_LINE() '\n'
+
+// 返回复杂表达式
+#define RANDOM_SEED() (12345)
+#define CURRENT_LINE() __LINE__
+#define CURRENT_FILE() __FILE__
+
+
+// ============================================
+// 测试4：可变参数宏 (__VA_ARGS__)
+// ============================================
+
+// 简单的可变参数宏
+#define PRINT_ARGS(...) printf(__VA_ARGS__)
+#define LOG(...) fprintf(stderr, __VA_ARGS__)
+
+// 带固定参数的可变参数宏
+#define DEBUG_LOG(fmt, ...) printf("[DEBUG] " fmt "\n", __VA_ARGS__)
+#define ERROR_LOG(fmt, ...) fprintf(stderr, "[ERROR] " fmt "\n", __VA_ARGS__)
+#define INFO_LOG(fmt, ...) printf("[INFO] " fmt "\n", __VA_ARGS__)
+
+// 条件可变参数
+#ifdef DEBUG
+#define DPRINTF(...) printf(__VA_ARGS__)
+#else
+#define DPRINTF(...) ((void)0)
+#endif
+
+
+// ============================================
+// 测试5：字符串化运算符 (#)
+// ============================================
+
+// 将参数转换为字符串
+#define STRINGIFY(x) #x
+#define TO_STRING(x) #x
+
+// 实际应用
+#define PRINT_VAR(var) printf(#var " = %d\n", var)
+#define PRINT_EXPR(expr) printf(#expr " = %d\n", (expr))
+
+// 调试宏
+#define ASSERT(cond) \
+    if (!(cond)) { \
+        printf("Assertion failed: " #cond "\n"); \
+    }
+
+// 枚举字符串化
+#define ENUM_CASE(e) case e: return #e
+
+
+// ============================================
+// 测试6：连接运算符 (##)
+// ============================================
+
+// 基本连接
+#define CONCAT(a, b) a##b
+#define JOIN(a, b) a##b
+
+// 生成变量名
+#define MAKE_VAR(prefix, num) prefix##num
+#define VAR(n) var_##n
+
+// 生成函数名
+#define MAKE_FUNC(name) func_##name
+#define GETTER(field) get_##field
+#define SETTER(field) set_##field
+
+// 生成类型名
+#define MAKE_TYPE(name) name##_t
+#define MAKE_STRUCT(name) struct_##name
+
+// 组合使用
+#define DECLARE_VAR(type, name) type name##_var
+#define DECLARE_ARRAY(type, name, size) type name##_arr[size]
+
+
+// ============================================
+// 测试7：# 和 ## 的组合使用
+// ============================================
+
+// 先连接再字符串化（需要两层宏）
+#define _STRINGIFY(x) #x
+#define STRINGIFY_CONCAT(a, b) _STRINGIFY(a##b)
+
+// 生成带名称的打印
+#define PRINT_NAMED(var) printf(#var " = %d\n", var)
+
+// 生成访问器函数声明
+#define DECLARE_ACCESSOR(type, name) \
+    type get_##name(void); \
+    void set_##name(type value)
+
+
+// ============================================
+// 测试8：参数宏的陷阱和正确写法
+// ============================================
+
+// 错误写法示例（已注释）和正确写法
+
+// 陷阱1：缺少括号
+// 错误: #define SQUARE_BAD(x) x * x
+// SQUARE_BAD(1+2) => 1+2 * 1+2 = 1+2+2 = 5 (期望是9)
+// 正确:
+#define SQUARE_GOOD(x) ((x) * (x))
+
+// 陷阱2：多次求值
+// 以下宏对参数求值两次，如果参数有副作用会出问题
+// MIN(a++, b++) 会递增两次
+#define MIN_UNSAFE(a, b) ((a) < (b) ? (a) : (b))
+
+// 陷阱3：缺少外层括号
+// 错误: #define ADD_BAD(a, b) (a) + (b)
+// 2 * ADD_BAD(3, 4) => 2 * 3 + 4 = 10 (期望是14)
+// 正确:
+#define ADD_SAFE(a, b) ((a) + (b))
+
+// 陷阱4：语句宏
+// 使用 do-while(0) 技巧
+#define SWAP(a, b) \
+    do { \
+        int temp = (a); \
+        (a) = (b); \
+        (b) = temp; \
+    } while(0)
+
+// 陷阱5：逗号表达式
+// 多条语句合一
+#define INIT_POINT(p, px, py) ((p).x = (px), (p).y = (py))
+
+
+// ============================================
+// 测试9：嵌套函数宏
+// ============================================
+
+// 宏调用宏
+#define SQUARE_SUM(a, b) SQUARE(ADD(a, b))
+#define MAX3(a, b, c) MAX(MAX(a, b), c)
+#define MIN3(a, b, c) MIN(MIN(a, b), c)
+
+// 多层嵌套
+#define PROCESS(x) DOUBLE(SQUARE(x))
+
+
+// ============================================
+// 主程序使用测试
+// ============================================
+
+int main() {
+    // 单参数宏
+    int x = 5;
+    int sq = SQUARE(x);
+    int cb = CUBE(x);
+    int dbl = DOUBLE(x);
+    
+    // 多参数宏
+    int a = 10, b = 20;
+    int sum = ADD(a, b);
+    int diff = SUB(a, b);
+    int mx = MAX(a, b);
+    int mn = MIN(a, b);
+    
+    // 三参数宏
+    int clamped = CLAMP(15, 0, 10);  // 结果是 10
+    int inRange = IN_RANGE(5, 0, 10);  // 结果是 1
+    
+    // 无参数函数宏
+    int zero = GET_ZERO();
+    int one = GET_ONE();
+    
+    // 连接运算符
+    int var_1 = 100;
+    int var_2 = 200;
+    int v1 = VAR(1);  // 展开为 var_1
+    int v2 = VAR(2);  // 展开为 var_2
+    
+    // 字符串化
+    PRINT_VAR(x);  // 输出 "x = 5"
+    PRINT_EXPR(a + b);  // 输出 "a + b = 30"
+    
+    // 嵌套宏
+    int sqsum = SQUARE_SUM(3, 4);  // (3+4)^2 = 49
+    int max3 = MAX3(a, b, 15);  // 20
+    
+    // 颜色宏
+    unsigned int color = RGBA(255, 128, 0, 255);
+    
+    // 交换宏
+    SWAP(a, b);  // 现在 a=20, b=10
+    
+    return 0;
+}

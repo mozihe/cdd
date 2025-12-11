@@ -1,0 +1,176 @@
+/**
+ * @file test_double.cdd
+ * @brief double 关键字测试用例
+ * 
+ * 测试 double 类型的各种用法
+ */
+
+// 1. 基本 double 变量
+double basic_double;
+
+// 2. double 初始化 - 小数形式
+double decimal_double = 3.14159265358979;
+
+// 3. double 初始化 - 科学计数法
+double scientific = 1.5e100;
+
+// 4. double 初始化 - 负指数
+double neg_exp = 1.5e-100;
+
+// 5. double 初始化 - 大写 E
+double upper_e = 2.5E50;
+
+// 6. double 初始化 - 正指数符号
+double pos_exp = 1.5e+50;
+
+// 7. double 初始化 - 整数部分为0
+double no_int_part = .123456789012345;
+
+// 8. double 初始化 - 小数部分为0
+double no_frac_part = 123456789012345.;
+
+// 9. double 数组
+double double_array[100];
+
+// 10. double 数组初始化
+double init_array[] = {1.1, 2.2, 3.3, 4.4, 5.5};
+
+// 11. double 指针
+double* double_ptr;
+
+// 12. const double
+const double pi = 3.14159265358979323846;
+
+// 13. const double（欧拉数）
+const double e = 2.71828182845904523536;
+
+// 14. volatile double
+volatile double volatile_double;
+
+// 15. double 指针的指针
+double** ptr_to_double_ptr;
+
+// 16. double 数组的指针
+double (*ptr_to_double_array)[10];
+
+// 17. 返回 double 的函数
+double get_double(void) {
+    return 3.14159265358979;
+}
+
+// 18. double 参数
+void accept_double(double d) {
+    return;
+}
+
+// 19. 函数指针，返回 double
+double (*double_func_ptr)(void);
+
+// 20. 多维 double 数组
+double multi_double[3][4];
+
+// 21. double 算术运算
+double double_arithmetic() {
+    double a = 123.456;
+    double b = 78.901;
+    double sum = a + b;
+    double diff = a - b;
+    double prod = a * b;
+    double quot = a / b;
+    return sum;
+}
+
+// 22. double 比较
+int double_compare() {
+    double a = 1.5;
+    double b = 2.5;
+    if (a < b) {
+        return 1;
+    }
+    return 0;
+}
+
+// 23. double 类型转换
+int double_to_int(double d) {
+    return (int)d;
+}
+
+// 24. double 到 float 转换
+float double_to_float(double d) {
+    return (float)d;
+}
+
+// 25. int 到 double 转换
+double int_to_double(int n) {
+    return (double)n;
+}
+
+// 26. double 自增自减
+double double_incr_decr() {
+    double a = 10.5;
+    double b = ++a;
+    double c = a++;
+    double d = --a;
+    double e = a--;
+    return a;
+}
+
+// 27. double 复合赋值
+double double_compound() {
+    double a = 100.0;
+    a += 10.0;
+    a -= 5.0;
+    a *= 2.0;
+    a /= 3.0;
+    return a;
+}
+
+// 28. double 三元运算
+double double_ternary(int cond) {
+    return cond ? 1.0 : 0.0;
+}
+
+// 29. 高精度 double 值
+double high_precision() {
+    double very_precise = 1.23456789012345678901234567890;
+    return very_precise;
+}
+
+// 30. double 与整数混合运算
+double mixed_arithmetic() {
+    double d = 3.5;
+    int i = 2;
+    double result = d * i;
+    return result;
+}
+
+// 31. double 与 float 混合运算
+double mixed_with_float() {
+    double d = 3.5;
+    float f = 2.5f;
+    double result = d + f;
+    return result;
+}
+
+// 32. 长双精度（long double）
+long double long_double_var;
+
+// 33. long double 初始化
+long double init_ld = 3.14159265358979323846264338327950288;
+
+// 34. long double 运算
+long double ld_arithmetic() {
+    long double a = 3.14159265358979323846264338327950288;
+    long double b = 2.71828182845904523536028747135266249;
+    long double sum = a + b;
+    return sum;
+}
+
+int main(void) {
+    basic_double = 2.718281828;
+    double_ptr = &basic_double;
+    
+    double local_d = 1.414213562;
+    
+    return 0;
+}

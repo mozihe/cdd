@@ -1,0 +1,39 @@
+/**
+ * @file test_function_pointer_and_ternary.cdd
+ * @brief 函数指针、数组下标与位移赋值的运行期校验
+ *
+ * EXPECT_EXIT: 42
+ */
+
+// EXPECT_EXIT: 42
+
+typedef int (*binop)(int, int);
+
+int add(int a, int b) {
+    return a + b;
+}
+
+int mul(int a, int b) {
+    return a * b;
+}
+
+int main(void) {
+    binop op;
+    binop ops[2] = {add, mul};
+    int result = 0;
+
+    op = (1 ? add : mul);
+    result = op(2, 3);  // 5
+
+    op = (0 ? add : mul);
+    result = result + op(2, 3);  // +6 => 11
+
+    result = result + (int)sizeof(int);  // +sizeof => 通常 4 => 15
+
+    result = result + ops[0](1, 1);  // +2 => 17
+    result = result + ops[1](2, 2);  // +4 => 21
+
+    result = result << 1;  // 左移赋值 => 42
+
+    return result;
+}

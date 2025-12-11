@@ -1,0 +1,260 @@
+/**
+ * 测试文件：test_define_nested.cdd
+ * 测试目标：嵌套宏展开
+ * 
+ * 覆盖场景：
+ * 1. 宏引用另一个宏
+ * 2. 多层嵌套展开
+ * 3. 递归保护
+ * 4. 延迟展开
+ * 5. 间接展开
+ */
+
+// ============================================
+// 测试1：基本嵌套 - 宏引用另一个宏
+// ============================================
+
+// 第一层定义
+#define BASE_VALUE 100
+#define MULTIPLIER 2
+
+// 第二层引用第一层
+#define DERIVED_VALUE (BASE_VALUE * MULTIPLIER)
+
+// 第三层引用第二层
+#define FINAL_VALUE (DERIVED_VALUE + 50)
+
+// 宏引用多个其他宏
+#define PI 3.14159
+#define RADIUS 10
+#define DIAMETER (RADIUS * 2)
+#define CIRCUMFERENCE (PI * DIAMETER)
+#define AREA (PI * RADIUS * RADIUS)
+
+
+// ============================================
+// 测试2：函数宏嵌套
+// ============================================
+
+// 基础函数宏
+#define SQUARE(x) ((x) * (x))
+#define ADD(a, b) ((a) + (b))
+#define MUL(a, b) ((a) * (b))
+
+// 嵌套调用
+#define SUM_OF_SQUARES(a, b) ADD(SQUARE(a), SQUARE(b))
+#define PRODUCT_OF_SUMS(a, b, c, d) MUL(ADD(a, b), ADD(c, d))
+#define SQUARE_OF_SUM(a, b) SQUARE(ADD(a, b))
+
+// 深层嵌套
+#define LEVEL1(x) ((x) + 1)
+#define LEVEL2(x) LEVEL1(LEVEL1(x))
+#define LEVEL3(x) LEVEL2(LEVEL1(x))
+#define LEVEL4(x) LEVEL3(LEVEL1(x))
+
+
+// ============================================
+// 测试3：对象宏与函数宏混合嵌套
+// ============================================
+
+#define DEFAULT_WIDTH 800
+#define DEFAULT_HEIGHT 600
+#define ASPECT_RATIO(w, h) ((float)(w) / (float)(h))
+
+// 函数宏使用对象宏作为参数
+#define DEFAULT_ASPECT ASPECT_RATIO(DEFAULT_WIDTH, DEFAULT_HEIGHT)
+
+// 函数宏的参数是另一个函数宏的调用
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define CLAMP(x, lo, hi) MIN(MAX(x, lo), hi)
+
+// 更复杂的组合
+#define SAFE_DIV(a, b) ((b) != 0 ? ((a) / (b)) : 0)
+#define AVERAGE(a, b) SAFE_DIV(ADD(a, b), 2)
+#define GEOMETRIC_MEAN(a, b) sqrt(MUL(a, b))
+
+
+// ============================================
+// 测试4：递归保护测试
+// ============================================
+
+// 直接自引用（预处理器应该阻止无限递归）
+#define SELF SELF
+
+// 间接自引用
+#define A_MACRO B_MACRO
+#define B_MACRO A_MACRO
+
+// 更复杂的循环引用
+#define X_DEF Y_DEF + 1
+#define Y_DEF Z_DEF + 1
+#define Z_DEF X_DEF + 1
+
+// 函数宏的递归保护
+#define RECURSIVE(x) RECURSIVE(x + 1)
+
+
+// ============================================
+// 测试5：延迟展开技术
+// ============================================
+
+// 空宏用于延迟展开
+#define EMPTY()
+#define DEFER(id) id EMPTY()
+
+// 间接层用于触发展开
+#define EXPAND(...) __VA_ARGS__
+#define EXPAND2(...) EXPAND(EXPAND(__VA_ARGS__))
+
+// 连接的延迟展开
+#define CAT(a, b) a ## b
+#define CAT2(a, b) CAT(a, b)
+
+// 字符串化的延迟展开
+#define STR(x) #x
+#define STR2(x) STR(x)
+
+// 使用示例
+#define VERSION_MAJOR 1
+#define VERSION_MINOR 2
+#define VERSION_STRING STR2(CAT2(VERSION_MAJOR, .VERSION_MINOR))
+
+
+// ============================================
+// 测试6：条件宏与嵌套
+// ============================================
+
+#define DEBUG_LEVEL 2
+
+#if DEBUG_LEVEL >= 1
+#define LOG_ERROR(msg) printf("ERROR: " msg "\n")
+#else
+#define LOG_ERROR(msg)
+#endif
+
+#if DEBUG_LEVEL >= 2
+#define LOG_WARN(msg) printf("WARN: " msg "\n")
+#else
+#define LOG_WARN(msg)
+#endif
+
+#if DEBUG_LEVEL >= 3
+#define LOG_INFO(msg) printf("INFO: " msg "\n")
+#else
+#define LOG_INFO(msg)
+#endif
+
+// 根据条件定义不同的嵌套宏
+#ifdef DEBUG
+#define TRACE(expr) (printf("TRACE: " #expr " = %d\n", (expr)), (expr))
+#else
+#define TRACE(expr) (expr)
+#endif
+
+
+// ============================================
+// 测试7：宏展开顺序
+// ============================================
+
+// 参数先展开还是宏体先展开？
+#define FIRST 1
+#define SECOND 2
+
+// 普通情况：参数先展开
+#define NORMAL_ORDER(x) ((x) + 10)
+// NORMAL_ORDER(FIRST) -> ((1) + 10)
+
+// # 运算符阻止参数展开
+#define STRINGIFY_RAW(x) #x
+// STRINGIFY_RAW(FIRST) -> "FIRST" (不是 "1")
+
+// ## 运算符也阻止参数展开
+#define CONCAT_RAW(a, b) a ## b
+// CONCAT_RAW(FIRST, SECOND) -> FIRSTSECOND (不是 12)
+
+// 需要间接层来展开参数
+#define STRINGIFY_EXPAND(x) STRINGIFY_RAW(x)
+// STRINGIFY_EXPAND(FIRST) -> "1"
+
+#define CONCAT_EXPAND(a, b) CONCAT_RAW(a, b)
+
+
+// ============================================
+// 测试8：实际应用场景
+// ============================================
+
+// 生成唯一标识符
+#define UNIQUE_ID __LINE__
+#define MAKE_UNIQUE(prefix) CAT2(prefix, UNIQUE_ID)
+
+// 类型安全的容器宏
+#define DECLARE_LIST(type) \
+    struct type##_list { \
+        type* data; \
+        int size; \
+        int capacity; \
+    }
+
+// X-Macro 技术（代码生成）
+#define COLOR_LIST \
+    X(RED,   0xFF0000) \
+    X(GREEN, 0x00FF00) \
+    X(BLUE,  0x0000FF)
+
+// 生成枚举
+enum Color {
+#define X(name, value) name = value,
+    COLOR_LIST
+#undef X
+};
+
+// 生成字符串表
+const char* color_names[] = {
+#define X(name, value) #name,
+    COLOR_LIST
+#undef X
+};
+
+
+// ============================================
+// 主程序测试
+// ============================================
+
+int main() {
+    // 基本嵌套
+    int val = FINAL_VALUE;  // 100 * 2 + 50 = 250
+    
+    // 圆的计算
+    double circ = CIRCUMFERENCE;
+    double area = AREA;
+    
+    // 函数宏嵌套
+    int sos = SUM_OF_SQUARES(3, 4);  // 9 + 16 = 25
+    int sqsum = SQUARE_OF_SUM(3, 4);  // 49
+    
+    // 深层嵌套
+    int l4 = LEVEL4(0);  // 0+1+1+1+1 = 4
+    
+    // 混合嵌套
+    float ar = DEFAULT_ASPECT;  // 800/600 = 1.333...
+    int avg = AVERAGE(10, 20);  // 15
+    
+    // clamp 测试
+    int c1 = CLAMP(5, 0, 10);   // 5
+    int c2 = CLAMP(-5, 0, 10);  // 0
+    int c3 = CLAMP(15, 0, 10);  // 10
+    
+    // 字符串化展开测试
+    const char* raw = STRINGIFY_RAW(FIRST);     // "FIRST"
+    const char* expanded = STRINGIFY_EXPAND(FIRST);  // "1"
+    
+    // 唯一标识符
+    int MAKE_UNIQUE(temp_) = 100;
+    
+    // 使用枚举
+    enum Color c = RED;
+    const char* name = color_names[0];  // "RED"
+    
+    return 0;
+}

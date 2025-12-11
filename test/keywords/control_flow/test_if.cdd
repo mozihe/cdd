@@ -1,0 +1,352 @@
+/**
+ * @file test_if.cdd
+ * @brief if 关键字测试用例
+ * 
+ * 测试 if 条件语句的各种用法
+ */
+
+// 1. 基本 if 语句
+int test_basic_if(int x) {
+    if (x > 0) {
+        return 1;
+    }
+    return 0;
+}
+
+// 2. if 不带大括号（单语句）
+int test_if_no_brace(int x) {
+    if (x > 0)
+        return 1;
+    return 0;
+}
+
+// 3. if 条件表达式
+int test_if_expression(int a, int b) {
+    if (a + b > 10) {
+        return 1;
+    }
+    return 0;
+}
+
+// 4. if 比较运算符
+int test_if_comparisons(int x) {
+    if (x == 0) return 0;
+    if (x != 0) return 1;
+    if (x < 0) return -1;
+    if (x <= 0) return -2;
+    if (x > 0) return 2;
+    if (x >= 0) return 3;
+    return 0;
+}
+
+// 5. if 逻辑运算符
+int test_if_logical(int a, int b) {
+    if (a && b) {
+        return 1;
+    }
+    if (a || b) {
+        return 2;
+    }
+    if (!a) {
+        return 3;
+    }
+    return 0;
+}
+
+// 6. if 复合条件
+int test_if_compound(int x, int y, int z) {
+    if (x > 0 && y > 0 && z > 0) {
+        return 1;
+    }
+    if (x < 0 || y < 0 || z < 0) {
+        return -1;
+    }
+    return 0;
+}
+
+// 7. if 带括号的复合条件
+int test_if_parentheses(int a, int b, int c) {
+    if ((a > 0 && b > 0) || c > 0) {
+        return 1;
+    }
+    if (a > 0 && (b > 0 || c > 0)) {
+        return 2;
+    }
+    return 0;
+}
+
+// 8. if 嵌套
+int test_if_nested(int x, int y) {
+    if (x > 0) {
+        if (y > 0) {
+            return 1;
+        }
+        if (y < 0) {
+            return 2;
+        }
+        return 3;
+    }
+    return 0;
+}
+
+// 9. if 深度嵌套
+int test_if_deep_nested(int a, int b, int c, int d) {
+    if (a > 0) {
+        if (b > 0) {
+            if (c > 0) {
+                if (d > 0) {
+                    return 1;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+// 10. if 与指针
+int test_if_pointer(int* ptr) {
+    if (ptr) {
+        return *ptr;
+    }
+    if (ptr != 0) {
+        return *ptr;
+    }
+    return 0;
+}
+
+// 11. if 与数组
+int test_if_array(int arr[], int size) {
+    if (size > 0) {
+        return arr[0];
+    }
+    return 0;
+}
+
+// 12. if 与结构体
+struct Point {
+    int x;
+    int y;
+};
+
+int test_if_struct(struct Point p) {
+    if (p.x > 0) {
+        return p.x;
+    }
+    return 0;
+}
+
+// 13. if 与结构体指针
+int test_if_struct_ptr(struct Point* p) {
+    if (p) {
+        if (p->x > 0) {
+            return p->x;
+        }
+    }
+    return 0;
+}
+
+// 14. if 与函数调用
+int helper(int x) {
+    return x * 2;
+}
+
+int test_if_function_call(int x) {
+    if (helper(x) > 10) {
+        return 1;
+    }
+    return 0;
+}
+
+// 15. if 与赋值表达式
+int test_if_assignment(int x) {
+    int y;
+    if ((y = x * 2) > 10) {
+        return y;
+    }
+    return 0;
+}
+
+// 16. if 与自增
+int test_if_increment(int x) {
+    if (++x > 10) {
+        return x;
+    }
+    if (x++ > 10) {
+        return x;
+    }
+    return 0;
+}
+
+// 17. if 与位运算
+int test_if_bitwise(int x) {
+    if (x & 0x01) {
+        return 1;  // x 是奇数
+    }
+    if ((x & 0x0F) == 0x0F) {
+        return 2;
+    }
+    return 0;
+}
+
+// 18. if 与枚举
+enum Status {
+    OK,
+    ERROR,
+    PENDING
+};
+
+int test_if_enum(enum Status s) {
+    if (s == OK) {
+        return 1;
+    }
+    if (s == ERROR) {
+        return -1;
+    }
+    return 0;
+}
+
+// 19. if 与 sizeof
+int test_if_sizeof(void) {
+    if (sizeof(int) == 4) {
+        return 32;
+    }
+    if (sizeof(int) == 8) {
+        return 64;
+    }
+    return 0;
+}
+
+// 20. if 与字符
+int test_if_char(char c) {
+    if (c >= 'a' && c <= 'z') {
+        return 1;  // 小写
+    }
+    if (c >= 'A' && c <= 'Z') {
+        return 2;  // 大写
+    }
+    if (c >= '0' && c <= '9') {
+        return 3;  // 数字
+    }
+    return 0;
+}
+
+// 21. if 与浮点数
+int test_if_float(float f) {
+    if (f > 0.0f) {
+        return 1;
+    }
+    if (f < 0.0f) {
+        return -1;
+    }
+    return 0;
+}
+
+// 22. if 与 double
+int test_if_double(double d) {
+    if (d > 0.0) {
+        return 1;
+    }
+    return 0;
+}
+
+// 23. if 空语句体
+void test_if_empty(int x) {
+    if (x > 0)
+        ;  // 空语句
+}
+
+// 24. if 多语句体
+int test_if_multi_statement(int x) {
+    int result = 0;
+    if (x > 0) {
+        result = x;
+        result = result * 2;
+        result = result + 1;
+    }
+    return result;
+}
+
+// 25. if 与逗号表达式
+int test_if_comma(int x, int y) {
+    if ((x = x + 1, y = y + 1, x + y) > 10) {
+        return x + y;
+    }
+    return 0;
+}
+
+// 26. if 与三元运算符
+int test_if_ternary(int x) {
+    int y = x > 0 ? 1 : -1;
+    if (y > 0) {
+        return 1;
+    }
+    return 0;
+}
+
+// 27. if 检查范围
+int test_if_range(int x, int min, int max) {
+    if (x >= min && x <= max) {
+        return 1;
+    }
+    return 0;
+}
+
+// 28. if 与字符串（指针）
+int test_if_string(const char* str) {
+    if (str) {
+        if (*str != '\0') {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// 29. if 连续条件
+int test_if_chain(int x) {
+    if (x < 0) {
+        return -1;
+    }
+    if (x == 0) {
+        return 0;
+    }
+    if (x < 10) {
+        return 1;
+    }
+    if (x < 100) {
+        return 2;
+    }
+    return 3;
+}
+
+// 30. if 与局部变量声明
+int test_if_local_var(int x) {
+    if (x > 0) {
+        int local = x * 2;
+        return local;
+    }
+    return 0;
+}
+
+int main(void) {
+    int a = 10;
+    int b = 20;
+    
+    // 基本 if
+    if (a > 0) {
+        b = 30;
+    }
+    
+    // 嵌套 if
+    if (a > 0) {
+        if (b > 0) {
+            a = a + b;
+        }
+    }
+    
+    // 复合条件
+    if (a > 0 && b > 0) {
+        a = 100;
+    }
+    
+    return 0;
+}

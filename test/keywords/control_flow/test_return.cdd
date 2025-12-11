@@ -1,0 +1,435 @@
+/**
+ * @file test_return.cdd
+ * @brief return 关键字测试用例
+ * 
+ * 测试 return 语句的各种用法
+ * return 用于从函数返回值或终止函数执行
+ */
+
+// 1. return 返回整数
+int test_return_int(void) {
+    return 42;
+}
+
+// 2. return 返回表达式
+int test_return_expr(int a, int b) {
+    return a + b;
+}
+
+// 3. return 返回变量
+int test_return_var(int x) {
+    int result = x * 2;
+    return result;
+}
+
+// 4. return void 函数
+void test_return_void(int x) {
+    if (x < 0) {
+        return;  // 提前返回
+    }
+    // 继续处理
+}
+
+// 5. return 条件返回
+int test_return_conditional(int x) {
+    if (x > 0) {
+        return 1;
+    }
+    if (x < 0) {
+        return -1;
+    }
+    return 0;
+}
+
+// 6. return 三元运算符
+int test_return_ternary(int x) {
+    return x >= 0 ? x : -x;
+}
+
+// 7. return 从循环中
+int test_return_from_loop(int* arr, int size, int target) {
+    for (int i = 0; i < size; i++) {
+        if (arr[i] == target) {
+            return i;  // 找到返回索引
+        }
+    }
+    return -1;  // 未找到
+}
+
+// 8. return 嵌套条件
+int test_return_nested(int a, int b, int c) {
+    if (a > b) {
+        if (a > c) {
+            return a;
+        } else {
+            return c;
+        }
+    } else {
+        if (b > c) {
+            return b;
+        } else {
+            return c;
+        }
+    }
+}
+
+// 9. return 返回指针
+int* test_return_pointer(int* arr, int index) {
+    return &arr[index];
+}
+
+// 10. return 返回 NULL
+void* test_return_null(int flag) {
+    if (flag == 0) {
+        return 0;  // NULL
+    }
+    static int value = 42;
+    return &value;
+}
+
+// 11. return 返回结构体
+struct Point {
+    int x;
+    int y;
+};
+
+struct Point test_return_struct(int x, int y) {
+    struct Point p;
+    p.x = x;
+    p.y = y;
+    return p;
+}
+
+// 12. return 返回结构体指针
+struct Point* test_return_struct_ptr(struct Point* p) {
+    return p;
+}
+
+// 13. return 函数指针
+int add(int a, int b) { return a + b; }
+int sub(int a, int b) { return a - b; }
+
+int (*test_return_func_ptr(int op))(int, int) {
+    if (op == 0) {
+        return add;
+    } else {
+        return sub;
+    }
+}
+
+// 14. return 返回数组元素
+int test_return_array_elem(int arr[5], int index) {
+    if (index < 0 || index >= 5) {
+        return -1;
+    }
+    return arr[index];
+}
+
+// 15. return 返回负数
+int test_return_negative(int x) {
+    return -x;
+}
+
+// 16. return 返回字符
+char test_return_char(char* str, int index) {
+    return str[index];
+}
+
+// 17. return 返回浮点数
+float test_return_float(float a, float b) {
+    return a + b;
+}
+
+// 18. return 返回双精度
+double test_return_double(double a, double b) {
+    return a * b;
+}
+
+// 19. return 返回 long long
+long long test_return_long_long(long long a, long long b) {
+    return a + b;
+}
+
+// 20. return 返回 unsigned
+unsigned int test_return_unsigned(unsigned int a, unsigned int b) {
+    return a - b;
+}
+
+// 21. return 提前返回
+int test_return_early(int x) {
+    if (x == 0) {
+        return 0;  // 提前返回
+    }
+    int result = x;
+    result = result * 2;
+    result = result + 10;
+    return result;
+}
+
+// 22. return 从 switch
+int test_return_switch(int val) {
+    switch (val) {
+        case 1:
+            return 10;
+        case 2:
+            return 20;
+        case 3:
+            return 30;
+        default:
+            return 0;
+    }
+}
+
+// 23. return 递归
+int test_return_recursive(int n) {
+    if (n <= 1) {
+        return n;
+    }
+    return test_return_recursive(n - 1) + test_return_recursive(n - 2);
+}
+
+// 24. return 阶乘递归
+int test_return_factorial(int n) {
+    if (n <= 1) {
+        return 1;
+    }
+    return n * test_return_factorial(n - 1);
+}
+
+// 25. return 返回布尔
+int test_return_bool(int a, int b) {
+    return a == b;  // 返回 1 或 0
+}
+
+// 26. return 返回比较结果
+int test_return_compare(int a, int b) {
+    return a > b;
+}
+
+// 27. return 返回逻辑运算
+int test_return_logic(int a, int b) {
+    return a && b;
+}
+
+// 28. return 返回位运算
+int test_return_bitwise(int a, int b) {
+    return a | b;
+}
+
+// 29. return 返回移位结果
+int test_return_shift(int x, int n) {
+    return x << n;
+}
+
+// 30. return 返回取模结果
+int test_return_mod(int a, int b) {
+    if (b == 0) {
+        return -1;
+    }
+    return a % b;
+}
+
+// 31. return 返回绝对值
+int test_return_abs(int x) {
+    if (x < 0) {
+        return -x;
+    }
+    return x;
+}
+
+// 32. return 返回最大值
+int test_return_max(int a, int b) {
+    if (a > b) {
+        return a;
+    }
+    return b;
+}
+
+// 33. return 返回最小值
+int test_return_min(int a, int b) {
+    if (a < b) {
+        return a;
+    }
+    return b;
+}
+
+// 34. return 返回符号
+int test_return_sign(int x) {
+    if (x > 0) return 1;
+    if (x < 0) return -1;
+    return 0;
+}
+
+// 35. return 多条件判断
+int test_return_multi_cond(int x, int y, int z) {
+    if (x < 0 || y < 0 || z < 0) {
+        return -1;
+    }
+    if (x == 0 && y == 0 && z == 0) {
+        return 0;
+    }
+    return x + y + z;
+}
+
+// 36. return 验证后返回
+int test_return_validate(int* ptr) {
+    if (ptr == 0) {
+        return -1;
+    }
+    if (*ptr < 0) {
+        return -2;
+    }
+    return *ptr;
+}
+
+// 37. return 计算后返回
+int test_return_compute(int n) {
+    int sum = 0;
+    for (int i = 1; i <= n; i++) {
+        sum = sum + i;
+    }
+    return sum;
+}
+
+// 38. return 链式调用结果
+int double_val(int x) {
+    return x * 2;
+}
+
+int test_return_chain(int x) {
+    return double_val(double_val(x));
+}
+
+// 39. return 错误码
+int test_return_error_code(int operation) {
+    switch (operation) {
+        case 0:
+            return 0;    // 成功
+        case 1:
+            return -1;   // 一般错误
+        case 2:
+            return -2;   // 内存错误
+        case 3:
+            return -3;   // IO 错误
+        default:
+            return -100; // 未知错误
+    }
+}
+
+// 40. return 状态值
+int test_return_status(int condition) {
+    if (condition == 1) {
+        return 1;  // OK
+    }
+    if (condition == 2) {
+        return 2;  // WARNING
+    }
+    if (condition == 3) {
+        return 3;  // ERROR
+    }
+    return 0;  // UNKNOWN
+}
+
+// 41. return 计数结果
+int test_return_count(int* arr, int size, int target) {
+    int count = 0;
+    for (int i = 0; i < size; i++) {
+        if (arr[i] == target) {
+            count = count + 1;
+        }
+    }
+    return count;
+}
+
+// 42. return sizeof
+int test_return_sizeof(void) {
+    return sizeof(int);
+}
+
+// 43. return 字符串长度
+int test_return_strlen(char* str) {
+    int len = 0;
+    while (str[len] != '\0') {
+        len = len + 1;
+    }
+    return len;
+}
+
+// 44. return 常量表达式
+int test_return_const_expr(void) {
+    return 2 + 3 * 4;  // 返回 14
+}
+
+// 45. return 复杂表达式
+int test_return_complex_expr(int a, int b, int c) {
+    return (a + b) * c - (a - b) / (c > 0 ? c : 1);
+}
+
+// 46. return 类型转换
+int test_return_cast(float f) {
+    return (int)f;
+}
+
+// 47. return 从嵌套循环
+int test_return_nested_loop(int** matrix, int rows, int cols, int target) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (matrix[i][j] == target) {
+                return i * cols + j;
+            }
+        }
+    }
+    return -1;
+}
+
+// 48. return 数组求和
+int test_return_array_sum(int* arr, int size) {
+    if (size <= 0) {
+        return 0;
+    }
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        sum = sum + arr[i];
+    }
+    return sum;
+}
+
+// 49. return 指针差
+int test_return_ptr_diff(int* start, int* end) {
+    return end - start;
+}
+
+// 50. return 成员值
+int test_return_member(struct Point* p) {
+    return p->x + p->y;
+}
+
+int main(void) {
+    // 基本 return
+    int result = test_return_int();
+    
+    // return 表达式
+    int sum = test_return_expr(10, 20);
+    
+    // void 函数 return
+    test_return_void(-1);  // 会提前返回
+    
+    // 条件 return
+    int sign = test_return_conditional(-5);
+    
+    // 递归 return
+    int fib = test_return_recursive(10);
+    
+    // 从循环返回
+    int arr[] = {1, 2, 3, 4, 5};
+    int idx = test_return_from_loop(arr, 5, 3);
+    
+    // 返回结构体
+    struct Point p = test_return_struct(10, 20);
+    
+    // 返回函数指针
+    int (*op)(int, int) = test_return_func_ptr(0);
+    int calc = op(5, 3);
+    
+    return 0;
+}

@@ -1,0 +1,52 @@
+/**
+ * @file test_typedef_struct_nested.cdd
+ * @brief typedef 与结构体嵌套/别名的运行期校验
+ *
+ * EXPECT_EXIT: 46
+ */
+
+// EXPECT_EXIT: 46
+
+typedef struct Inner {
+    int v;
+} Inner;
+
+typedef struct Outer {
+    Inner inner;
+    long long big;
+} Outer;
+
+typedef Outer* OuterPtr;
+
+Outer make_outer(int x, long long y) {
+    Outer o;
+    o.inner.v = x;
+    o.big = y;
+    return o;
+}
+
+int sum_outer(OuterPtr p) {
+    return p->inner.v + (int)p->big;
+}
+
+int main(void) {
+    Outer o1 = make_outer(5, 7LL);     // 5 + 7 = 12
+    Outer o2;
+    o2.inner.v = 9;
+    o2.big = 10LL;                     // 9 + 10 = 19
+
+    int total = sum_outer(&o1) + sum_outer(&o2); // 31
+
+    OuterPtr ptr = &o1;
+    ptr->inner.v = ptr->inner.v + 1;   // o1.inner.v = 6
+    total = total + sum_outer(ptr);    // +13 => 44
+
+    // 验证 typedef 指针与赋值
+    Outer copy = *ptr;
+    total = total + copy.inner.v - (int)copy.big; // 6 - 7 = -1 => 43
+
+    // 简单 long long 与 int 混算保持确定性
+    total = total + 3; // 46
+
+    return total;  // 46
+}

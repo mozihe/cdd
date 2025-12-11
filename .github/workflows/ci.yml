@@ -1,0 +1,67 @@
+# ============================================================================
+# CDD Compiler - CI/CD Workflow
+# ============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+    branches: [ master, main, develop ]
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        build_type: [Release, Debug]
+    
+    steps:
+    # 检出代码
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 安装依赖
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          cmake \
+          g++ \
+          nasm
+
+    # 配置 CMake
+    - name: Configure CMake
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+
+    # 构建
+    - name: Build
+      run: |
+        cd build
+        make -j$(nproc)
+
+    # 运行测试
+    - name: Run tests
+      run: |
+        chmod +x test/run_tests.sh
+        ./test/run_tests.sh
+      env:
+        CDD_COMPILER: ./build/driver/cdd
+
+    # 上传构建产物 (仅 Release)
+    - name: Upload artifacts
+      if: matrix.build_type == 'Release'
+      uses: actions/upload-artifact@v4
+      with:
+        name: cdd-compiler-linux-x64
+        path: |
+          build/driver/cdd
+          build/libcdd.so*
+        retention-days: 7

@@ -1,0 +1,443 @@
+/**
+ * @file test_identifier.cdd
+ * @brief 标识符测试用例
+ * 
+ * 测试各种合法标识符：变量名、函数名、类型名等
+ */
+
+// 1. 简单标识符
+int a;
+int x;
+int y;
+int z;
+
+// 2. 多字符标识符
+int abc;
+int xyz;
+int name;
+int value;
+
+// 3. 带数字的标识符
+int var1;
+int var2;
+int count1;
+int count2;
+int index0;
+
+// 4. 下划线开头
+int _var;
+int _count;
+int _private;
+int _internal;
+
+// 5. 下划线结尾
+int var_;
+int count_;
+int name_;
+
+// 6. 多下划线
+int __var__;
+int ___count;
+int var___name;
+
+// 7. 下划线分隔
+int my_var;
+int my_count;
+int first_name;
+int last_name;
+int total_sum;
+
+// 8. 驼峰命名
+int myVar;
+int myCount;
+int firstName;
+int lastName;
+int totalSum;
+
+// 9. 帕斯卡命名
+int MyVar;
+int MyCount;
+int FirstName;
+int LastName;
+int TotalSum;
+
+// 10. 全大写
+int MAX;
+int MIN;
+int SIZE;
+int COUNT;
+int VALUE;
+
+// 11. 全大写带下划线
+int MAX_VALUE;
+int MIN_VALUE;
+int ARRAY_SIZE;
+int BUFFER_COUNT;
+int DEFAULT_NAME;
+
+// 12. 很长的标识符
+int thisIsAVeryLongVariableNameThatIsStillValid;
+int another_extremely_long_identifier_with_underscores;
+
+// 13. 单字母大写
+int A;
+int B;
+int C;
+int X;
+int Y;
+int Z;
+
+// 14. 混合大小写和数字
+int Var1;
+int var1A;
+int A1b2C3;
+int myVar123;
+
+// 15. 类型标识符
+typedef int MyInt;
+typedef int int32_t;
+typedef long int64_t;
+typedef unsigned int uint32_t;
+
+// 16. 结构体标识符
+struct Point {
+    int x;
+    int y;
+};
+
+struct MyStruct {
+    int value;
+};
+
+struct _InternalStruct {
+    int data;
+};
+
+struct CONSTANT_STRUCT {
+    int val;
+};
+
+// 17. 联合体标识符
+union Data {
+    int i;
+    float f;
+};
+
+union _InternalUnion {
+    char c;
+    int i;
+};
+
+// 18. 枚举标识符
+enum Color {
+    RED,
+    GREEN,
+    BLUE
+};
+
+enum _Status {
+    OK,
+    ERROR,
+    PENDING
+};
+
+// 19. 枚举值标识符
+enum Weekday {
+    MONDAY,
+    TUESDAY,
+    WEDNESDAY,
+    THURSDAY,
+    FRIDAY,
+    SATURDAY,
+    SUNDAY
+};
+
+// 20. 函数标识符
+int calculate(void) {
+    return 0;
+}
+
+int getCount(void) {
+    return 0;
+}
+
+int set_value(int v) {
+    return v;
+}
+
+int _private_func(void) {
+    return 0;
+}
+
+// 21. 函数参数标识符
+int func_with_params(int param1, int param2, int _param3) {
+    return param1 + param2 + _param3;
+}
+
+// 22. 数组标识符
+int array[10];
+int myArray[20];
+int data_buffer[100];
+int CONST_ARRAY[5];
+
+// 23. 指针标识符
+int* ptr;
+int* myPtr;
+int* data_ptr;
+int* pValue;
+
+// 24. 函数指针标识符
+int (*funcPtr)(int, int);
+int (*callback)(void);
+int (*_internal_callback)(int);
+
+// 25. 局部变量命名
+int test_local_vars(void) {
+    int localVar;
+    int local_var;
+    int _local;
+    int local1;
+    return 0;
+}
+
+// 26. 循环变量
+int test_loop_vars(void) {
+    for (int i = 0; i < 10; i++) {}
+    for (int j = 0; j < 10; j++) {}
+    for (int k = 0; k < 10; k++) {}
+    for (int idx = 0; idx < 10; idx++) {}
+    for (int index = 0; index < 10; index++) {}
+    return 0;
+}
+
+// 27. 临时变量
+int test_temp_vars(void) {
+    int temp;
+    int tmp;
+    int t;
+    int _t;
+    int temp1;
+    return 0;
+}
+
+// 28. 返回值变量
+int test_result_vars(void) {
+    int result;
+    int ret;
+    int retVal;
+    int return_value;
+    int res;
+    return 0;
+}
+
+// 29. 标志变量
+int test_flag_vars(void) {
+    int flag;
+    int isValid;
+    int isDone;
+    int hasError;
+    int found;
+    int done;
+    return 0;
+}
+
+// 30. 计数变量
+int test_count_vars(void) {
+    int count;
+    int cnt;
+    int num;
+    int total;
+    int sum;
+    int len;
+    int length;
+    int size;
+    return 0;
+}
+
+// 31. 状态变量
+int test_status_vars(void) {
+    int status;
+    int state;
+    int mode;
+    int current_state;
+    int prev_state;
+    return 0;
+}
+
+// 32. 偏移量变量
+int test_offset_vars(void) {
+    int offset;
+    int start;
+    int end;
+    int begin;
+    int pos;
+    int position;
+    return 0;
+}
+
+// 33. 缓冲区变量
+int test_buffer_vars(void) {
+    char buffer[100];
+    char buf[50];
+    char data[200];
+    char str[80];
+    return 0;
+}
+
+// 34. 错误码变量
+int test_error_vars(void) {
+    int err;
+    int error;
+    int errno_;  // 避免与 errno 冲突
+    int error_code;
+    int errnum;
+    return 0;
+}
+
+// 35. 回调函数标识符
+typedef int (*Callback)(int);
+typedef void (*Handler)(void);
+typedef int (*Comparator)(int, int);
+typedef void* (*Allocator)(int);
+
+// 36. 宏风格标识符（常量）
+const int MAX_SIZE = 100;
+const int MIN_SIZE = 10;
+const int DEFAULT_VALUE = 0;
+const int BUFFER_LENGTH = 256;
+
+// 37. 匈牙利命名法风格
+int nCount;
+int iIndex;
+char cChar;
+float fValue;
+double dResult;
+char* szString;
+int* pnPointer;
+
+// 38. 前缀标识符
+int gGlobalVar;  // g 表示全局
+int mMemberVar;  // m 表示成员
+int sStaticVar;  // s 表示静态
+
+// 39. 后缀标识符
+int valueIn;
+int valueOut;
+int indexStart;
+int indexEnd;
+int sizeMax;
+int sizeMin;
+
+// 40. 数学相关
+int dx;
+int dy;
+int dz;
+int x1;
+int y1;
+int x2;
+int y2;
+int n;
+int m;
+int k;
+
+// 41. 保留字附近（合法）
+int int_;
+int if_;
+int for_;
+int while_;
+int return_;
+
+// 42. 数字组合
+int v1;
+int v2;
+int v123;
+int x0y0;
+int p1p2;
+
+// 43. 结构体成员标识符
+struct ComplexStruct {
+    int memberOne;
+    int member_two;
+    int _member3;
+    int MEMBER_FOUR;
+    int m5;
+};
+
+// 44. 联合体成员标识符
+union ComplexUnion {
+    int intVal;
+    float floatVal;
+    char charVal;
+    int _internal;
+};
+
+// 45. 全局函数
+int GlobalFunction(void);
+int global_function(void);
+int _InternalFunction(void);
+
+// 46. 静态函数标识符
+static int StaticHelper(void) {
+    return 0;
+}
+
+static int _static_internal(void) {
+    return 0;
+}
+
+// 47. 外部函数声明
+extern int external_function(void);
+extern int ExternalAPI(int param);
+
+// 48. 复杂类型标识符
+typedef struct _Node {
+    int data;
+    struct _Node* next;
+} Node;
+
+typedef struct _TreeNode {
+    int value;
+    struct _TreeNode* left;
+    struct _TreeNode* right;
+} TreeNode;
+
+// 49. 函数式宏风格（全大写）
+int ADD(int a, int b) {
+    return a + b;
+}
+
+int MUL(int a, int b) {
+    return a * b;
+}
+
+// 50. 单字符变量组合
+int test_single_chars(void) {
+    int a, b, c, d, e, f, g, h, i, j, k, l, m;
+    int n, o, p, q, r, s, t, u, v, w, x, y, z;
+    return 0;
+}
+
+int main(void) {
+    // 各种命名风格
+    int snake_case_var = 1;
+    int camelCaseVar = 2;
+    int PascalCaseVar = 3;
+    int CONSTANT_CASE = 4;
+    int _underscorePrefix = 5;
+    int suffix_ = 6;
+    int var123 = 7;
+    
+    // 使用类型
+    MyInt mi = 10;
+    struct Point p;
+    p.x = 1;
+    p.y = 2;
+    
+    // 使用枚举
+    enum Color c = RED;
+    
+    // 调用函数
+    int result = calculate();
+    
+    return 0;
+}

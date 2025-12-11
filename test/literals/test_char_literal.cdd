@@ -1,0 +1,385 @@
+/**
+ * @file test_char_literal.cdd
+ * @brief 字符字面量测试用例
+ * 
+ * 测试各种字符字面量：普通字符、转义字符、八进制、十六进制
+ */
+
+// 1. 基本字符
+int test_basic_char(void) {
+    char a = 'a';
+    char b = 'b';
+    char c = 'c';
+    char z = 'z';
+    return a + b + c + z;
+}
+
+// 2. 大写字母
+int test_uppercase(void) {
+    char A = 'A';
+    char B = 'B';
+    char C = 'C';
+    char Z = 'Z';
+    return A + B + C + Z;
+}
+
+// 3. 数字字符
+int test_digit_char(void) {
+    char d0 = '0';
+    char d1 = '1';
+    char d5 = '5';
+    char d9 = '9';
+    return d0 + d1 + d5 + d9;
+}
+
+// 4. 特殊字符
+int test_special_char(void) {
+    char space = ' ';
+    char exclaim = '!';
+    char at = '@';
+    char hash = '#';
+    char dollar = '$';
+    char percent = '%';
+    return space + exclaim + at + hash + dollar + percent;
+}
+
+// 5. 运算符字符
+int test_operator_char(void) {
+    char plus = '+';
+    char minus = '-';
+    char star = '*';
+    char slash = '/';
+    char eq = '=';
+    return plus + minus + star + slash + eq;
+}
+
+// 6. 括号字符
+int test_bracket_char(void) {
+    char lparen = '(';
+    char rparen = ')';
+    char lbracket = '[';
+    char rbracket = ']';
+    char lbrace = '{';
+    char rbrace = '}';
+    return lparen + rparen + lbracket + rbracket + lbrace + rbrace;
+}
+
+// 7. 转义字符 - 换行
+int test_newline(void) {
+    char nl = '\n';
+    return nl;  // ASCII 10
+}
+
+// 8. 转义字符 - 制表符
+int test_tab(void) {
+    char tab = '\t';
+    return tab;  // ASCII 9
+}
+
+// 9. 转义字符 - 回车
+int test_carriage_return(void) {
+    char cr = '\r';
+    return cr;  // ASCII 13
+}
+
+// 10. 转义字符 - 退格
+int test_backspace(void) {
+    char bs = '\b';
+    return bs;  // ASCII 8
+}
+
+// 11. 转义字符 - 换页
+int test_formfeed(void) {
+    char ff = '\f';
+    return ff;  // ASCII 12
+}
+
+// 12. 转义字符 - 垂直制表
+int test_vtab(void) {
+    char vt = '\v';
+    return vt;  // ASCII 11
+}
+
+// 13. 转义字符 - 响铃
+int test_alert(void) {
+    char bell = '\a';
+    return bell;  // ASCII 7
+}
+
+// 14. 转义字符 - 空字符
+int test_null_char(void) {
+    char null = '\0';
+    return null;  // ASCII 0
+}
+
+// 15. 转义字符 - 反斜杠
+int test_backslash(void) {
+    char bs = '\\';
+    return bs;  // ASCII 92
+}
+
+// 16. 转义字符 - 单引号
+int test_single_quote(void) {
+    char sq = '\'';
+    return sq;  // ASCII 39
+}
+
+// 17. 转义字符 - 双引号
+int test_double_quote(void) {
+    char dq = '\"';
+    return dq;  // ASCII 34
+}
+
+// 18. 转义字符 - 问号
+int test_question_mark(void) {
+    char q1 = '?';
+    char q2 = '\?';  // 转义问号（用于避免三字符组）
+    return q1 + q2;
+}
+
+// 19. 八进制转义
+int test_octal_escape(void) {
+    char a = '\0';      // 0
+    char b = '\7';      // 7
+    char c = '\10';     // 8
+    char d = '\77';     // 63 ('?')
+    char e = '\101';    // 65 ('A')
+    char f = '\141';    // 97 ('a')
+    return a + b + c + d + e + f;
+}
+
+// 20. 八进制转义 - 数字
+int test_octal_digits(void) {
+    char d0 = '\60';    // '0' (ASCII 48)
+    char d1 = '\61';    // '1' (ASCII 49)
+    char d9 = '\71';    // '9' (ASCII 57)
+    return d0 + d1 + d9;
+}
+
+// 21. 十六进制转义
+int test_hex_escape(void) {
+    char a = '\x00';    // 0
+    char b = '\x0A';    // 10 (换行)
+    char c = '\x41';    // 65 ('A')
+    char d = '\x61';    // 97 ('a')
+    char e = '\xFF';    // 255
+    return a + b + c + d + e;
+}
+
+// 22. 十六进制转义 - 小写
+int test_hex_lower(void) {
+    char a = '\x0a';    // 换行
+    char b = '\x41';    // 'A'
+    char c = '\x7f';    // DEL
+    return a + b + c;
+}
+
+// 23. ASCII 控制字符
+int test_control_chars(void) {
+    char nul = '\x00';  // NUL
+    char soh = '\x01';  // SOH
+    char stx = '\x02';  // STX
+    char etx = '\x03';  // ETX
+    char eot = '\x04';  // EOT
+    char esc = '\x1B';  // ESC
+    char del = '\x7F';  // DEL
+    return nul + soh + stx + etx + eot + esc + del;
+}
+
+// 24. 字符比较
+int test_char_compare(void) {
+    int a = ('a' < 'b');
+    int b = ('A' < 'a');
+    int c = ('0' < '9');
+    int d = ('A' == 65);
+    return a + b + c + d;  // 全为 1
+}
+
+// 25. 字符运算
+int test_char_arithmetic(void) {
+    char c = 'A';
+    int offset = c - 'A';  // 0
+    char next = c + 1;     // 'B'
+    char prev = c - 1;     // '@'
+    return offset + next + prev;
+}
+
+// 26. 大小写转换
+int test_case_convert(void) {
+    char upper = 'A';
+    char lower = upper + 32;  // 'a'
+    char back = lower - 32;   // 'A'
+    return upper + lower + back;
+}
+
+// 27. 字符判断 - 数字
+int test_is_digit(char c) {
+    return c >= '0' && c <= '9';
+}
+
+// 28. 字符判断 - 字母
+int test_is_alpha(char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+// 29. 字符判断 - 空白
+int test_is_space(char c) {
+    return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+}
+
+// 30. 字符数组
+int test_char_array(void) {
+    char arr[5] = {'H', 'e', 'l', 'l', 'o'};
+    int sum = 0;
+    for (int i = 0; i < 5; i++) {
+        sum = sum + arr[i];
+    }
+    return sum;
+}
+
+// 31. 字符数组初始化
+int test_char_array_init(void) {
+    char vowels[] = {'a', 'e', 'i', 'o', 'u'};
+    return sizeof(vowels);
+}
+
+// 32. 字符指针
+char test_char_pointer(void) {
+    char c = 'X';
+    char* p = &c;
+    return *p;
+}
+
+// 33. 结构体中的字符
+struct CharStruct {
+    char c1;
+    char c2;
+    char c3;
+};
+
+int test_struct_char(void) {
+    struct CharStruct s;
+    s.c1 = 'A';
+    s.c2 = 'B';
+    s.c3 = 'C';
+    return s.c1 + s.c2 + s.c3;
+}
+
+// 34. 字符作为 switch 值
+int test_char_switch(char c) {
+    switch (c) {
+        case 'a':
+            return 1;
+        case 'b':
+            return 2;
+        case 'c':
+            return 3;
+        default:
+            return 0;
+    }
+}
+
+// 35. 字符范围检查
+int test_char_range(char c) {
+    if (c >= 'A' && c <= 'Z') {
+        return 1;  // 大写
+    }
+    if (c >= 'a' && c <= 'z') {
+        return 2;  // 小写
+    }
+    if (c >= '0' && c <= '9') {
+        return 3;  // 数字
+    }
+    return 0;  // 其他
+}
+
+// 36. 字符到整数
+int test_char_to_int(char c) {
+    if (c >= '0' && c <= '9') {
+        return c - '0';
+    }
+    return -1;
+}
+
+// 37. 整数到字符
+char test_int_to_char(int n) {
+    if (n >= 0 && n <= 9) {
+        return '0' + n;
+    }
+    return '?';
+}
+
+// 38. 所有转义字符
+int test_all_escapes(void) {
+    char escapes[] = {
+        '\a',   // 响铃
+        '\b',   // 退格
+        '\f',   // 换页
+        '\n',   // 换行
+        '\r',   // 回车
+        '\t',   // 水平制表
+        '\v',   // 垂直制表
+        '\\',   // 反斜杠
+        '\'',   // 单引号
+        '\"',   // 双引号
+        '\?',   // 问号
+        '\0'    // 空字符
+    };
+    return sizeof(escapes);
+}
+
+// 39. 标点符号
+int test_punctuation(void) {
+    char punct[] = {
+        '.', ',', ':', ';', '!', '?',
+        '-', '_', '\'', '\"', '`',
+        '(', ')', '[', ']', '{', '}',
+        '<', '>', '/', '\\', '|',
+        '@', '#', '$', '%', '^', '&', '*',
+        '+', '=', '~'
+    };
+    return sizeof(punct);
+}
+
+// 40. 字符常量的大小
+int test_char_size(void) {
+    // 在 C 中，字符常量的类型是 int
+    int s1 = sizeof('a');      // sizeof(int)
+    int s2 = sizeof((char)'a'); // sizeof(char)
+    return s1 + s2;
+}
+
+int main(void) {
+    // 基本字符
+    char a = 'a';
+    char A = 'A';
+    char digit = '5';
+    
+    // 转义字符
+    char newline = '\n';
+    char tab = '\t';
+    char backslash = '\\';
+    char quote = '\'';
+    char null = '\0';
+    
+    // 八进制转义
+    char oct_a = '\101';  // 'A'
+    char oct_space = '\40';  // 空格
+    
+    // 十六进制转义
+    char hex_a = '\x41';  // 'A'
+    char hex_nl = '\x0A';  // 换行
+    
+    // 字符运算
+    char next = a + 1;  // 'b'
+    int diff = 'a' - 'A';  // 32
+    
+    // 字符比较
+    int less = (a < A);
+    int equal = (digit == '5');
+    
+    // 字符数组
+    char str[] = {'H', 'e', 'l', 'l', 'o', '\0'};
+    
+    return 0;
+}

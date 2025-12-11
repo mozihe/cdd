@@ -1,0 +1,359 @@
+/**
+ * @file test_int_literal.cdd
+ * @brief 整数字面量测试用例
+ * 
+ * 测试各种整数字面量格式：十进制、十六进制、八进制、二进制
+ * 以及后缀（L, LL, U, UL, ULL）
+ */
+
+// 1. 十进制整数
+int test_decimal_basic(void) {
+    int a = 0;
+    int b = 1;
+    int c = 42;
+    int d = 100;
+    int e = 12345;
+    return a + b + c + d + e;
+}
+
+// 2. 十进制负数
+int test_decimal_negative(void) {
+    int a = -1;
+    int b = -42;
+    int c = -100;
+    int d = -12345;
+    return a + b + c + d;
+}
+
+// 3. 十进制大数
+long long test_decimal_large(void) {
+    long long a = 1000000;
+    long long b = 123456789;
+    long long c = 2147483647;  // INT_MAX
+    return a + b + c;
+}
+
+// 4. 十六进制基本
+int test_hex_basic(void) {
+    int a = 0x0;
+    int b = 0x1;
+    int c = 0xA;
+    int d = 0xF;
+    int e = 0xFF;
+    return a + b + c + d + e;
+}
+
+// 5. 十六进制大写
+int test_hex_upper(void) {
+    int a = 0X0;
+    int b = 0XA;
+    int c = 0XFF;
+    int d = 0XABCD;
+    return a + b + c + d;
+}
+
+// 6. 十六进制混合大小写
+int test_hex_mixed(void) {
+    int a = 0xAbCd;
+    int b = 0XaBcD;
+    int c = 0xDeadBeef;
+    return a + b;
+}
+
+// 7. 十六进制常用值
+int test_hex_common(void) {
+    int a = 0x00;
+    int b = 0x10;      // 16
+    int c = 0x20;      // 32
+    int d = 0x40;      // 64
+    int e = 0x80;      // 128
+    int f = 0x100;     // 256
+    return a + b + c + d + e + f;
+}
+
+// 8. 十六进制位掩码
+int test_hex_mask(void) {
+    int mask1 = 0x01;
+    int mask2 = 0x02;
+    int mask3 = 0x04;
+    int mask4 = 0x08;
+    int mask5 = 0x0F;
+    int mask6 = 0xF0;
+    int mask7 = 0xFF;
+    return mask1 | mask2 | mask3 | mask4;
+}
+
+// 9. 八进制基本
+int test_octal_basic(void) {
+    int a = 00;
+    int b = 01;
+    int c = 07;
+    int d = 010;    // 8
+    int e = 0100;   // 64
+    return a + b + c + d + e;
+}
+
+// 10. 八进制权限
+int test_octal_permission(void) {
+    int rwx = 0777;   // rwxrwxrwx
+    int rw = 0666;    // rw-rw-rw-
+    int ro = 0444;    // r--r--r--
+    int exec = 0111;  // --x--x--x
+    int default_perm = 0755;  // rwxr-xr-x
+    return rwx + rw + ro + exec + default_perm;
+}
+
+// 11. 二进制字面量（如果支持）
+int test_binary_basic(void) {
+    // C99 不支持，C23 支持，这里注释说明
+    // int a = 0b0;
+    // int b = 0b1;
+    // int c = 0b1010;   // 10
+    // int d = 0b11111111;  // 255
+    int a = 0;
+    int b = 1;
+    int c = 10;
+    int d = 255;
+    return a + b + c + d;
+}
+
+// 12. 后缀 L (long)
+long test_suffix_l(void) {
+    long a = 0L;
+    long b = 100L;
+    long c = 123456L;
+    long d = 0xFFL;
+    return a + b + c + d;
+}
+
+// 13. 后缀 l (long 小写)
+long test_suffix_l_lower(void) {
+    long a = 0l;
+    long b = 100l;
+    long c = 123456l;
+    return a + b + c;
+}
+
+// 14. 后缀 LL (long long)
+long long test_suffix_ll(void) {
+    long long a = 0LL;
+    long long b = 100LL;
+    long long c = 9223372036854775807LL;  // LLONG_MAX
+    return a + b + c;
+}
+
+// 15. 后缀 ll (long long 小写)
+long long test_suffix_ll_lower(void) {
+    long long a = 0ll;
+    long long b = 100ll;
+    long long c = 1234567890123456789ll;
+    return a + b + c;
+}
+
+// 16. 后缀 U (unsigned)
+unsigned int test_suffix_u(void) {
+    unsigned int a = 0U;
+    unsigned int b = 100U;
+    unsigned int c = 4294967295U;  // UINT_MAX
+    return a + b + c;
+}
+
+// 17. 后缀 u (unsigned 小写)
+unsigned int test_suffix_u_lower(void) {
+    unsigned int a = 0u;
+    unsigned int b = 100u;
+    unsigned int c = 65535u;
+    return a + b + c;
+}
+
+// 18. 后缀 UL (unsigned long)
+unsigned long test_suffix_ul(void) {
+    unsigned long a = 0UL;
+    unsigned long b = 100UL;
+    unsigned long c = 4294967295UL;
+    return a + b + c;
+}
+
+// 19. 后缀 LU (long unsigned)
+unsigned long test_suffix_lu(void) {
+    unsigned long a = 0LU;
+    unsigned long b = 100LU;
+    return a + b;
+}
+
+// 20. 后缀 ULL (unsigned long long)
+unsigned long long test_suffix_ull(void) {
+    unsigned long long a = 0ULL;
+    unsigned long long b = 100ULL;
+    unsigned long long c = 18446744073709551615ULL;  // ULLONG_MAX
+    return a + b + c;
+}
+
+// 21. 后缀 LLU (long long unsigned)
+unsigned long long test_suffix_llu(void) {
+    unsigned long long a = 0LLU;
+    unsigned long long b = 100LLU;
+    return a + b;
+}
+
+// 22. 十六进制与后缀
+unsigned long test_hex_suffix(void) {
+    unsigned int a = 0xFFU;
+    unsigned long b = 0xFFFFFFFFUL;
+    unsigned long long c = 0xFFFFFFFFFFFFFFFFULL;
+    return a + b;
+}
+
+// 23. 八进制与后缀
+long test_octal_suffix(void) {
+    long a = 0777L;
+    unsigned long b = 0755UL;
+    return a + b;
+}
+
+// 24. 零的各种写法
+int test_zero(void) {
+    int a = 0;
+    int b = 00;      // 八进制 0
+    int c = 0x0;     // 十六进制 0
+    int d = 0X0;
+    return a + b + c + d;  // 全为 0
+}
+
+// 25. 1 的各种写法
+int test_one(void) {
+    int a = 1;
+    int b = 01;      // 八进制 1
+    int c = 0x1;     // 十六进制 1
+    return a + b + c;  // 全为 1
+}
+
+// 26. 特殊数值
+int test_special_values(void) {
+    int min_int = -2147483648;
+    int max_int = 2147483647;
+    int zero = 0;
+    int neg_one = -1;
+    return zero + neg_one + 1;
+}
+
+// 27. 位移量
+int test_shift_amounts(void) {
+    int s1 = 1 << 0;    // 1
+    int s2 = 1 << 1;    // 2
+    int s3 = 1 << 2;    // 4
+    int s4 = 1 << 3;    // 8
+    int s5 = 1 << 4;    // 16
+    int s6 = 1 << 7;    // 128
+    int s7 = 1 << 8;    // 256
+    int s8 = 1 << 15;   // 32768
+    int s9 = 1 << 16;   // 65536
+    return s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8 + s9;
+}
+
+// 28. 2 的幂
+int test_powers_of_two(void) {
+    int p0 = 1;
+    int p1 = 2;
+    int p2 = 4;
+    int p3 = 8;
+    int p4 = 16;
+    int p5 = 32;
+    int p6 = 64;
+    int p7 = 128;
+    int p8 = 256;
+    int p9 = 512;
+    int p10 = 1024;
+    return p0 + p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9 + p10;
+}
+
+// 29. 十六进制颜色值
+int test_hex_color(void) {
+    int red = 0xFF0000;
+    int green = 0x00FF00;
+    int blue = 0x0000FF;
+    int white = 0xFFFFFF;
+    int black = 0x000000;
+    return red + green + blue + white + black;
+}
+
+// 30. ASCII 值
+int test_ascii_values(void) {
+    int null_char = 0;
+    int tab = 9;
+    int newline = 10;
+    int carriage = 13;
+    int space = 32;
+    int digit_0 = 48;
+    int upper_a = 65;
+    int lower_a = 97;
+    int del = 127;
+    return null_char + tab + newline + space;
+}
+
+// 31. 整数字面量在表达式中
+int test_expr_literals(void) {
+    int result = 10 + 20 * 30 - 40 / 2;
+    return result;
+}
+
+// 32. 整数字面量比较
+int test_compare_literals(void) {
+    int a = (100 > 50);
+    int b = (0xFF == 255);
+    int c = (010 == 8);
+    return a + b + c;  // 全为 1
+}
+
+// 33. 整数字面量作为数组索引
+int test_array_index(int* arr) {
+    return arr[0] + arr[1] + arr[2] + arr[3] + arr[4];
+}
+
+// 34. 整数字面量作为数组大小
+int test_array_size(void) {
+    int arr1[10];
+    int arr2[256];
+    int arr3[0x10];  // 16
+    return sizeof(arr1) / sizeof(int);
+}
+
+// 35. 边界值测试
+long long test_boundary(void) {
+    long long v1 = 127;           // CHAR_MAX
+    long long v2 = -128;          // CHAR_MIN
+    long long v3 = 255;           // UCHAR_MAX
+    long long v4 = 32767;         // SHORT_MAX
+    long long v5 = -32768;        // SHORT_MIN
+    long long v6 = 65535;         // USHORT_MAX
+    long long v7 = 2147483647;    // INT_MAX
+    long long v8 = -2147483648;   // INT_MIN
+    return v1 + v3 + v4 + v6;
+}
+
+int main(void) {
+    // 十进制
+    int dec = 42;
+    
+    // 十六进制
+    int hex1 = 0xFF;
+    int hex2 = 0xDEADBEEF;
+    
+    // 八进制
+    int oct = 0755;
+    
+    // 带后缀
+    long l = 100L;
+    long long ll = 100LL;
+    unsigned int u = 100U;
+    unsigned long ul = 100UL;
+    unsigned long long ull = 100ULL;
+    
+    // 在表达式中
+    int result = 10 + 0x10 + 010;  // 10 + 16 + 8 = 34
+    
+    // 数组大小
+    int arr[100];
+    
+    return 0;
+}

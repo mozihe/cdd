@@ -1,0 +1,11 @@
+/**
+ * 路径带空格测试头文件
+ */
+
+#ifndef PATH_WITH_SPACE_HEADER_HDD
+#define PATH_WITH_SPACE_HEADER_HDD
+
+#define SPACE_PATH_WORKS 1
+typedef int SpacePathType;
+
+#endif // PATH_WITH_SPACE_HEADER_HDD

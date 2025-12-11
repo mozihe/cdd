@@ -1,0 +1,31 @@
+/**
+ * @file test_bitwise_logical_ops.cdd
+ * @brief 按位与逻辑运算、移位与短路行为的运行期校验
+ *
+ * EXPECT_EXIT: 44
+ */
+
+// EXPECT_EXIT: 44
+
+int main(void) {
+    int a = 6;   // 0b0110
+    int b = 3;   // 0b0011
+    int result = 0;
+
+    result = result + (a & b);        // 2
+    result = result + (a | b);        // +7 => 9
+    result = result + (a ^ b);        // +5 => 14
+    result = result + ((~b) & 0x0F);  // +12 => 26
+    result = result + (a << 1);       // +12 => 38
+    result = result + (b >> 1);       // +1  => 39
+
+    int calls = 0;
+    int and_value = (calls++ == 0) && (calls++ == 1);  // calls:2
+    int or_value = (calls++ == 2) || (calls++ == 99);  // 第二个不应执行，calls:3
+
+    result = result + calls;      // +3 => 42
+    result = result + and_value;  // +1 => 43
+    result = result + or_value;   // +1 => 44
+
+    return result;  // 44
+}

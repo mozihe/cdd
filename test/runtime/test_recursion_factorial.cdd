@@ -1,0 +1,27 @@
+/**
+ * @file test_recursion_factorial.cdd
+ * @brief 递归函数与乘法运算的运行期校验
+ *
+ * EXPECT_EXIT: 33
+ */
+
+// EXPECT_EXIT: 33
+
+int factorial(int n) {
+    if (n <= 1) {
+        return 1;
+    }
+    return n * factorial(n - 1);
+}
+
+int tail_factorial_helper(int n, int acc) {
+    return n <= 1 ? acc : tail_factorial_helper(n - 1, n * acc);
+}
+
+int main(void) {
+    int res1 = factorial(4);            // 24
+    int res2 = tail_factorial_helper(3, 1); // 6
+    int res3 = factorial(1);            // base:1
+    int res4 = tail_factorial_helper(0, 2); // 2
+    return res1 + res2 + res3 + res4;   // 24+6+1+2 = 33
+}

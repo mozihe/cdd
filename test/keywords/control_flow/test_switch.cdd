@@ -1,0 +1,565 @@
+/**
+ * @file test_switch.cdd
+ * @brief switch 关键字测试用例
+ * 
+ * 测试 switch 语句的各种用法
+ */
+
+// 1. 基本 switch
+int test_basic_switch(int x) {
+    switch (x) {
+        case 0:
+            return 0;
+        case 1:
+            return 1;
+        case 2:
+            return 2;
+        default:
+            return -1;
+    }
+}
+
+// 2. switch 不带 default
+int test_switch_no_default(int x) {
+    switch (x) {
+        case 0:
+            return 0;
+        case 1:
+            return 1;
+    }
+    return -1;
+}
+
+// 3. switch 带 break
+int test_switch_break(int x) {
+    int result = 0;
+    switch (x) {
+        case 0:
+            result = 10;
+            break;
+        case 1:
+            result = 20;
+            break;
+        case 2:
+            result = 30;
+            break;
+        default:
+            result = -1;
+            break;
+    }
+    return result;
+}
+
+// 4. switch 穿透（fall-through）
+int test_switch_fallthrough(int x) {
+    int result = 0;
+    switch (x) {
+        case 0:
+        case 1:
+        case 2:
+            result = 1;  // 0, 1, 2 都执行这里
+            break;
+        case 3:
+        case 4:
+            result = 2;  // 3, 4 都执行这里
+            break;
+        default:
+            result = -1;
+    }
+    return result;
+}
+
+// 5. switch 部分穿透
+int test_switch_partial_fallthrough(int x) {
+    int result = 0;
+    switch (x) {
+        case 1:
+            result = result + 1;
+            // 穿透到 case 2
+        case 2:
+            result = result + 2;
+            // 穿透到 case 3
+        case 3:
+            result = result + 3;
+            break;
+        default:
+            result = -1;
+    }
+    return result;
+}
+
+// 6. switch 与枚举
+enum Color {
+    RED,
+    GREEN,
+    BLUE
+};
+
+const char* color_name(enum Color c) {
+    switch (c) {
+        case RED:
+            return "Red";
+        case GREEN:
+            return "Green";
+        case BLUE:
+            return "Blue";
+        default:
+            return "Unknown";
+    }
+}
+
+// 7. switch 与字符
+int test_switch_char(char c) {
+    switch (c) {
+        case 'a':
+        case 'e':
+        case 'i':
+        case 'o':
+        case 'u':
+        case 'A':
+        case 'E':
+        case 'I':
+        case 'O':
+        case 'U':
+            return 1;  // 元音
+        default:
+            return 0;  // 辅音或其他
+    }
+}
+
+// 8. switch default 在中间
+int test_switch_default_middle(int x) {
+    switch (x) {
+        case 1:
+            return 1;
+        default:
+            return 0;
+        case 2:
+            return 2;
+    }
+}
+
+// 9. switch 复杂 case 标签
+int test_switch_complex_labels(int x) {
+    switch (x) {
+        case 1 + 1:    // case 2
+            return 2;
+        case 3 * 2:    // case 6
+            return 6;
+        case 100 / 10: // case 10
+            return 10;
+        default:
+            return 0;
+    }
+}
+
+// 10. switch 负数 case
+int test_switch_negative(int x) {
+    switch (x) {
+        case -2:
+            return -2;
+        case -1:
+            return -1;
+        case 0:
+            return 0;
+        case 1:
+            return 1;
+        case 2:
+            return 2;
+        default:
+            return 999;
+    }
+}
+
+// 11. switch 大范围 case
+int test_switch_large_values(int x) {
+    switch (x) {
+        case 0:
+            return 0;
+        case 100:
+            return 1;
+        case 1000:
+            return 2;
+        case 10000:
+            return 3;
+        case 100000:
+            return 4;
+        default:
+            return -1;
+    }
+}
+
+// 12. switch 带局部变量
+int test_switch_local_var(int x) {
+    switch (x) {
+        case 1: {
+            int local = 10;
+            return local;
+        }
+        case 2: {
+            int local = 20;
+            return local;
+        }
+        default: {
+            int local = -1;
+            return local;
+        }
+    }
+}
+
+// 13. switch 多语句
+int test_switch_multi_stmt(int x) {
+    int a = 0;
+    int b = 0;
+    switch (x) {
+        case 1:
+            a = 10;
+            b = 20;
+            break;
+        case 2:
+            a = 30;
+            b = 40;
+            break;
+        default:
+            a = -1;
+            b = -1;
+    }
+    return a + b;
+}
+
+// 14. 嵌套 switch
+int test_switch_nested(int x, int y) {
+    switch (x) {
+        case 0:
+            switch (y) {
+                case 0:
+                    return 0;
+                case 1:
+                    return 1;
+                default:
+                    return -1;
+            }
+        case 1:
+            switch (y) {
+                case 0:
+                    return 10;
+                case 1:
+                    return 11;
+                default:
+                    return -2;
+            }
+        default:
+            return -3;
+    }
+}
+
+// 15. switch 用于状态机
+enum State {
+    INIT,
+    RUNNING,
+    PAUSED,
+    STOPPED
+};
+
+enum State next_state(enum State current, int event) {
+    switch (current) {
+        case INIT:
+            if (event == 1) return RUNNING;
+            break;
+        case RUNNING:
+            if (event == 2) return PAUSED;
+            if (event == 3) return STOPPED;
+            break;
+        case PAUSED:
+            if (event == 1) return RUNNING;
+            if (event == 3) return STOPPED;
+            break;
+        case STOPPED:
+            if (event == 4) return INIT;
+            break;
+    }
+    return current;
+}
+
+// 16. switch 用于命令解析
+int execute_command(int cmd) {
+    switch (cmd) {
+        case 0x01:
+            return 1;  // 命令1
+        case 0x02:
+            return 2;  // 命令2
+        case 0x10:
+            return 16; // 命令16
+        case 0xFF:
+            return 255; // 命令255
+        default:
+            return -1; // 未知命令
+    }
+}
+
+// 17. switch 十六进制 case
+int test_switch_hex(int x) {
+    switch (x) {
+        case 0x00:
+            return 0;
+        case 0x0A:
+            return 10;
+        case 0x0F:
+            return 15;
+        case 0xFF:
+            return 255;
+        default:
+            return -1;
+    }
+}
+
+// 18. switch 八进制 case
+int test_switch_octal(int x) {
+    switch (x) {
+        case 00:
+            return 0;
+        case 01:
+            return 1;
+        case 07:
+            return 7;
+        case 010:  // 8 in decimal
+            return 8;
+        default:
+            return -1;
+    }
+}
+
+// 19. switch 字符串选择（通过首字符）
+int string_type(const char* str) {
+    if (!str) return -1;
+    switch (str[0]) {
+        case 'a':
+        case 'b':
+        case 'c':
+            return 1;
+        case '0':
+        case '1':
+        case '2':
+            return 2;
+        case '+':
+        case '-':
+        case '*':
+            return 3;
+        default:
+            return 0;
+    }
+}
+
+// 20. switch 用于菜单
+int menu_action(int choice) {
+    switch (choice) {
+        case 1:
+            return 100;  // 打开
+        case 2:
+            return 200;  // 保存
+        case 3:
+            return 300;  // 退出
+        case 0:
+            return 0;    // 取消
+        default:
+            return -1;   // 无效选择
+    }
+}
+
+// 21. switch 返回布尔值
+int is_digit(char c) {
+    switch (c) {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            return 1;
+        default:
+            return 0;
+    }
+}
+
+// 22. switch 与表达式
+int test_switch_expr(int a, int b) {
+    switch (a + b) {
+        case 0:
+            return 0;
+        case 1:
+            return 1;
+        case 2:
+            return 2;
+        default:
+            return -1;
+    }
+}
+
+// 23. switch 与函数调用
+int get_value(void) {
+    return 1;
+}
+
+int test_switch_func(void) {
+    switch (get_value()) {
+        case 0:
+            return 0;
+        case 1:
+            return 1;
+        case 2:
+            return 2;
+        default:
+            return -1;
+    }
+}
+
+// 24. switch 连续执行
+int test_switch_continuous(int x) {
+    int count = 0;
+    switch (x) {
+        case 5:
+            count = count + 1;
+        case 4:
+            count = count + 1;
+        case 3:
+            count = count + 1;
+        case 2:
+            count = count + 1;
+        case 1:
+            count = count + 1;
+            break;
+        default:
+            count = 0;
+    }
+    return count;
+}
+
+// 25. switch 只有 default
+int test_switch_only_default(int x) {
+    switch (x) {
+        default:
+            return 0;
+    }
+}
+
+// 26. switch 空 case 体
+int test_switch_empty_case(int x) {
+    int result = 0;
+    switch (x) {
+        case 1:
+            // 空，穿透到 case 2
+        case 2:
+            // 空，穿透到 case 3
+        case 3:
+            result = 3;
+            break;
+        default:
+            result = -1;
+    }
+    return result;
+}
+
+// 27. switch 作用域
+int test_switch_scope(int x) {
+    switch (x) {
+        case 1: {
+            int a = 1;
+            return a;
+        }
+        case 2: {
+            int a = 2;  // 不同作用域，可以重名
+            return a;
+        }
+        default:
+            return 0;
+    }
+}
+
+// 28. switch 处理错误码
+const char* get_error_message(int code) {
+    switch (code) {
+        case 0:
+            return "Success";
+        case 1:
+            return "File not found";
+        case 2:
+            return "Permission denied";
+        case 3:
+            return "Invalid argument";
+        case 4:
+            return "Out of memory";
+        default:
+            return "Unknown error";
+    }
+}
+
+// 29. switch 计算
+int calculate(int op, int a, int b) {
+    switch (op) {
+        case '+':
+            return a + b;
+        case '-':
+            return a - b;
+        case '*':
+            return a * b;
+        case '/':
+            if (b != 0) return a / b;
+            return 0;
+        case '%':
+            if (b != 0) return a % b;
+            return 0;
+        default:
+            return 0;
+    }
+}
+
+// 30. switch 月份天数
+int days_in_month(int month, int is_leap) {
+    switch (month) {
+        case 1: case 3: case 5: case 7:
+        case 8: case 10: case 12:
+            return 31;
+        case 4: case 6: case 9: case 11:
+            return 30;
+        case 2:
+            return is_leap ? 29 : 28;
+        default:
+            return -1;
+    }
+}
+
+int main(void) {
+    int x = 1;
+    
+    // 基本 switch
+    switch (x) {
+        case 0:
+            x = 10;
+            break;
+        case 1:
+            x = 20;
+            break;
+        default:
+            x = 0;
+    }
+    
+    // 带枚举的 switch
+    enum Color c = RED;
+    switch (c) {
+        case RED:
+            x = 1;
+            break;
+        case GREEN:
+            x = 2;
+            break;
+        case BLUE:
+            x = 3;
+            break;
+    }
+    
+    return 0;
+}

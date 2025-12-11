@@ -1,0 +1,463 @@
+/**
+ * @file test_continue.cdd
+ * @brief continue 关键字测试用例
+ * 
+ * 测试 continue 语句的各种用法
+ * continue 用于跳过当前循环迭代，继续下一次迭代
+ */
+
+// 1. continue 在 for 循环中
+int test_continue_for(int n) {
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+        if (i % 2 == 0) {
+            continue;  // 跳过偶数
+        }
+        sum = sum + i;
+    }
+    return sum;  // 奇数之和
+}
+
+// 2. continue 在 while 循环中
+int test_continue_while(int n) {
+    int i = 0;
+    int sum = 0;
+    while (i < n) {
+        i = i + 1;
+        if (i % 3 == 0) {
+            continue;  // 跳过 3 的倍数
+        }
+        sum = sum + i;
+    }
+    return sum;
+}
+
+// 3. continue 在 do-while 循环中
+int test_continue_do_while(int n) {
+    int i = 0;
+    int sum = 0;
+    do {
+        i = i + 1;
+        if (i % 2 == 0) {
+            continue;  // 跳过偶数
+        }
+        sum = sum + i;
+    } while (i < n);
+    return sum;
+}
+
+// 4. continue 跳过特定值
+int test_continue_skip_value(int* arr, int size, int skip) {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        if (arr[i] == skip) {
+            continue;
+        }
+        sum = sum + arr[i];
+    }
+    return sum;
+}
+
+// 5. continue 跳过负数
+int test_continue_positive(int* arr, int size) {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        if (arr[i] < 0) {
+            continue;
+        }
+        sum = sum + arr[i];
+    }
+    return sum;
+}
+
+// 6. continue 跳过零
+int test_continue_nonzero(int* arr, int size) {
+    int count = 0;
+    for (int i = 0; i < size; i++) {
+        if (arr[i] == 0) {
+            continue;
+        }
+        count = count + 1;
+    }
+    return count;
+}
+
+// 7. continue 在嵌套循环中（只影响最内层）
+int test_continue_nested(int n, int m) {
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (j == 2) {
+                continue;  // 跳过 j==2，继续内层循环
+            }
+            count = count + 1;
+        }
+    }
+    return count;
+}
+
+// 8. continue 过滤字符
+int test_continue_filter_char(char* str, char skip) {
+    int count = 0;
+    for (int i = 0; str[i] != '\0'; i++) {
+        if (str[i] == skip) {
+            continue;
+        }
+        count = count + 1;
+    }
+    return count;
+}
+
+// 9. continue 跳过空白字符
+int test_continue_skip_space(char* str) {
+    int count = 0;
+    for (int i = 0; str[i] != '\0'; i++) {
+        if (str[i] == ' ' || str[i] == '\t' || str[i] == '\n') {
+            continue;
+        }
+        count = count + 1;
+    }
+    return count;
+}
+
+// 10. continue 与多条件
+int test_continue_multi_cond(int* arr, int size) {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        if (arr[i] < 0 || arr[i] > 100) {
+            continue;  // 跳过范围外的值
+        }
+        sum = sum + arr[i];
+    }
+    return sum;
+}
+
+// 11. continue 在无限循环中
+int test_continue_infinite(int n) {
+    int i = 0;
+    int sum = 0;
+    while (1) {
+        i = i + 1;
+        if (i > n) {
+            break;
+        }
+        if (i % 2 == 0) {
+            continue;
+        }
+        sum = sum + i;
+    }
+    return sum;
+}
+
+// 12. continue 跳过处理过的元素
+int test_continue_processed(int* arr, int* processed, int size) {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        if (processed[i]) {
+            continue;
+        }
+        sum = sum + arr[i];
+        processed[i] = 1;
+    }
+    return sum;
+}
+
+// 13. continue 数据验证
+int test_continue_validate(int* data, int size) {
+    int valid_count = 0;
+    for (int i = 0; i < size; i++) {
+        // 跳过无效数据
+        if (data[i] < 0) {
+            continue;
+        }
+        if (data[i] > 1000) {
+            continue;
+        }
+        valid_count = valid_count + 1;
+    }
+    return valid_count;
+}
+
+// 14. continue 跳过奇数
+int test_continue_even(int n) {
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+        if (i % 2 != 0) {
+            continue;  // 跳过奇数
+        }
+        sum = sum + i;
+    }
+    return sum;  // 偶数之和
+}
+
+// 15. continue 跳过素数
+int is_prime(int n) {
+    if (n < 2) return 0;
+    for (int i = 2; i * i <= n; i++) {
+        if (n % i == 0) return 0;
+    }
+    return 1;
+}
+
+int test_continue_skip_prime(int n) {
+    int sum = 0;
+    for (int i = 2; i <= n; i++) {
+        if (is_prime(i)) {
+            continue;
+        }
+        sum = sum + i;
+    }
+    return sum;
+}
+
+// 16. continue 跳过已存在的
+int test_continue_unique(int* arr, int size, int* unique, int* unique_count) {
+    *unique_count = 0;
+    for (int i = 0; i < size; i++) {
+        int found = 0;
+        for (int j = 0; j < *unique_count; j++) {
+            if (unique[j] == arr[i]) {
+                found = 1;
+                break;
+            }
+        }
+        if (found) {
+            continue;  // 跳过重复
+        }
+        unique[*unique_count] = arr[i];
+        *unique_count = *unique_count + 1;
+    }
+    return *unique_count;
+}
+
+// 17. continue 在指针遍历中
+int test_continue_pointer(int* arr, int size) {
+    int sum = 0;
+    int* p = arr;
+    int* end = arr + size;
+    while (p < end) {
+        if (*p <= 0) {
+            p = p + 1;
+            continue;
+        }
+        sum = sum + *p;
+        p = p + 1;
+    }
+    return sum;
+}
+
+// 18. continue 跳过特定索引
+int test_continue_skip_index(int* arr, int size, int skip_idx) {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        if (i == skip_idx) {
+            continue;
+        }
+        sum = sum + arr[i];
+    }
+    return sum;
+}
+
+// 19. continue 在 for 更新前
+int test_continue_before_update(int n) {
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        if (i == 5) {
+            // continue 会跳转到 i++ 更新表达式
+            continue;
+        }
+        count = count + 1;
+    }
+    return count;
+}
+
+// 20. continue 在 while 中注意更新
+int test_continue_while_update(int n) {
+    int i = 0;
+    int sum = 0;
+    while (i < n) {
+        i = i + 1;  // 更新在 continue 前
+        if (i % 2 == 0) {
+            continue;
+        }
+        sum = sum + i;
+    }
+    return sum;
+}
+
+// 21. continue 避免死循环
+int test_continue_no_deadlock(int n) {
+    int i = 0;
+    int sum = 0;
+    while (i < n) {
+        int current = i;
+        i = i + 1;  // 先更新
+        if (current % 2 == 0) {
+            continue;  // 安全的 continue
+        }
+        sum = sum + current;
+    }
+    return sum;
+}
+
+// 22. continue 与 break 组合
+int test_continue_break(int* arr, int size) {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        if (arr[i] < 0) {
+            continue;  // 跳过负数
+        }
+        if (arr[i] == 0) {
+            break;  // 遇到 0 终止
+        }
+        sum = sum + arr[i];
+    }
+    return sum;
+}
+
+// 23. continue 在矩阵处理中
+int test_continue_matrix(int* matrix, int rows, int cols) {
+    int sum = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            int val = matrix[i * cols + j];
+            if (val < 0) {
+                continue;
+            }
+            sum = sum + val;
+        }
+    }
+    return sum;
+}
+
+// 24. continue 跳过对角线
+int test_continue_skip_diagonal(int* matrix, int n) {
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (i == j) {
+                continue;  // 跳过对角线
+            }
+            sum = sum + matrix[i * n + j];
+        }
+    }
+    return sum;
+}
+
+// 25. continue 在链表处理中
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+int test_continue_list(struct Node* head) {
+    int sum = 0;
+    struct Node* curr = head;
+    while (curr != 0) {
+        if (curr->data < 0) {
+            curr = curr->next;
+            continue;
+        }
+        sum = sum + curr->data;
+        curr = curr->next;
+    }
+    return sum;
+}
+
+// 26. continue 跳过注释行
+int test_continue_skip_comments(char** lines, int count) {
+    int code_lines = 0;
+    for (int i = 0; i < count; i++) {
+        if (lines[i][0] == '/' && lines[i][1] == '/') {
+            continue;  // 跳过注释
+        }
+        code_lines = code_lines + 1;
+    }
+    return code_lines;
+}
+
+// 27. continue 单语句
+int test_continue_single(int n) {
+    int sum = 0;
+    for (int i = 0; i < n; i++)
+        if (i % 2 == 0) continue; else sum = sum + i;
+    return sum;
+}
+
+// 28. continue 复杂过滤
+int test_continue_complex_filter(int* arr, int size) {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        // 跳过：负数、零、大于 100、偶数
+        if (arr[i] <= 0) continue;
+        if (arr[i] > 100) continue;
+        if (arr[i] % 2 == 0) continue;
+        sum = sum + arr[i];
+    }
+    return sum;
+}
+
+// 29. continue 在状态处理中
+int test_continue_state(int* events, int count) {
+    int state = 0;
+    int transitions = 0;
+    for (int i = 0; i < count; i++) {
+        if (events[i] == 0) {
+            continue;  // 跳过无效事件
+        }
+        // 处理状态转换
+        state = (state + events[i]) % 3;
+        transitions = transitions + 1;
+    }
+    return transitions;
+}
+
+// 30. continue 在三重循环中
+int test_continue_triple(int a, int b, int c) {
+    int count = 0;
+    for (int i = 0; i < a; i++) {
+        if (i % 2 == 0) continue;
+        for (int j = 0; j < b; j++) {
+            if (j % 2 == 0) continue;
+            for (int k = 0; k < c; k++) {
+                if (k % 2 == 0) continue;
+                count = count + 1;
+            }
+        }
+    }
+    return count;
+}
+
+int main(void) {
+    // continue 跳过偶数
+    int sum = 0;
+    for (int i = 0; i < 10; i++) {
+        if (i % 2 == 0) {
+            continue;
+        }
+        sum = sum + i;  // 只加奇数
+    }
+    
+    // continue 在 while 中
+    int j = 0;
+    int count = 0;
+    while (j < 20) {
+        j = j + 1;
+        if (j % 3 == 0) {
+            continue;  // 跳过 3 的倍数
+        }
+        count = count + 1;
+    }
+    
+    // continue 在嵌套循环中
+    for (int x = 0; x < 5; x++) {
+        for (int y = 0; y < 5; y++) {
+            if (y == 2) {
+                continue;  // 只影响内层循环
+            }
+            // 处理 (x, y)
+        }
+    }
+    
+    return 0;
+}

@@ -1,0 +1,36 @@
+/**
+ * @file test_array_pointer.cdd
+ * @brief 数组与指针算术的运行期校验
+ *
+ * EXPECT_EXIT: 27
+ */
+
+// EXPECT_EXIT: 27
+
+int main(void) {
+    int values[5] = {1, 2, 3, 4, 5};
+    int* p = values;
+
+    int total = *(p + 1) + *(p + 2) + values[3];  // 2 + 3 + 4 = 9
+
+    p = p + 4;            // 指向 values[4]
+    total = total + *p;   // +5 => 14
+    p = p - 2;            // 回到 values[2]
+    total = total + p[0]; // +3 => 17
+
+    int diff = &values[4] - &values[0];  // 4
+    total = total + diff;                // 21
+
+    int *q = &values[1];
+    int are_equal = (q == (values + 1)); // 1
+    total = total + are_equal;           // 22
+
+    int are_less = (&values[0] < &values[4]); // 1
+    total = total + are_less;                // 23
+
+    int tmp = *q++; // q 指向 values[1]，取2再移动
+    total = total + tmp; // +2 => 25
+    total = total + *q;  // 现在指向 values[2]=3 => 28
+
+    return total - 1;    // 27
+}

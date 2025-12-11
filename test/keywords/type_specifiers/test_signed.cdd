@@ -1,0 +1,168 @@
+/**
+ * @file test_signed.cdd
+ * @brief signed 关键字测试用例
+ * 
+ * 测试 signed 类型修饰符的各种用法
+ */
+
+// 1. signed 单独使用（等价于 signed int）
+signed just_signed;
+
+// 2. signed 初始化
+signed signed_init = -100;
+
+// 3. signed char
+signed char signed_c = -128;
+
+// 4. signed char 最大值
+signed char signed_c_max = 127;
+
+// 5. signed short
+signed short signed_s = -32768;
+
+// 6. signed short 最大值
+signed short signed_s_max = 32767;
+
+// 7. signed int
+signed int signed_i = -2147483647;
+
+// 8. signed int 最大值
+signed int signed_i_max = 2147483647;
+
+// 9. signed long
+signed long signed_l = -2147483647;
+
+// 10. signed long long
+signed long long signed_ll = -9223372036854775807;
+
+// 11. signed short int
+signed short int ssi = -1000;
+
+// 12. signed long int
+signed long int sli = -100000;
+
+// 13. signed long long int
+signed long long int slli = -1000000000000;
+
+// 14. signed 数组
+signed signed_array[50];
+
+// 15. signed char 数组
+signed char sc_array[50];
+
+// 16. signed 指针
+signed* signed_ptr;
+
+// 17. signed char 指针
+signed char* sc_ptr;
+
+// 18. const signed
+const signed const_signed = -500;
+
+// 19. const signed char
+const signed char const_sc = -50;
+
+// 20. volatile signed
+volatile signed volatile_signed;
+
+// 21. signed 指针的指针
+signed** ptr_to_signed_ptr;
+
+// 22. signed char 指针的指针
+signed char** ptr_to_sc_ptr;
+
+// 23. 返回 signed 的函数
+signed get_signed(void) {
+    return -42;
+}
+
+// 24. 返回 signed char 的函数
+signed char get_signed_char(void) {
+    return -10;
+}
+
+// 25. signed 参数
+void accept_signed(signed s) {
+    return;
+}
+
+// 26. signed char 参数
+void accept_signed_char(signed char sc) {
+    return;
+}
+
+// 27. 函数指针，返回 signed
+signed (*signed_func_ptr)(void);
+
+// 28. 函数指针，返回 signed char
+signed char (*sc_func_ptr)(void);
+
+// 29. signed 运算
+signed signed_arithmetic() {
+    signed a = -100;
+    signed b = 50;
+    signed sum = a + b;
+    signed diff = a - b;
+    signed prod = a * b;
+    signed quot = a / b;
+    signed rem = a % b;
+    return sum;
+}
+
+// 30. signed char 运算
+signed char sc_arithmetic() {
+    signed char a = -100;
+    signed char b = 50;
+    signed char sum = a + b;
+    return sum;
+}
+
+// 31. signed 位运算
+signed signed_bitwise() {
+    signed a = 0x0F0F0F0F;
+    signed b = -1;
+    signed and_result = a & b;
+    signed or_result = a | b;
+    signed xor_result = a ^ b;
+    signed not_result = ~a;
+    signed left_shift = a << 4;
+    signed right_shift = a >> 4;  // 算术右移，保持符号位
+    return right_shift;
+}
+
+// 32. signed 比较
+int signed_compare() {
+    signed a = -10;
+    signed b = 10;
+    if (a < b) {
+        return 1;
+    }
+    return 0;
+}
+
+// 33. signed 类型转换
+unsigned signed_to_unsigned(signed s) {
+    return (unsigned)s;
+}
+
+// 34. signed char 到 int
+int sc_to_int(signed char sc) {
+    return (int)sc;  // 符号扩展
+}
+
+// 35. signed 溢出测试（未定义行为，仅展示语法）
+signed signed_overflow() {
+    signed a = 2147483647;
+    signed b = a + 1;  // 溢出
+    return b;
+}
+
+int main(void) {
+    just_signed = -999;
+    signed_ptr = &just_signed;
+    
+    signed char local_sc = -50;
+    sc_ptr = &local_sc;
+    
+    return 0;
+}

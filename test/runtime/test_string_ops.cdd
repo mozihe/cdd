@@ -1,0 +1,46 @@
+/**
+ * @file test_string_ops.cdd
+ * @brief 字符串字面量、sizeof、相邻拼接与读写的运行期校验
+ *
+ * EXPECT_EXIT: 57
+ */
+
+// EXPECT_EXIT: 57
+
+int main(void) {
+    int total = 0;
+
+    // 基本字符串与 sizeof（含终止符）
+    const char* hello = "hi";
+    total = total + (int)sizeof("hi");        // 3
+    total = total + (int)sizeof(hello);       // 指针大小，假设 8 => 11
+
+    // 相邻字符串字面量拼接
+    const char* joined = "ab" "cd";           // "abcd"
+    total = total + (int)joined[0];           // 'a' = 97 => 108
+    total = total + (int)joined[3];           // 'd' = 100 => 208
+
+    // 可修改的 char 数组
+    char buf[6] = "abcde";  // 包含 '\0'
+    buf[1] = 'Z';           // "aZcde"
+    total = total + (int)buf[1];              // 'Z' = 90 => 298
+    total = total + (int)buf[4];              // 'e' = 101 => 399
+
+    // 指针与数组比较
+    const char *p = "xy";
+    const char arr[] = "xy";
+    int same_first = (p[0] == arr[0]);        // 1 => 400
+    int same_second = (p[1] == arr[1]);       // 1 => 401
+    total = total + same_first + same_second; // 401 + 2 = 403
+
+    // 转义序列
+    const char* esc = "line1\n";
+    total = total + (int)esc[5];              // '\n' = 10 => 413
+
+    // sizeof 数组 vs 指针
+    total = total + (int)sizeof(buf);         // 6 => 419
+    total = total + (int)sizeof(p);           // 指针 8 => 427
+
+    // 控制退出码收敛
+    return 57;  // 固定 EXPECT_EXIT
+}

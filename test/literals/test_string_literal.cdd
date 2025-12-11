@@ -1,0 +1,417 @@
+/**
+ * @file test_string_literal.cdd
+ * @brief 字符串字面量测试用例
+ * 
+ * 测试各种字符串字面量：普通字符串、转义序列、字符串拼接
+ */
+
+// 1. 空字符串
+char* test_empty_string(void) {
+    char* s = "";
+    return s;
+}
+
+// 2. 基本字符串
+char* test_basic_string(void) {
+    char* s = "hello";
+    return s;
+}
+
+// 3. 带空格的字符串
+char* test_space_string(void) {
+    char* s = "hello world";
+    return s;
+}
+
+// 4. 数字字符串
+char* test_digit_string(void) {
+    char* s = "12345";
+    return s;
+}
+
+// 5. 混合字符串
+char* test_mixed_string(void) {
+    char* s = "Hello, World! 123";
+    return s;
+}
+
+// 6. 转义字符 - 换行
+char* test_newline_string(void) {
+    char* s = "line1\nline2";
+    return s;
+}
+
+// 7. 转义字符 - 制表符
+char* test_tab_string(void) {
+    char* s = "col1\tcol2\tcol3";
+    return s;
+}
+
+// 8. 转义字符 - 回车换行
+char* test_crlf_string(void) {
+    char* s = "line1\r\nline2";
+    return s;
+}
+
+// 9. 转义字符 - 反斜杠
+char* test_backslash_string(void) {
+    char* s = "path\\to\\file";
+    return s;
+}
+
+// 10. 转义字符 - 双引号
+char* test_quote_string(void) {
+    char* s = "He said \"hello\"";
+    return s;
+}
+
+// 11. 转义字符 - 单引号
+char* test_single_quote_string(void) {
+    char* s = "It\'s ok";
+    return s;
+}
+
+// 12. 多种转义组合
+char* test_multi_escape(void) {
+    char* s = "Tab:\tNewline:\nQuote:\"Backslash:\\";
+    return s;
+}
+
+// 13. 八进制转义
+char* test_octal_string(void) {
+    char* s = "A\101B\102C";  // A A B B C
+    return s;
+}
+
+// 14. 十六进制转义
+char* test_hex_string(void) {
+    char* s = "A\x41B\x42C";  // A A B B C
+    return s;
+}
+
+// 15. 空字符（嵌入）
+int test_embedded_null(void) {
+    char s[] = "hello\0world";  // 实际只有 "hello"
+    return sizeof(s);  // 12（包含两个 \0）
+}
+
+// 16. 字符串拼接
+char* test_string_concat(void) {
+    char* s = "hello" " " "world";  // 等同于 "hello world"
+    return s;
+}
+
+// 17. 多行字符串拼接
+char* test_multiline_concat(void) {
+    char* s = "This is a very long string "
+              "that spans multiple lines "
+              "in the source code";
+    return s;
+}
+
+// 18. 字符串数组初始化
+int test_string_array_init(void) {
+    char s[] = "hello";
+    return sizeof(s);  // 6（包含 '\0'）
+}
+
+// 19. 字符串长度计算
+int test_strlen(char* s) {
+    int len = 0;
+    while (s[len] != '\0') {
+        len = len + 1;
+    }
+    return len;
+}
+
+// 20. 字符串指针数组
+char** test_string_ptr_array(void) {
+    static char* strings[] = {
+        "first",
+        "second",
+        "third",
+        "fourth"
+    };
+    return strings;
+}
+
+// 21. 字符串比较
+int test_strcmp(char* s1, char* s2) {
+    int i = 0;
+    while (s1[i] != '\0' && s2[i] != '\0') {
+        if (s1[i] != s2[i]) {
+            return s1[i] - s2[i];
+        }
+        i = i + 1;
+    }
+    return s1[i] - s2[i];
+}
+
+// 22. 字符串复制
+void test_strcpy(char* dst, char* src) {
+    int i = 0;
+    while (src[i] != '\0') {
+        dst[i] = src[i];
+        i = i + 1;
+    }
+    dst[i] = '\0';
+}
+
+// 23. 字符串连接
+void test_strcat(char* dst, char* src) {
+    int i = 0;
+    while (dst[i] != '\0') {
+        i = i + 1;
+    }
+    int j = 0;
+    while (src[j] != '\0') {
+        dst[i] = src[j];
+        i = i + 1;
+        j = j + 1;
+    }
+    dst[i] = '\0';
+}
+
+// 24. 字符串查找字符
+int test_strchr(char* s, char c) {
+    int i = 0;
+    while (s[i] != '\0') {
+        if (s[i] == c) {
+            return i;
+        }
+        i = i + 1;
+    }
+    return -1;
+}
+
+// 25. 字符串作为函数参数
+int process_string(char* s) {
+    return test_strlen(s);
+}
+
+int test_string_param(void) {
+    return process_string("hello world");
+}
+
+// 26. 字符串返回
+char* get_greeting(void) {
+    return "Hello!";
+}
+
+char* test_string_return(void) {
+    return get_greeting();
+}
+
+// 27. 格式化字符串（概念）
+char* test_format_string(void) {
+    char* fmt = "Value: %d, Name: %s";
+    return fmt;
+}
+
+// 28. 路径字符串
+char* test_path_string(void) {
+    char* unix_path = "/home/user/file.txt";
+    char* win_path = "C:\\Users\\user\\file.txt";
+    return unix_path;
+}
+
+// 29. URL 字符串
+char* test_url_string(void) {
+    char* url = "https://example.com/path?query=value";
+    return url;
+}
+
+// 30. 特殊字符字符串
+char* test_special_string(void) {
+    char* s = "!@#$%^&*()_+-=[]{}|;':\",./<>?";
+    return s;
+}
+
+// 31. 数字与字母混合
+char* test_alphanumeric(void) {
+    char* s = "abc123xyz789";
+    return s;
+}
+
+// 32. 大小写混合
+char* test_case_mixed(void) {
+    char* s = "AbCdEfGh";
+    return s;
+}
+
+// 33. 重复字符
+char* test_repeated(void) {
+    char* s = "aaaaabbbbbccccc";
+    return s;
+}
+
+// 34. 单字符字符串
+char* test_single_char_string(void) {
+    char* s = "X";
+    return s;
+}
+
+// 35. 很长的字符串
+char* test_long_string(void) {
+    char* s = "This is a very long string that contains many characters and is used to test how the lexer handles long string literals in the source code.";
+    return s;
+}
+
+// 36. 多行拼接（不同格式）
+char* test_multiline_formats(void) {
+    char* s1 = "abc"
+               "def";
+    char* s2 = "abc" "def";
+    return s1;
+}
+
+// 37. 字符串在结构体中
+struct StringStruct {
+    char* name;
+    char* value;
+};
+
+struct StringStruct test_struct_string(void) {
+    struct StringStruct s;
+    s.name = "key";
+    s.value = "val";
+    return s;
+}
+
+// 38. 字符串数组
+int test_string_array(void) {
+    char* arr[] = {"one", "two", "three"};
+    return 3;  // 数组大小
+}
+
+// 39. 字符串在 switch 外判断
+int string_to_int(char* s) {
+    if (s[0] == 'o' && s[1] == 'n' && s[2] == 'e' && s[3] == '\0') {
+        return 1;
+    }
+    if (s[0] == 't' && s[1] == 'w' && s[2] == 'o' && s[3] == '\0') {
+        return 2;
+    }
+    return 0;
+}
+
+// 40. 字符串索引访问
+char test_string_index(void) {
+    char* s = "hello";
+    return s[0];  // 'h'
+}
+
+// 41. 字符串迭代
+int test_string_iterate(void) {
+    char* s = "hello";
+    int sum = 0;
+    for (int i = 0; s[i] != '\0'; i++) {
+        sum = sum + s[i];
+    }
+    return sum;
+}
+
+// 42. 字符串指针算术
+char test_string_ptr_arith(void) {
+    char* s = "hello";
+    char* p = s + 1;  // 指向 'e'
+    return *p;
+}
+
+// 43. 空白字符串
+char* test_whitespace_string(void) {
+    char* spaces = "   ";
+    char* tabs = "\t\t\t";
+    char* mixed = " \t \t ";
+    return spaces;
+}
+
+// 44. Unicode 风格（ASCII 转义）
+char* test_unicode_ascii(void) {
+    // 使用 ASCII 表示
+    char* s = "Caf\xe9";  // Café (如果支持)
+    return s;
+}
+
+// 45. 字符串常量的大小
+int test_string_size(void) {
+    int s1 = sizeof("hello");  // 6
+    int s2 = sizeof("");       // 1
+    int s3 = sizeof("ab\0cd"); // 6
+    return s1 + s2 + s3;
+}
+
+// 46. 静态字符串
+char* test_static_string(void) {
+    static char* s = "static string";
+    return s;
+}
+
+// 47. const 字符串
+const char* test_const_string(void) {
+    const char* s = "constant string";
+    return s;
+}
+
+// 48. 字符串字面量地址
+int test_string_address(void) {
+    char* s1 = "hello";
+    char* s2 = "hello";
+    // 编译器可能合并相同字符串
+    return (s1 == s2);  // 可能为 1
+}
+
+// 49. 错误消息字符串
+char* test_error_messages(void) {
+    char* errors[] = {
+        "Success",
+        "File not found",
+        "Permission denied",
+        "Invalid argument",
+        "Out of memory"
+    };
+    return errors[0];
+}
+
+// 50. SQL 风格字符串
+char* test_sql_string(void) {
+    char* sql = "SELECT * FROM users WHERE name = 'test'";
+    return sql;
+}
+
+int main(void) {
+    // 基本字符串
+    char* s1 = "hello";
+    char* s2 = "world";
+    
+    // 转义字符
+    char* s3 = "line1\nline2";
+    char* s4 = "col1\tcol2";
+    char* s5 = "path\\to\\file";
+    char* s6 = "He said \"hi\"";
+    
+    // 字符串拼接
+    char* s7 = "hello" " " "world";
+    
+    // 多行拼接
+    char* s8 = "This is a long "
+               "string that spans "
+               "multiple lines.";
+    
+    // 字符串数组
+    char arr[] = "hello";
+    
+    // 字符串数组（指针）
+    char* strings[] = {"one", "two", "three"};
+    
+    // 访问字符
+    char c = s1[0];  // 'h'
+    
+    // 字符串长度
+    int len = test_strlen(s1);
+    
+    // 字符串比较
+    int cmp = test_strcmp(s1, s2);
+    
+    return 0;
+}

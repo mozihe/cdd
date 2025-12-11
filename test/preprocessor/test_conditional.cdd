@@ -1,0 +1,415 @@
+/**
+ * 测试文件：test_conditional.cdd
+ * 测试目标：条件编译指令
+ * 
+ * 覆盖场景：
+ * 1. #if / #endif
+ * 2. #ifdef / #endif
+ * 3. #ifndef / #endif
+ * 4. #else
+ * 5. #elif
+ * 6. 嵌套条件编译
+ * 7. defined 运算符
+ * 8. 表达式求值
+ */
+
+#include <cddlib.hdd>
+
+// ============================================
+// 测试1：#if / #endif 基本用法
+// ============================================
+
+// 数值条件
+#if 1
+int always_included_1;
+#endif
+
+#if 0
+int never_included_1;  // 这行不应被包含
+#endif
+
+// 宏定义的条件
+#define CONDITION 1
+
+#if CONDITION
+int condition_true;
+#endif
+
+#if !CONDITION
+int condition_false;  // 不被包含
+#endif
+
+
+// ============================================
+// 测试2：#ifdef / #endif
+// ============================================
+
+// 定义一个宏
+#define FEATURE_A
+
+#ifdef FEATURE_A
+int feature_a_enabled;
+void feature_a_function() {}
+#endif
+
+#ifdef FEATURE_B
+int feature_b_enabled;  // FEATURE_B 未定义，不被包含
+#endif
+
+// 空宏也算已定义
+#define EMPTY_FLAG
+
+#ifdef EMPTY_FLAG
+int empty_flag_defined;  // 被包含
+#endif
+
+
+// ============================================
+// 测试3：#ifndef / #endif
+// ============================================
+
+// 头文件保护模式
+#ifndef HEADER_GUARD_H
+#define HEADER_GUARD_H
+
+int guarded_content;
+
+#endif // HEADER_GUARD_H
+
+// 默认值模式
+#ifndef DEFAULT_VALUE
+#define DEFAULT_VALUE 42
+#endif
+
+// 检测未定义的宏
+#ifndef UNDEFINED_MACRO
+int undefined_macro_branch;  // 被包含
+#endif
+
+
+// ============================================
+// 测试4：#if / #else / #endif
+// ============================================
+
+#define USE_DOUBLE 0
+
+#if USE_DOUBLE
+typedef double real_t;
+#else
+typedef float real_t;
+#endif
+
+// 条件编译代码块
+#define PLATFORM_LINUX
+
+#ifdef PLATFORM_LINUX
+void platform_init_linux() {}
+#else
+void platform_init_other() {}
+#endif
+
+
+// ============================================
+// 测试5：#if / #elif / #else / #endif
+// ============================================
+
+#define OS_TYPE 2  // 1=Windows, 2=Linux, 3=MacOS
+
+#if OS_TYPE == 1
+#define OS_NAME "Windows"
+void os_specific_windows(void) {}
+#elif OS_TYPE == 2
+#define OS_NAME "Linux"
+void os_specific_linux(void) {}
+#elif OS_TYPE == 3
+#define OS_NAME "MacOS"
+void os_specific_macos(void) {}
+#else
+#define OS_NAME "Unknown"
+void os_specific_unknown(void) {}
+#endif
+
+// 多级 elif
+#define LOG_LEVEL 2
+
+#if LOG_LEVEL == 0
+#define LOG(msg)
+#elif LOG_LEVEL == 1
+#define LOG(msg) printf("LOG: " msg "\n")
+#elif LOG_LEVEL == 2
+#define LOG(msg) printf("LOG: " msg "\n")
+#elif LOG_LEVEL >= 3
+#define LOG(msg) printf("LOG: " msg "\n")
+#endif
+
+
+// ============================================
+// 测试6：嵌套条件编译
+// ============================================
+
+#define FEATURE_X 1
+#define FEATURE_Y 1
+#define DEBUG_X 1
+
+#if FEATURE_X
+int feature_x_var;
+
+    #if FEATURE_Y
+    int feature_x_and_y_var;
+    
+        #if DEBUG_X
+        int feature_x_y_debug_var;
+        #endif
+    
+    #else
+    int feature_x_only_var;
+    #endif
+
+#else
+
+    #if FEATURE_Y
+    int feature_y_only_var;
+    #endif
+
+#endif
+
+// 三层嵌套
+#define LEVEL_A 1
+#define LEVEL_B 1
+#define LEVEL_C 0
+
+#if LEVEL_A
+    #if LEVEL_B
+        #if LEVEL_C
+        int all_levels;
+        #else
+        int level_a_b_only;
+        #endif
+    #endif
+#endif
+
+
+// ============================================
+// 测试7：defined 运算符
+// ============================================
+
+#define MACRO_A
+#define MACRO_B
+
+// defined 的基本用法
+#if defined(MACRO_A)
+int macro_a_defined;
+#endif
+
+#if defined MACRO_A
+int macro_a_defined_no_parens;
+#endif
+
+// defined 与逻辑运算符
+#if defined(MACRO_A) && defined(MACRO_B)
+int both_macros_defined;
+#endif
+
+#if defined(MACRO_A) || defined(MACRO_C)
+int at_least_one_defined;
+#endif
+
+#if !defined(MACRO_C)
+int macro_c_not_defined;
+#endif
+
+// 复杂的 defined 表达式
+#if defined(MACRO_A) && !defined(MACRO_C)
+int a_defined_c_not;
+#endif
+
+#if (defined(MACRO_A) || defined(MACRO_C)) && defined(MACRO_B)
+int complex_defined_expr;
+#endif
+
+
+// ============================================
+// 测试8：表达式求值
+// ============================================
+
+#define VALUE_1 10
+#define VALUE_2 20
+#define VALUE_3 5
+
+// 算术运算
+#if VALUE_1 + VALUE_2 > 25
+int sum_greater_than_25;
+#endif
+
+#if VALUE_1 * VALUE_3 == 50
+int product_equals_50;
+#endif
+
+#if VALUE_2 / VALUE_3 == 4
+int quotient_equals_4;
+#endif
+
+#if VALUE_2 % VALUE_3 == 0
+int remainder_is_zero;
+#endif
+
+// 比较运算
+#if VALUE_1 < VALUE_2
+int v1_less_than_v2;
+#endif
+
+#if VALUE_1 <= VALUE_2
+int v1_le_v2;
+#endif
+
+#if VALUE_2 > VALUE_1
+int v2_greater_than_v1;
+#endif
+
+#if VALUE_2 >= VALUE_1
+int v2_ge_v1;
+#endif
+
+#if VALUE_1 != VALUE_2
+int v1_not_equal_v2;
+#endif
+
+// 位运算
+#define FLAGS 0x0F
+
+#if FLAGS & 0x01
+int flag_bit_0_set;
+#endif
+
+#if FLAGS | 0x10
+int flags_with_bit_4;
+#endif
+
+#if FLAGS ^ 0x05
+int flags_xor_5;
+#endif
+
+#if ~FLAGS & 0xFF
+int inverted_flags;
+#endif
+
+// 移位运算
+#if 1 << 4 == 16
+int shift_left_works;
+#endif
+
+#if 32 >> 2 == 8
+int shift_right_works;
+#endif
+
+// 逻辑运算
+#if VALUE_1 && VALUE_2
+int both_nonzero;
+#endif
+
+#if VALUE_1 || 0
+int at_least_one_nonzero;
+#endif
+
+#if !0
+int zero_is_false;
+#endif
+
+// 三元运算符（如果支持）
+#if (VALUE_1 > VALUE_2) ? 0 : 1
+int ternary_works;
+#endif
+
+// 括号优先级
+#if (VALUE_1 + VALUE_2) * VALUE_3 == 150
+int parens_work;
+#endif
+
+
+// ============================================
+// 测试9：错误和边缘情况
+// ============================================
+
+// 未定义宏在表达式中视为 0
+#if UNDEFINED_IN_EXPR
+int undefined_is_zero;  // 不被包含，因为 0 为假
+#endif
+
+#if UNDEFINED_IN_EXPR == 0
+int undefined_equals_zero;  // 被包含
+#endif
+
+// 多层 else
+#define CHOICE 2
+
+#if CHOICE == 1
+int choice_1;
+#elif CHOICE == 2
+int choice_2;
+#elif CHOICE == 3
+int choice_3;
+#else
+int choice_default;
+#endif
+
+
+// ============================================
+// 测试10：实际应用场景
+// ============================================
+
+// 调试模式
+#define DEBUG 1
+
+#if DEBUG
+#define ASSERT(cond) if(!(cond)) { printf("Assert failed\n"); }
+#else
+#define ASSERT(cond)
+#endif
+
+// 平台特定代码
+#define __linux__ 1
+
+#if defined(__linux__)
+#define PATH_SEPARATOR '/'
+#define NEWLINE "\n"
+#elif defined(_WIN32)
+#define PATH_SEPARATOR '\\'
+#define NEWLINE "\r\n"
+#else
+#define PATH_SEPARATOR '/'
+#define NEWLINE "\n"
+#endif
+
+// 版本检查
+#define CDD_VERSION_MAJOR 1
+#define CDD_VERSION_MINOR 2
+
+#if CDD_VERSION_MAJOR > 1 || (CDD_VERSION_MAJOR == 1 && CDD_VERSION_MINOR >= 2)
+#define HAS_NEW_FEATURE 1
+#endif
+
+
+// ============================================
+// 主程序
+// ============================================
+
+int main() {
+    // 使用条件编译的变量
+    int x = always_included_1;
+    int y = DEFAULT_VALUE;
+    
+    // 使用条件定义的类型
+    real_t r = 3.14f;
+    
+    // 调用条件编译的函数
+    os_specific_linux();
+    
+    // 使用条件定义的宏
+    LOG("test message");
+    ASSERT(1 == 1);
+    
+    // 平台特定
+    char sep = PATH_SEPARATOR;
+    
+    return 0;
+}

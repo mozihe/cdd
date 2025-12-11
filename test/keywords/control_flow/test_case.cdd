@@ -1,0 +1,527 @@
+/**
+ * @file test_case.cdd
+ * @brief case 关键字测试用例
+ * 
+ * 测试 case 标签的各种用法（配合 switch）
+ */
+
+// 1. 基本 case 标签
+int test_basic_case(int x) {
+    switch (x) {
+        case 0:
+            return 0;
+        case 1:
+            return 1;
+    }
+    return -1;
+}
+
+// 2. case 整数常量
+int test_case_int_constants(int x) {
+    switch (x) {
+        case 0:
+            return 0;
+        case 1:
+            return 1;
+        case 2:
+            return 2;
+        case 3:
+            return 3;
+        case 4:
+            return 4;
+        case 5:
+            return 5;
+        default:
+            return -1;
+    }
+}
+
+// 3. case 负数
+int test_case_negative(int x) {
+    switch (x) {
+        case -5:
+            return -5;
+        case -4:
+            return -4;
+        case -3:
+            return -3;
+        case -2:
+            return -2;
+        case -1:
+            return -1;
+        case 0:
+            return 0;
+        default:
+            return 999;
+    }
+}
+
+// 4. case 字符常量
+int test_case_char(char c) {
+    switch (c) {
+        case 'A':
+            return 1;
+        case 'B':
+            return 2;
+        case 'C':
+            return 3;
+        case 'a':
+            return 4;
+        case 'b':
+            return 5;
+        case 'c':
+            return 6;
+        default:
+            return 0;
+    }
+}
+
+// 5. case 转义字符
+int test_case_escape(char c) {
+    switch (c) {
+        case '\n':
+            return 1;  // 换行
+        case '\t':
+            return 2;  // 制表符
+        case '\r':
+            return 3;  // 回车
+        case '\\':
+            return 4;  // 反斜杠
+        case '\'':
+            return 5;  // 单引号
+        case '\"':
+            return 6;  // 双引号
+        case '\0':
+            return 7;  // 空字符
+        default:
+            return 0;
+    }
+}
+
+// 6. case 十六进制常量
+int test_case_hex(int x) {
+    switch (x) {
+        case 0x00:
+            return 0;
+        case 0x0F:
+            return 15;
+        case 0x10:
+            return 16;
+        case 0xFF:
+            return 255;
+        case 0x100:
+            return 256;
+        default:
+            return -1;
+    }
+}
+
+// 7. case 八进制常量
+int test_case_octal(int x) {
+    switch (x) {
+        case 00:
+            return 0;
+        case 01:
+            return 1;
+        case 07:
+            return 7;
+        case 010:
+            return 8;
+        case 0100:
+            return 64;
+        default:
+            return -1;
+    }
+}
+
+// 8. case 常量表达式
+int test_case_const_expr(int x) {
+    switch (x) {
+        case 1 + 1:
+            return 2;
+        case 2 * 3:
+            return 6;
+        case 100 / 10:
+            return 10;
+        case 15 % 4:
+            return 3;
+        case (2 + 3) * 2:
+            return 10;
+        default:
+            return 0;
+    }
+}
+
+// 9. case 位运算常量
+int test_case_bitwise(int x) {
+    switch (x) {
+        case 1 << 0:
+            return 1;
+        case 1 << 1:
+            return 2;
+        case 1 << 2:
+            return 4;
+        case 1 << 3:
+            return 8;
+        case 1 << 4:
+            return 16;
+        default:
+            return 0;
+    }
+}
+
+// 10. case 枚举值
+enum Status {
+    STATUS_OK = 0,
+    STATUS_ERROR = 1,
+    STATUS_PENDING = 2
+};
+
+const char* test_case_enum(enum Status s) {
+    switch (s) {
+        case STATUS_OK:
+            return "OK";
+        case STATUS_ERROR:
+            return "Error";
+        case STATUS_PENDING:
+            return "Pending";
+        default:
+            return "Unknown";
+    }
+}
+
+// 11. case 连续（穿透）
+int test_case_fallthrough(int x) {
+    switch (x) {
+        case 1:
+        case 2:
+        case 3:
+            return 1;  // 1, 2, 3 都返回 1
+        case 4:
+        case 5:
+            return 2;  // 4, 5 都返回 2
+        default:
+            return 0;
+    }
+}
+
+// 12. case 分组（逻辑分组）
+int test_case_grouped(char c) {
+    switch (c) {
+        // 数字
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            return 1;
+        
+        // 运算符
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case '%':
+            return 2;
+        
+        // 括号
+        case '(':
+        case ')':
+        case '[':
+        case ']':
+        case '{':
+        case '}':
+            return 3;
+        
+        default:
+            return 0;
+    }
+}
+
+// 13. case 带大括号作用域
+int test_case_scope(int x) {
+    switch (x) {
+        case 1: {
+            int local = 10;
+            return local;
+        }
+        case 2: {
+            int local = 20;
+            return local;
+        }
+        case 3: {
+            int local = 30;
+            return local;
+        }
+        default: {
+            int local = -1;
+            return local;
+        }
+    }
+}
+
+// 14. case 多语句
+int test_case_multi_stmt(int x) {
+    int a;
+    int b;
+    int c;
+    switch (x) {
+        case 1:
+            a = 1;
+            b = 2;
+            c = 3;
+            return a + b + c;
+        case 2:
+            a = 10;
+            b = 20;
+            c = 30;
+            return a + b + c;
+        default:
+            a = 0;
+            b = 0;
+            c = 0;
+            return 0;
+    }
+}
+
+// 15. case 非连续值
+int test_case_sparse(int x) {
+    switch (x) {
+        case 0:
+            return 0;
+        case 10:
+            return 1;
+        case 100:
+            return 2;
+        case 1000:
+            return 3;
+        case 10000:
+            return 4;
+        default:
+            return -1;
+    }
+}
+
+// 16. case 大整数
+int test_case_large_int(int x) {
+    switch (x) {
+        case 1000000:
+            return 1;
+        case 2000000:
+            return 2;
+        case 2147483647:
+            return 3;
+        default:
+            return 0;
+    }
+}
+
+// 17. case ASCII 值
+int test_case_ascii(int x) {
+    switch (x) {
+        case 65:  // 'A'
+            return 1;
+        case 97:  // 'a'
+            return 2;
+        case 48:  // '0'
+            return 3;
+        case 32:  // 空格
+            return 4;
+        default:
+            return 0;
+    }
+}
+
+// 18. case 带 break
+int test_case_break(int x) {
+    int result = 0;
+    switch (x) {
+        case 1:
+            result = 10;
+            break;
+        case 2:
+            result = 20;
+            break;
+        case 3:
+            result = 30;
+            break;
+        default:
+            result = -1;
+            break;
+    }
+    return result;
+}
+
+// 19. case 不带 break（有意穿透）
+int test_case_no_break(int month) {
+    int days = 0;
+    switch (month) {
+        case 12:
+            days = days + 31;
+        case 11:
+            days = days + 30;
+        case 10:
+            days = days + 31;
+        case 9:
+            days = days + 30;
+        case 8:
+            days = days + 31;
+        case 7:
+            days = days + 31;
+        case 6:
+            days = days + 30;
+        case 5:
+            days = days + 31;
+        case 4:
+            days = days + 30;
+        case 3:
+            days = days + 31;
+        case 2:
+            days = days + 28;
+        case 1:
+            days = days + 31;
+            break;
+    }
+    return days;
+}
+
+// 20. case 运算符选择
+int test_case_operator(char op, int a, int b) {
+    switch (op) {
+        case '+':
+            return a + b;
+        case '-':
+            return a - b;
+        case '*':
+            return a * b;
+        case '/':
+            return b != 0 ? a / b : 0;
+        case '%':
+            return b != 0 ? a % b : 0;
+        case '&':
+            return a & b;
+        case '|':
+            return a | b;
+        case '^':
+            return a ^ b;
+        default:
+            return 0;
+    }
+}
+
+// 21. case 字母分类
+int test_case_letter(char c) {
+    switch (c) {
+        case 'a': case 'e': case 'i': case 'o': case 'u':
+        case 'A': case 'E': case 'I': case 'O': case 'U':
+            return 1;  // 元音
+        case 'b': case 'c': case 'd': case 'f': case 'g':
+        case 'h': case 'j': case 'k': case 'l': case 'm':
+        case 'n': case 'p': case 'q': case 'r': case 's':
+        case 't': case 'v': case 'w': case 'x': case 'y': case 'z':
+        case 'B': case 'C': case 'D': case 'F': case 'G':
+        case 'H': case 'J': case 'K': case 'L': case 'M':
+        case 'N': case 'P': case 'Q': case 'R': case 'S':
+        case 'T': case 'V': case 'W': case 'X': case 'Y': case 'Z':
+            return 2;  // 辅音
+        default:
+            return 0;  // 其他
+    }
+}
+
+// 22. case 空语句
+int test_case_empty(int x) {
+    switch (x) {
+        case 0:
+            ;  // 空语句
+            break;
+        case 1:
+            break;  // 只有 break
+        default:
+            return -1;
+    }
+    return 0;
+}
+
+// 23. case 与 return
+int test_case_return(int x) {
+    switch (x) {
+        case 0:
+            return 0;
+        case 1:
+            return 1;
+        case 2:
+            return 2;
+    }
+    return -1;
+}
+
+// 24. case 标志位检查
+int test_case_flags(int flag) {
+    switch (flag) {
+        case 0x01:
+            return 1;
+        case 0x02:
+            return 2;
+        case 0x04:
+            return 4;
+        case 0x08:
+            return 8;
+        case 0x10:
+            return 16;
+        default:
+            return 0;
+    }
+}
+
+// 25. case 计算常量
+int test_case_computed(int x) {
+    switch (x) {
+        case 'Z' - 'A':     // 25
+            return 1;
+        case '9' - '0':     // 9
+            return 2;
+        case sizeof(int):   // 4 (通常)
+            return 3;
+        default:
+            return 0;
+    }
+}
+
+int main(void) {
+    // 基本使用
+    int x = 2;
+    switch (x) {
+        case 1:
+            x = 10;
+            break;
+        case 2:
+            x = 20;
+            break;
+        case 3:
+            x = 30;
+            break;
+        default:
+            x = 0;
+    }
+    
+    // 穿透使用
+    int y = 2;
+    int count = 0;
+    switch (y) {
+        case 3:
+            count = count + 1;
+        case 2:
+            count = count + 1;
+        case 1:
+            count = count + 1;
+            break;
+    }
+    
+    return 0;
+}

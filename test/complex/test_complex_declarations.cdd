@@ -1,0 +1,491 @@
+/**
+ * @file test_complex_declarations.cdd
+ * @brief 复杂声明测试用例
+ * 
+ * 测试各种复杂声明：数组指针、指针数组、函数指针、多级指针等
+ */
+
+// ============== 指针与数组 ==============
+
+// 1. 指针数组 - 存放指针的数组
+int* ptr_array[10];  // 10个指向int的指针的数组
+
+void test_ptr_array(void) {
+    int a = 1, b = 2, c = 3;
+    int* arr[3];      // 指针数组
+    arr[0] = &a;
+    arr[1] = &b;
+    arr[2] = &c;
+    
+    int val = *arr[0] + *arr[1] + *arr[2];
+}
+
+// 2. 数组指针 - 指向数组的指针
+int (*array_ptr)[10];  // 指向含10个int的数组的指针
+
+void test_array_ptr(void) {
+    int arr[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    int (*p)[10] = &arr;  // 指向数组的指针
+    
+    int val = (*p)[0];  // 访问第一个元素
+}
+
+// 3. 二维数组与指针
+void test_2d_array_ptr(void) {
+    int matrix[3][4] = {
+        {1, 2, 3, 4},
+        {5, 6, 7, 8},
+        {9, 10, 11, 12}
+    };
+    
+    int (*row_ptr)[4] = matrix;  // 指向每行的指针
+    int* elem_ptr = &matrix[0][0];  // 指向元素的指针
+    int (*mat_ptr)[3][4] = &matrix;  // 指向整个矩阵的指针
+    
+    int val1 = row_ptr[1][2];    // 7
+    int val2 = *(elem_ptr + 5);  // 6
+    int val3 = (*mat_ptr)[2][3]; // 12
+}
+
+// 4. 多级指针
+void test_multi_ptr(void) {
+    int x = 100;
+    int* p1 = &x;
+    int** p2 = &p1;
+    int*** p3 = &p2;
+    int**** p4 = &p3;
+    
+    int val = ****p4;  // 100
+}
+
+// 5. 字符串数组
+void test_string_array(void) {
+    // 指针数组（各字符串长度可不同）
+    char* strings1[] = {
+        "hello",
+        "world",
+        "test"
+    };
+    
+    // 二维数组（每行固定长度）
+    char strings2[3][10] = {
+        "hello",
+        "world",
+        "test"
+    };
+    
+    char* s1 = strings1[0];
+    char c1 = strings2[0][0];
+}
+
+// ============== 函数指针 ==============
+
+// 6. 基本函数指针
+int (*basic_func_ptr)(int, int);
+
+// 7. 返回指针的函数
+int* func_return_ptr(int* arr, int index) {
+    return &arr[index];
+}
+
+// 8. 指向返回指针函数的指针
+int* (*ptr_to_func_ret_ptr)(int*, int);
+
+void test_ptr_func_ret_ptr(void) {
+    ptr_to_func_ret_ptr = func_return_ptr;
+    int arr[5] = {1, 2, 3, 4, 5};
+    int* result = ptr_to_func_ret_ptr(arr, 2);
+}
+
+// 9. 函数指针数组
+int add(int a, int b) { return a + b; }
+int sub(int a, int b) { return a - b; }
+int mul(int a, int b) { return a * b; }
+
+int (*func_ptr_array[3])(int, int) = {add, sub, mul};
+
+void test_func_ptr_array(void) {
+    int result = func_ptr_array[0](10, 5);  // 15
+}
+
+// 10. 指向函数指针数组的指针
+int (*(*ptr_to_func_array))[3];
+
+void test_ptr_to_func_array(void) {
+    int (*ops[3])(int, int) = {add, sub, mul};
+    int (**p)(int, int) = ops;
+    int result = p[0](10, 5);
+}
+
+// 11. 返回函数指针的函数
+int (*get_operation(char op))(int, int) {
+    switch (op) {
+        case '+': return add;
+        case '-': return sub;
+        case '*': return mul;
+        default: return 0;
+    }
+}
+
+// 12. 复杂函数指针（返回函数指针的函数）
+// 函数接受 char，返回指向接受两个 int 返回 int 的函数的指针
+int (*(*operation_factory)(char))(int, int);
+
+void test_op_factory(void) {
+    operation_factory = get_operation;
+    int (*op)(int, int) = operation_factory('+');
+    int result = op(10, 5);  // 15
+}
+
+// ============== 结构体与指针 ==============
+
+// 13. 结构体包含指针
+struct WithPointers {
+    int* int_ptr;
+    char** str_array;
+    int (*func_ptr)(int);
+};
+
+// 14. 结构体指针
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+void test_struct_ptr(void) {
+    struct Node n1, n2;
+    struct Node* p = &n1;
+    n1.next = &n2;
+    n2.next = 0;
+    
+    struct Node** pp = &p;
+    int val = (*pp)->data;
+}
+
+// 15. 结构体数组指针
+struct Point {
+    int x;
+    int y;
+};
+
+void test_struct_array_ptr(void) {
+    struct Point points[5];
+    struct Point* p = points;          // 指向第一个元素
+    struct Point (*pa)[5] = &points;   // 指向整个数组
+    
+    int x1 = p[0].x;
+    int x2 = (*pa)[0].x;
+}
+
+// 16. 函数指针成员
+struct Calculator {
+    int (*add)(int, int);
+    int (*sub)(int, int);
+    int (*mul)(int, int);
+};
+
+void test_calc_struct(void) {
+    struct Calculator calc = {add, sub, mul};
+    int result = calc.add(10, 5);
+}
+
+// ============== typedef 简化 ==============
+
+// 17. typedef 指针
+typedef int* IntPtr;
+typedef int** IntPtrPtr;
+typedef const int* ConstIntPtr;
+
+// 18. typedef 数组
+typedef int IntArray10[10];
+typedef int IntMatrix[3][4];
+
+// 19. typedef 函数指针
+typedef int (*BinaryOp)(int, int);
+typedef int* (*PtrFunc)(int*, int);
+typedef void (*VoidCallback)(void);
+
+// 20. typedef 复杂类型
+typedef int (*FuncPtrArray[3])(int, int);
+typedef int* (*PtrFuncArray[5])(void);
+
+// 21. typedef 简化声明
+void test_typedef_declarations(void) {
+    IntPtr p1;            // int*
+    IntPtrPtr p2;         // int**
+    ConstIntPtr p3;       // const int*
+    IntArray10 arr1;      // int[10]
+    IntMatrix mat;        // int[3][4]
+    BinaryOp op;          // int (*)(int, int)
+    FuncPtrArray ops;     // int (*[3])(int, int)
+}
+
+// ============== const 与复杂声明 ==============
+
+// 22. const 指针组合
+void test_const_ptr(void) {
+    int x = 10;
+    
+    const int* p1 = &x;        // 指向 const int
+    int const* p2 = &x;        // 同上
+    int* const p3 = &x;        // const 指针
+    const int* const p4 = &x;  // const 指针指向 const int
+}
+
+// 23. const 数组
+void test_const_array(void) {
+    const int arr[5] = {1, 2, 3, 4, 5};
+    // arr[0] = 10;  // Error: 数组元素是 const
+    
+    int values[5] = {1, 2, 3, 4, 5};
+    const int* p = values;  // 通过 const 指针访问
+}
+
+// 24. const 函数指针
+void test_const_func_ptr(void) {
+    int (*fp)(int, int) = add;
+    int (* const cfp)(int, int) = add;  // const 函数指针
+    // cfp = sub;  // Error
+}
+
+// ============== volatile 与复杂声明 ==============
+
+// 25. volatile 指针
+void test_volatile_ptr(void) {
+    int x = 10;
+    
+    volatile int* p1 = &x;       // 指向 volatile int
+    int* volatile p2 = &x;       // volatile 指针
+    volatile int* volatile p3 = &x;
+}
+
+// ============== 数组参数衰减 ==============
+
+// 26. 数组参数
+void func_array_param(int arr[10]) {
+    // arr 实际上是 int*
+    int val = arr[0];
+}
+
+void func_array_param2(int arr[]) {
+    // 同上
+    int val = arr[0];
+}
+
+void func_ptr_param(int* arr) {
+    // 等效声明
+    int val = arr[0];
+}
+
+// 27. 二维数组参数
+void func_2d_array(int arr[][4], int rows) {
+    // arr 是指向 int[4] 的指针
+    int val = arr[0][0];
+}
+
+void func_2d_array2(int (*arr)[4], int rows) {
+    // 等效声明
+    int val = arr[0][0];
+}
+
+// ============== 复杂声明示例 ==============
+
+// 28. 指向数组指针的数组
+int (*array_of_array_ptr[3])[5];
+
+// 29. 指向函数指针数组的指针
+int (*(*ptr_func_ptr_array)[5])(int, int);
+
+// 30. 返回指向数组的指针的函数
+int (*return_array_ptr(void))[10] {
+    static int arr[10] = {0};
+    return &arr;
+}
+
+// 31. 返回函数指针数组的函数（使用 typedef）
+typedef int (*OpFunc)(int, int);
+
+OpFunc* get_op_array(void) {
+    static OpFunc ops[3] = {add, sub, mul};
+    return ops;
+}
+
+// 32. 信号处理器风格
+void (*signal_handler(int sig, void (*handler)(int)))(int) {
+    // 接受信号和处理器，返回之前的处理器
+    return handler;
+}
+
+// 使用 typedef 简化
+typedef void (*SignalHandler)(int);
+
+SignalHandler signal_handler_simple(int sig, SignalHandler handler) {
+    return handler;
+}
+
+// ============== 结构体中的复杂成员 ==============
+
+// 33. 复杂结构体
+struct ComplexStruct {
+    int value;
+    int* ptr;
+    int arr[10];
+    int (*arr_ptr)[10];
+    int* ptr_arr[5];
+    int (*func)(int, int);
+    int (*func_arr[3])(int, int);
+    struct ComplexStruct* next;
+};
+
+void test_complex_struct(void) {
+    struct ComplexStruct cs;
+    cs.value = 100;
+    cs.ptr = &cs.value;
+    cs.arr[0] = 1;
+    cs.arr_ptr = &cs.arr;
+    cs.ptr_arr[0] = &cs.value;
+    cs.func = add;
+    cs.func_arr[0] = add;
+    cs.next = 0;
+}
+
+// ============== 联合体复杂声明 ==============
+
+// 34. 联合体与指针
+union DataUnion {
+    int i;
+    float f;
+    int* ptr;
+    int (*func)(int);
+};
+
+// ============== 位域 ==============
+
+// 35. 位域声明
+struct BitFields {
+    unsigned int a : 4;
+    unsigned int b : 4;
+    unsigned int c : 8;
+    unsigned int d : 16;
+    int signed_bits : 8;
+};
+
+// ============== 嵌套声明 ==============
+
+// 36. 嵌套结构体声明
+struct Outer2 {
+    int value;
+    struct Inner2 {
+        int x;
+        int y;
+    } inner;
+    struct Inner2* inner_ptr;
+};
+
+// 37. 匿名结构体
+struct WithAnonymous {
+    int id;
+    struct {
+        int x;
+        int y;
+    };  // 匿名成员
+};
+
+void test_anonymous(void) {
+    struct WithAnonymous wa;
+    wa.id = 1;
+    wa.x = 10;  // 直接访问匿名成员
+    wa.y = 20;
+}
+
+// ============== 综合测试 ==============
+
+// 38. 综合使用示例
+struct VTable {
+    void (*init)(void*);
+    void (*destroy)(void*);
+    int (*compute)(void*, int);
+};
+
+struct Object {
+    struct VTable* vtable;
+    int data;
+};
+
+void obj_init(void* self) {
+    struct Object* obj = (struct Object*)self;
+    obj->data = 0;
+}
+
+void obj_destroy(void* self) {
+    // cleanup
+}
+
+int obj_compute(void* self, int value) {
+    struct Object* obj = (struct Object*)self;
+    return obj->data + value;
+}
+
+struct VTable object_vtable = {obj_init, obj_destroy, obj_compute};
+
+void test_vtable_pattern(void) {
+    struct Object obj;
+    obj.vtable = &object_vtable;
+    obj.vtable->init(&obj);
+    int result = obj.vtable->compute(&obj, 10);
+}
+
+// 39. 命令表
+struct Command {
+    const char* name;
+    int (*execute)(int argc, char** argv);
+};
+
+int cmd_help(int argc, char** argv) { return 0; }
+int cmd_quit(int argc, char** argv) { return 1; }
+
+struct Command commands[] = {
+    {"help", cmd_help},
+    {"quit", cmd_quit},
+    {0, 0}  // 结束标记
+};
+
+// 40. 状态机
+typedef int State;
+typedef State (*StateFunc)(void* context);
+
+State state_idle(void* ctx) { return 1; }
+State state_running(void* ctx) { return 2; }
+State state_done(void* ctx) { return 0; }
+
+StateFunc state_table[] = {state_idle, state_running, state_done};
+
+int main(void) {
+    // 指针数组 vs 数组指针
+    int arr[10] = {0};
+    int* ptr_arr_test[10];  // 10个指针的数组
+    int (*arr_ptr_test)[10] = &arr;  // 指向10元素数组的指针
+    
+    // 函数指针
+    int (*fp)(int, int) = add;
+    int result = fp(10, 5);
+    
+    // 函数指针数组
+    int (*ops[3])(int, int) = {add, sub, mul};
+    result = ops[0](10, 5);
+    
+    // 返回函数指针的函数
+    int (*op)(int, int) = get_operation('+');
+    result = op(10, 5);
+    
+    // typedef 使用
+    BinaryOp binop = add;
+    result = binop(10, 5);
+    
+    // 复杂结构体
+    struct ComplexStruct cs;
+    cs.func = add;
+    result = cs.func(10, 5);
+    
+    return 0;
+}

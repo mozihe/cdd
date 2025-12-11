@@ -1,0 +1,62 @@
+/**
+ * @file test_union_enum.cdd
+ * @brief union 与 enum 互操作、覆盖读取/写入与判等
+ *
+ * EXPECT_EXIT: 61
+ */
+
+// EXPECT_EXIT: 61
+
+enum State {
+    STATE_INIT = 1,
+    STATE_RUN = 3,
+    STATE_DONE = 5
+};
+
+typedef enum State State;
+
+typedef union Payload {
+    int i;
+    State s;
+    long long big;
+} Payload;
+
+int main(void) {
+    int total = 0;
+
+    Payload p;
+    p.s = STATE_RUN;        // store enum
+    total = total + p.s;    // +3 => 3
+
+    p.i = 8;                // overwrite with int
+    total = total + p.i;    // +8 => 11
+
+    p.big = 1LL << 4;       // 16
+    total = total + (int)p.big; // +16 => 27
+
+    // 重新写 enum，验证覆盖后仍可读取
+    p.s = STATE_DONE;       // 5
+    int is_done = (p.s == STATE_DONE); // 1
+    total = total + p.s + is_done; // +5 +1 => 33
+
+    // 混合 long long 与 enum 计算
+    p.big = (long long)STATE_INIT + (long long)STATE_RUN; // 4
+    total = total + (int)p.big; // 37
+
+    // 位域式检查（通过掩码）
+    p.i = 0x55;             // 85
+    total = total + (p.i & 0x0F); // +5 => 42
+    total = total + ((p.i >> 4) & 0x0F); // +5 => 47
+
+    // 简单校验 union 共享存储
+    p.big = 0;
+    p.i = 0x11223344;
+    p.s = STATE_INIT;       // 同一存储覆盖
+    total = total + p.s;    // +1 => 48
+
+    // 最终再加一个长整型常量
+    long long final = 13LL;
+    total = total + (int)final; // 61
+
+    return total;  // 61
+}

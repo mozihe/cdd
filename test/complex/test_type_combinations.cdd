@@ -1,0 +1,484 @@
+/**
+ * @file test_type_combinations.cdd
+ * @brief 类型组合测试用例
+ * 
+ * 测试各种类型组合：long long, unsigned long, signed char 等
+ */
+
+// ============== 整数类型组合 ==============
+
+// 1. signed char
+signed char test_signed_char(void) {
+    signed char a = 127;
+    signed char b = -128;
+    signed char c = 0;
+    return a + b + c;
+}
+
+// 2. unsigned char
+unsigned char test_unsigned_char(void) {
+    unsigned char a = 0;
+    unsigned char b = 127;
+    unsigned char c = 255;
+    return a + b + c;
+}
+
+// 3. signed short / short int
+signed short test_signed_short(void) {
+    signed short a = 32767;
+    short int b = -32768;
+    signed short int c = 0;
+    return a + b + c;
+}
+
+// 4. unsigned short
+unsigned short test_unsigned_short(void) {
+    unsigned short a = 0;
+    unsigned short int b = 32767;
+    unsigned short c = 65535;
+    return a + b + c;
+}
+
+// 5. signed int / int
+signed int test_signed_int(void) {
+    signed int a = 2147483647;
+    signed b = -2147483648;
+    int c = 0;
+    return a + b + c;
+}
+
+// 6. unsigned int / unsigned
+unsigned int test_unsigned_int(void) {
+    unsigned int a = 0;
+    unsigned b = 2147483647;
+    unsigned int c = 4294967295U;
+    return a + b + c;
+}
+
+// 7. signed long / long int
+signed long test_signed_long(void) {
+    signed long a = 2147483647L;
+    long int b = -2147483648L;
+    signed long int c = 0L;
+    return a + b + c;
+}
+
+// 8. unsigned long
+unsigned long test_unsigned_long(void) {
+    unsigned long a = 0UL;
+    unsigned long int b = 2147483647UL;
+    unsigned long c = 4294967295UL;
+    return a + b + c;
+}
+
+// 9. long long
+long long test_long_long(void) {
+    long long a = 9223372036854775807LL;
+    long long int b = -9223372036854775807LL;
+    signed long long c = 0LL;
+    signed long long int d = 1LL;
+    return a + b + c + d;
+}
+
+// 10. unsigned long long
+unsigned long long test_unsigned_long_long(void) {
+    unsigned long long a = 0ULL;
+    unsigned long long int b = 9223372036854775807ULL;
+    unsigned long long c = 18446744073709551615ULL;
+    return a + b;  // 防止溢出
+}
+
+// ============== 浮点类型组合 ==============
+
+// 11. float
+float test_float(void) {
+    float a = 3.14f;
+    float b = -3.14f;
+    float c = 0.0f;
+    return a + b + c;
+}
+
+// 12. double
+double test_double(void) {
+    double a = 3.14159265358979;
+    double b = -3.14159265358979;
+    double c = 0.0;
+    return a + b + c;
+}
+
+// 13. long double
+long double test_long_double(void) {
+    long double a = 3.14159265358979323846L;
+    long double b = -3.14159265358979323846L;
+    long double c = 0.0L;
+    return a + b + c;
+}
+
+// ============== const 组合 ==============
+
+// 14. const 与基本类型
+void test_const_basic(void) {
+    const int ci = 100;
+    const char cc = 'A';
+    const float cf = 3.14f;
+    const double cd = 3.14;
+    
+    int const ic = 200;  // 等效于 const int
+}
+
+// 15. const 指针组合
+void test_const_pointer(void) {
+    int x = 10;
+    int y = 20;
+    
+    const int* p1 = &x;        // 指向 const int 的指针
+    int const* p2 = &x;        // 同上
+    int* const p3 = &x;        // const 指针，指向 int
+    const int* const p4 = &x;  // const 指针，指向 const int
+    
+    // p1 = &y;  // OK
+    // *p1 = 30; // Error
+    
+    // p3 = &y;  // Error
+    // *p3 = 30; // OK
+}
+
+// ============== volatile 组合 ==============
+
+// 16. volatile 类型
+volatile int test_volatile(void) {
+    volatile int vi = 100;
+    volatile char vc = 'A';
+    volatile long vl = 1000L;
+    return vi + vc + vl;
+}
+
+// 17. volatile 指针
+void test_volatile_pointer(void) {
+    int x = 10;
+    volatile int* vp1 = &x;       // 指向 volatile int
+    int* volatile vp2 = &x;       // volatile 指针
+    volatile int* volatile vp3 = &x;
+}
+
+// ============== const volatile 组合 ==============
+
+// 18. const volatile
+void test_const_volatile(void) {
+    const volatile int cvi = 100;
+    volatile const int vci = 200;  // 等效
+    
+    const volatile int* p1 = &cvi;
+}
+
+// ============== static 组合 ==============
+
+// 19. static 全局变量
+static int static_global = 100;
+static const int static_const_global = 200;
+static long long static_ll = 1000LL;
+
+// 20. static 局部变量
+int test_static_local(void) {
+    static int counter = 0;
+    static const int limit = 100;
+    static unsigned long long total = 0;
+    counter++;
+    total += counter;
+    return counter;
+}
+
+// 21. static 函数
+static int static_helper(int x) {
+    return x * 2;
+}
+
+// ============== extern 组合 ==============
+
+// 22. extern 声明
+extern int extern_var;
+extern const int extern_const;
+extern long long extern_ll;
+extern unsigned long extern_ul;
+
+// ============== 指针类型组合 ==============
+
+// 23. 多级指针
+void test_multi_level_ptr(void) {
+    int x = 10;
+    int* p1 = &x;
+    int** p2 = &p1;
+    int*** p3 = &p2;
+    
+    int val = ***p3;
+}
+
+// 24. 数组指针
+void test_array_ptr(void) {
+    int arr[5] = {1, 2, 3, 4, 5};
+    int (*pa)[5] = &arr;  // 指向数组的指针
+    int* p = arr;         // 指向数组元素的指针
+}
+
+// 25. 指针数组
+void test_ptr_array(void) {
+    int a = 1, b = 2, c = 3;
+    int* arr[3] = {&a, &b, &c};  // 指针数组
+    
+    int val = *arr[0];  // 1
+}
+
+// 26. 函数指针与类型组合
+long long (*func_ptr_ll)(long long, long long);
+
+unsigned long long add_ull(unsigned long long a, unsigned long long b) {
+    return a + b;
+}
+
+unsigned long long (*func_ptr_ull)(unsigned long long, unsigned long long) = add_ull;
+
+// ============== 结构体类型组合 ==============
+
+// 27. 结构体与各种类型
+struct TypeMix {
+    char c;
+    unsigned char uc;
+    short s;
+    unsigned short us;
+    int i;
+    unsigned int ui;
+    long l;
+    unsigned long ul;
+    long long ll;
+    unsigned long long ull;
+    float f;
+    double d;
+    long double ld;
+};
+
+int test_struct_types(void) {
+    struct TypeMix tm;
+    tm.c = 'A';
+    tm.uc = 255;
+    tm.s = -100;
+    tm.us = 100;
+    tm.i = -1000;
+    tm.ui = 1000;
+    tm.l = -10000L;
+    tm.ul = 10000UL;
+    tm.ll = -100000LL;
+    tm.ull = 100000ULL;
+    tm.f = 3.14f;
+    tm.d = 3.14;
+    tm.ld = 3.14L;
+    return 0;
+}
+
+// 28. 嵌套结构体
+struct Outer {
+    struct Inner {
+        long long value;
+        unsigned long long uvalue;
+    } inner;
+    const int* const_ptr;
+    volatile int* volatile_ptr;
+};
+
+// ============== typedef 组合 ==============
+
+// 29. typedef 基本类型
+typedef signed char int8_t;
+typedef unsigned char uint8_t;
+typedef signed short int16_t;
+typedef unsigned short uint16_t;
+typedef signed int int32_t;
+typedef unsigned int uint32_t;
+typedef signed long long int64_t;
+typedef unsigned long long uint64_t;
+
+// 30. typedef 指针
+typedef int* int_ptr;
+typedef const int* const_int_ptr;
+typedef int* const int_ptr_const;
+typedef int** int_ptr_ptr;
+
+// 31. typedef 数组
+typedef int int_array_10[10];
+typedef int int_array_2d[3][4];
+
+// 32. typedef 函数指针
+typedef int (*binary_op)(int, int);
+typedef long long (*ll_binary_op)(long long, long long);
+typedef void (*void_callback)(void);
+
+// ============== 联合体类型组合 ==============
+
+// 33. 联合体与各种类型
+union TypeUnion {
+    char c;
+    unsigned char uc;
+    short s;
+    unsigned short us;
+    int i;
+    unsigned int ui;
+    long l;
+    unsigned long ul;
+    long long ll;
+    unsigned long long ull;
+    float f;
+    double d;
+};
+
+// ============== 枚举与类型 ==============
+
+// 34. 枚举基本
+enum Status {
+    STATUS_OK = 0,
+    STATUS_ERROR = -1,
+    STATUS_PENDING = 1
+};
+
+// 35. 枚举与 typedef
+typedef enum {
+    COLOR_RED,
+    COLOR_GREEN,
+    COLOR_BLUE
+} Color;
+
+// ============== 复杂组合 ==============
+
+// 36. const static 组合
+static const int static_const_int = 100;
+static const long long static_const_ll = 1000LL;
+static const unsigned long long static_const_ull = 10000ULL;
+
+// 37. extern const
+extern const int extern_const_int;
+extern const long long extern_const_ll;
+
+// 38. 数组与各种类型
+void test_arrays(void) {
+    char arr_c[10];
+    unsigned char arr_uc[10];
+    short arr_s[10];
+    unsigned short arr_us[10];
+    int arr_i[10];
+    unsigned int arr_ui[10];
+    long arr_l[10];
+    unsigned long arr_ul[10];
+    long long arr_ll[10];
+    unsigned long long arr_ull[10];
+    float arr_f[10];
+    double arr_d[10];
+}
+
+// 39. 二维数组与类型
+void test_2d_arrays(void) {
+    int arr_i[3][4];
+    long long arr_ll[2][3];
+    double arr_d[4][5];
+}
+
+// 40. 指针与 long long
+void test_ptr_ll(void) {
+    long long x = 100LL;
+    long long* p = &x;
+    long long** pp = &p;
+    
+    const long long* cp = &x;
+    long long* const pc = &x;
+}
+
+// ============== 类型转换 ==============
+
+// 41. 整数类型转换
+void test_int_cast(void) {
+    char c = 'A';
+    int i = (int)c;
+    long l = (long)i;
+    long long ll = (long long)l;
+    
+    unsigned int ui = (unsigned int)i;
+    unsigned long long ull = (unsigned long long)ll;
+}
+
+// 42. 浮点类型转换
+void test_float_cast(void) {
+    float f = 3.14f;
+    double d = (double)f;
+    long double ld = (long double)d;
+    
+    int i = (int)f;
+    long long ll = (long long)d;
+}
+
+// 43. 指针类型转换
+void test_ptr_cast(void) {
+    int x = 100;
+    void* vp = (void*)&x;
+    int* ip = (int*)vp;
+    long* lp = (long*)vp;
+    
+    char* cp = (char*)&x;
+}
+
+// 44. 综合示例
+long long complex_calculation(unsigned long long a, signed long long b) {
+    long long result = 0;
+    
+    if (a > 0ULL && b != 0LL) {
+        result = (long long)a + b;
+    }
+    
+    return result;
+}
+
+// 45. 返回类型组合
+unsigned long long get_max_ull(void) {
+    return 18446744073709551615ULL;
+}
+
+signed long long get_min_ll(void) {
+    return -9223372036854775807LL - 1LL;
+}
+
+int main(void) {
+    // signed/unsigned 组合
+    signed char sc = -128;
+    unsigned char uc = 255;
+    signed short ss = -32768;
+    unsigned short us = 65535;
+    signed int si = -1;
+    unsigned int ui = 4294967295U;
+    signed long sl = -1L;
+    unsigned long ul = 4294967295UL;
+    signed long long sll = -1LL;
+    unsigned long long ull = 18446744073709551615ULL;
+    
+    // long long 组合
+    long long ll = 100LL;
+    unsigned long long ull2 = 100ULL;
+    long long int lli = 100LL;
+    unsigned long long int ulli = 100ULL;
+    
+    // const 组合
+    const int ci = 100;
+    const long long cll = 100LL;
+    const unsigned long long cull = 100ULL;
+    
+    // static 组合
+    static int sti = 100;
+    static long long stll = 100LL;
+    
+    // 浮点组合
+    float f = 3.14f;
+    double d = 3.14;
+    long double ld = 3.14L;
+    
+    // typedef 类型
+    int32_t i32 = 100;
+    int64_t i64 = 100LL;
+    uint64_t u64 = 100ULL;
+    
+    return 0;
+}

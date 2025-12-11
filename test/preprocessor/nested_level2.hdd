@@ -1,0 +1,19 @@
+/**
+ * 嵌套包含测试 - 第二层
+ */
+
+#ifndef NESTED_LEVEL2_HDD
+#define NESTED_LEVEL2_HDD
+
+// 第二层包含第三层
+#include "nested_level3.hdd"
+
+// 第二层定义
+#define LEVEL2_VALUE 2
+typedef int Level2Type;
+
+void level2_func(void) {
+    // Level 2 function
+}
+
+#endif // NESTED_LEVEL2_HDD

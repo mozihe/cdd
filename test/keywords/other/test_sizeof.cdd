@@ -1,0 +1,433 @@
+/**
+ * @file test_sizeof.cdd
+ * @brief sizeof 关键字测试用例
+ * 
+ * 测试 sizeof 运算符的各种用法
+ * sizeof 返回类型或表达式的字节大小
+ */
+
+// 1. sizeof 基本类型 - char
+int test_sizeof_char(void) {
+    return sizeof(char);  // 通常为 1
+}
+
+// 2. sizeof 基本类型 - short
+int test_sizeof_short(void) {
+    return sizeof(short);  // 通常为 2
+}
+
+// 3. sizeof 基本类型 - int
+int test_sizeof_int(void) {
+    return sizeof(int);  // 通常为 4
+}
+
+// 4. sizeof 基本类型 - long
+int test_sizeof_long(void) {
+    return sizeof(long);  // 通常为 4 或 8
+}
+
+// 5. sizeof 基本类型 - long long
+int test_sizeof_long_long(void) {
+    return sizeof(long long);  // 通常为 8
+}
+
+// 6. sizeof 基本类型 - float
+int test_sizeof_float(void) {
+    return sizeof(float);  // 通常为 4
+}
+
+// 7. sizeof 基本类型 - double
+int test_sizeof_double(void) {
+    return sizeof(double);  // 通常为 8
+}
+
+// 8. sizeof 无符号类型
+int test_sizeof_unsigned(void) {
+    int s1 = sizeof(unsigned char);
+    int s2 = sizeof(unsigned short);
+    int s3 = sizeof(unsigned int);
+    int s4 = sizeof(unsigned long);
+    return s1 + s2 + s3 + s4;
+}
+
+// 9. sizeof 指针类型
+int test_sizeof_pointer(void) {
+    return sizeof(int*);  // 通常为 4 或 8（取决于架构）
+}
+
+// 10. sizeof 各种指针
+int test_sizeof_pointers(void) {
+    int s1 = sizeof(char*);
+    int s2 = sizeof(int*);
+    int s3 = sizeof(double*);
+    int s4 = sizeof(void*);
+    // 所有指针大小相同
+    return s1 + s2 + s3 + s4;
+}
+
+// 11. sizeof 指针的指针
+int test_sizeof_ptr_ptr(void) {
+    return sizeof(int**);
+}
+
+// 12. sizeof 数组
+int test_sizeof_array(void) {
+    int arr[10];
+    return sizeof(arr);  // sizeof(int) * 10
+}
+
+// 13. sizeof 数组元素
+int test_sizeof_array_elem(void) {
+    int arr[10];
+    return sizeof(arr[0]);  // sizeof(int)
+}
+
+// 14. sizeof 计算数组长度
+int test_sizeof_array_len(void) {
+    int arr[10];
+    return sizeof(arr) / sizeof(arr[0]);  // 返回 10
+}
+
+// 15. sizeof 二维数组
+int test_sizeof_2d_array(void) {
+    int arr[3][4];
+    return sizeof(arr);  // sizeof(int) * 3 * 4
+}
+
+// 16. sizeof 二维数组行
+int test_sizeof_2d_row(void) {
+    int arr[3][4];
+    return sizeof(arr[0]);  // sizeof(int) * 4
+}
+
+// 17. sizeof 字符数组
+int test_sizeof_char_array(void) {
+    char str[20];
+    return sizeof(str);  // 20
+}
+
+// 18. sizeof 字符串字面量
+int test_sizeof_string_literal(void) {
+    return sizeof("hello");  // 6（包含 '\0'）
+}
+
+// 19. sizeof 结构体
+struct Point {
+    int x;
+    int y;
+};
+
+int test_sizeof_struct(void) {
+    return sizeof(struct Point);
+}
+
+// 20. sizeof 结构体变量
+int test_sizeof_struct_var(void) {
+    struct Point p;
+    return sizeof(p);
+}
+
+// 21. sizeof 结构体指针
+int test_sizeof_struct_ptr(void) {
+    return sizeof(struct Point*);
+}
+
+// 22. sizeof 带填充的结构体
+struct Padded {
+    char c;
+    int i;
+    char d;
+};
+
+int test_sizeof_padded(void) {
+    return sizeof(struct Padded);  // 可能有对齐填充
+}
+
+// 23. sizeof 紧凑结构体
+struct Compact {
+    int a;
+    int b;
+    int c;
+};
+
+int test_sizeof_compact(void) {
+    return sizeof(struct Compact);
+}
+
+// 24. sizeof 嵌套结构体
+struct Outer {
+    struct Point p;
+    int value;
+};
+
+int test_sizeof_nested(void) {
+    return sizeof(struct Outer);
+}
+
+// 25. sizeof 联合体
+union Data {
+    int i;
+    float f;
+    char c;
+};
+
+int test_sizeof_union(void) {
+    return sizeof(union Data);  // 最大成员的大小
+}
+
+// 26. sizeof 联合体成员
+int test_sizeof_union_members(void) {
+    int s1 = sizeof(union Data);
+    int si = sizeof(int);
+    int sf = sizeof(float);
+    // union 大小 >= 最大成员
+    return s1;
+}
+
+// 27. sizeof 枚举
+enum Color {
+    RED,
+    GREEN,
+    BLUE
+};
+
+int test_sizeof_enum(void) {
+    return sizeof(enum Color);  // 通常为 sizeof(int)
+}
+
+// 28. sizeof 函数指针
+int test_sizeof_func_ptr(void) {
+    return sizeof(int (*)(int, int));
+}
+
+// 29. sizeof 表达式（不求值）
+int test_sizeof_expr(void) {
+    int x = 10;
+    return sizeof(x + 1);  // sizeof(int)，不执行 x+1
+}
+
+// 30. sizeof 自增表达式（不执行）
+int test_sizeof_no_eval(void) {
+    int x = 5;
+    int s = sizeof(x++);  // x 不变
+    return x;  // 返回 5
+}
+
+// 31. sizeof 解引用（不执行）
+int test_sizeof_deref(void) {
+    int* p = 0;  // NULL
+    return sizeof(*p);  // 安全，不实际解引用
+}
+
+// 32. sizeof 数组参数退化
+int test_sizeof_array_decay(int arr[10]) {
+    return sizeof(arr);  // 指针大小，不是数组大小
+}
+
+// 33. sizeof 与条件
+int test_sizeof_conditional(int flag) {
+    if (sizeof(int) == 4) {
+        return 32;  // 32 位整数
+    }
+    return 64;
+}
+
+// 34. sizeof 与循环
+int test_sizeof_loop(void) {
+    int arr[5];
+    int sum = 0;
+    for (int i = 0; i < sizeof(arr) / sizeof(arr[0]); i++) {
+        sum = sum + 1;
+    }
+    return sum;  // 5
+}
+
+// 35. sizeof 内存分配计算
+int test_sizeof_alloc(int n) {
+    return n * sizeof(int);  // 计算需要的字节数
+}
+
+// 36. sizeof 类型限定符
+int test_sizeof_qualified(void) {
+    int s1 = sizeof(const int);
+    int s2 = sizeof(volatile int);
+    int s3 = sizeof(int);
+    // 限定符不影响大小
+    return s1 + s2 + s3;
+}
+
+// 37. sizeof signed/unsigned
+int test_sizeof_signed(void) {
+    int s1 = sizeof(signed int);
+    int s2 = sizeof(unsigned int);
+    return s1 + s2;  // 相同
+}
+
+// 38. sizeof 复杂表达式
+int test_sizeof_complex(void) {
+    int a;
+    float b;
+    double c;
+    return sizeof(a + b + c);  // double 类型大小
+}
+
+// 39. sizeof 数组成员
+struct ArrayMember {
+    int arr[10];
+    char name[20];
+};
+
+int test_sizeof_array_member(void) {
+    struct ArrayMember m;
+    int s1 = sizeof(m.arr);
+    int s2 = sizeof(m.name);
+    return s1 + s2;
+}
+
+// 40. sizeof 可变大小数组（VLA）概念
+int test_sizeof_vla_concept(int n) {
+    // 注意：VLA 的 sizeof 是运行时计算
+    // 这里用固定数组演示
+    int arr[10];
+    return sizeof(arr);
+}
+
+// 41. sizeof 字符指针 vs 字符数组
+int test_sizeof_char_ptr_vs_arr(void) {
+    char arr[] = "hello";
+    char* ptr = "hello";
+    int s1 = sizeof(arr);  // 6
+    int s2 = sizeof(ptr);  // 指针大小
+    return s1 - s2;
+}
+
+// 42. sizeof 多维数组类型
+int test_sizeof_multi_dim(void) {
+    int s1 = sizeof(int[5]);
+    int s2 = sizeof(int[3][4]);
+    int s3 = sizeof(int[2][3][4]);
+    return s1 + s2 + s3;
+}
+
+// 43. sizeof 结构体数组
+int test_sizeof_struct_array(void) {
+    struct Point arr[5];
+    return sizeof(arr);
+}
+
+// 44. sizeof 联合体数组
+int test_sizeof_union_array(void) {
+    union Data arr[3];
+    return sizeof(arr);
+}
+
+// 45. sizeof 位域结构体
+struct BitField {
+    unsigned int a : 4;
+    unsigned int b : 4;
+    unsigned int c : 8;
+};
+
+int test_sizeof_bitfield(void) {
+    return sizeof(struct BitField);
+}
+
+// 46. sizeof 空结构体
+struct Empty {
+    // 空
+};
+
+int test_sizeof_empty(void) {
+    return sizeof(struct Empty);  // 可能为 0 或 1
+}
+
+// 47. sizeof 作为数组大小
+int test_sizeof_as_size(void) {
+    char buffer[sizeof(int) * 10];
+    return sizeof(buffer);
+}
+
+// 48. sizeof 与指针算术
+int test_sizeof_ptr_arith(void) {
+    int arr[10];
+    int* p1 = &arr[0];
+    int* p2 = &arr[5];
+    // 指针差 = (p2 - p1) = 5，不是字节差
+    return (p2 - p1) * sizeof(int);
+}
+
+// 49. sizeof 返回值类型
+int test_sizeof_return_type(void) {
+    // sizeof 返回 size_t，是无符号整数
+    unsigned int s = sizeof(int);
+    return (int)s;
+}
+
+// 50. sizeof 常量
+int test_sizeof_constant(void) {
+    return sizeof(100);      // sizeof(int)
+}
+
+// 51. sizeof 字符常量
+int test_sizeof_char_const(void) {
+    return sizeof('a');      // C 中通常是 sizeof(int)
+}
+
+// 52. sizeof 浮点常量
+int test_sizeof_float_const(void) {
+    int s1 = sizeof(3.14f);  // sizeof(float)
+    int s2 = sizeof(3.14);   // sizeof(double)
+    return s1 + s2;
+}
+
+// 53. sizeof 取地址
+int test_sizeof_address(void) {
+    int x;
+    return sizeof(&x);  // 指针大小
+}
+
+// 54. sizeof void
+int test_sizeof_void_ptr(void) {
+    return sizeof(void*);
+}
+
+// 55. sizeof 函数类型（不允许，使用函数指针）
+int test_func(int x) { return x; }
+
+int test_sizeof_func(void) {
+    return sizeof(&test_func);  // 函数指针大小
+}
+
+int main(void) {
+    // sizeof 基本类型
+    int s_char = sizeof(char);
+    int s_short = sizeof(short);
+    int s_int = sizeof(int);
+    int s_long = sizeof(long);
+    int s_float = sizeof(float);
+    int s_double = sizeof(double);
+    
+    // sizeof 变量
+    int x = 10;
+    int s_x = sizeof(x);
+    
+    // sizeof 数组
+    int arr[10];
+    int s_arr = sizeof(arr);
+    int arr_len = sizeof(arr) / sizeof(arr[0]);
+    
+    // sizeof 结构体
+    struct Point p;
+    int s_point = sizeof(struct Point);
+    int s_p = sizeof(p);
+    
+    // sizeof 指针
+    int* ptr = &x;
+    int s_ptr = sizeof(ptr);
+    int s_deref = sizeof(*ptr);
+    
+    // sizeof 表达式
+    int s_expr = sizeof(x + 1.0);  // double
+    
+    return 0;
+}

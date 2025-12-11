@@ -1,0 +1,227 @@
+/**
+ * @file test_extern.cdd
+ * @brief extern 关键字测试用例
+ * 
+ * extern 用于声明在其他地方定义的变量或函数
+ * 表示变量或函数具有外部链接
+ */
+
+// ============== extern 变量声明 ==============
+
+// 1. extern 基本变量声明
+extern int external_int;
+
+// 2. extern const 变量
+extern const int external_const;
+
+// 3. extern 数组（大小可省略）
+extern int external_array[];
+
+// 4. extern 数组（带大小）
+extern int external_sized_array[10];
+
+// 5. extern 指针
+extern int* external_ptr;
+
+// 6. extern char 数组（字符串）
+extern char external_string[];
+
+// 7. extern unsigned
+extern unsigned external_unsigned;
+
+// 8. extern long
+extern long external_long;
+
+// 9. extern long long
+extern long long external_long_long;
+
+// 10. extern float
+extern float external_float;
+
+// 11. extern double
+extern double external_double;
+
+// 12. extern 结构体
+struct ExternStruct {
+    int x;
+    int y;
+};
+
+extern struct ExternStruct external_struct;
+
+// 13. extern 结构体指针
+extern struct ExternStruct* external_struct_ptr;
+
+// 14. extern volatile
+extern volatile int external_volatile;
+
+// 15. extern const volatile
+extern const volatile int external_cv;
+
+// ============== extern 函数声明 ==============
+
+// 16. extern 函数声明（显式）
+extern int external_function(int x);
+
+// 17. 函数声明（隐式 extern）
+int implicit_extern_func(int a, int b);
+
+// 18. extern 返回指针的函数
+extern int* extern_return_ptr(void);
+
+// 19. extern 接受指针的函数
+extern void extern_accept_ptr(int* ptr);
+
+// 20. extern 可变参数函数声明
+extern int extern_variadic(const char* fmt, ...);
+
+// ============== 定义部分（用于测试） ==============
+
+// 21. 定义 extern 声明的变量
+int external_int = 100;
+
+// 22. 定义 extern const
+const int external_const = 42;
+
+// 23. 定义 extern 数组
+int external_array[5] = {1, 2, 3, 4, 5};
+
+// 24. 定义 extern 带大小数组
+int external_sized_array[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+// 25. 定义 extern 指针
+int external_int_value = 999;
+int* external_ptr = &external_int_value;
+
+// 26. 定义 extern 字符串
+char external_string[] = "External String";
+
+// 27. 定义 extern unsigned
+unsigned external_unsigned = 500;
+
+// 28. 定义 extern long
+long external_long = 1000000;
+
+// 29. 定义 extern long long
+long long external_long_long = 123456789012345;
+
+// 30. 定义 extern float
+float external_float = 3.14f;
+
+// 31. 定义 extern double
+double external_double = 3.14159265358979;
+
+// 32. 定义 extern 结构体
+struct ExternStruct external_struct = {10, 20};
+
+// 33. 定义 extern 结构体指针
+struct ExternStruct* external_struct_ptr = &external_struct;
+
+// 34. 定义 extern volatile
+volatile int external_volatile = 0;
+
+// 35. 定义 extern const volatile
+const volatile int external_cv = 100;
+
+// ============== extern 函数定义 ==============
+
+// 36. 定义 extern 函数
+int external_function(int x) {
+    return x * 2;
+}
+
+// 37. 定义隐式 extern 函数
+int implicit_extern_func(int a, int b) {
+    return a + b;
+}
+
+// 38. 定义 extern 返回指针的函数
+int* extern_return_ptr(void) {
+    return &external_int;
+}
+
+// 39. 定义 extern 接受指针的函数
+void extern_accept_ptr(int* ptr) {
+    *ptr = 200;
+}
+
+// ============== extern 使用示例 ==============
+
+// 40. 在函数内使用 extern 声明
+int use_extern_in_function(void) {
+    extern int external_int;  // 重新声明（合法）
+    return external_int;
+}
+
+// 41. 在块作用域中使用 extern
+int use_extern_in_block(void) {
+    int result;
+    {
+        extern int external_int;
+        result = external_int;
+    }
+    return result;
+}
+
+// 42. extern 与局部变量同名
+int extern_shadow_test(void) {
+    int external_int = 50;  // 局部变量遮蔽 extern
+    {
+        extern int external_int;  // 访问 extern 变量
+        return external_int;      // 返回 100（extern 的值）
+    }
+}
+
+// 43. 多个 extern 声明（合法）
+extern int external_int;
+extern int external_int;  // 重复声明是允许的
+
+// 44. extern 函数指针类型
+typedef int (*ExternFuncPtr)(int);
+extern ExternFuncPtr extern_func_ptr;
+
+// 45. 定义 extern 函数指针
+ExternFuncPtr extern_func_ptr = external_function;
+
+// 46. extern 用于跨文件共享
+// file1.cdd: int shared_var = 10;
+// file2.cdd: extern int shared_var;
+
+// 47. extern "C" 风格（C++ 兼容，在纯 C 中不需要）
+// 在 C 中函数名不会被修饰
+
+// 48. extern 函数定义
+extern int extern_defined_func(int x) {
+    return x + 1;
+}
+
+// 49. 使用 extern 数组
+int use_extern_array(void) {
+    int sum = 0;
+    int i;
+    for (i = 0; i < 5; i = i + 1) {
+        sum = sum + external_array[i];
+    }
+    return sum;
+}
+
+// 50. 使用 extern 结构体
+int use_extern_struct(void) {
+    return external_struct.x + external_struct.y;
+}
+
+int main(void) {
+    // 使用 extern 变量
+    int val = external_int;
+    
+    // 使用 extern 函数
+    int result = external_function(10);
+    
+    // 使用 extern 数组
+    int arr_sum = use_extern_array();
+    
+    // 使用 extern 结构体
+    int struct_sum = use_extern_struct();
+    
+    return 0;
+}

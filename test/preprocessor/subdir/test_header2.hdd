@@ -1,0 +1,23 @@
+/**
+ * 测试头文件：test_header2.hdd
+ * 位于 subdir 目录，用于测试子目录包含
+ */
+
+#ifndef TEST_HEADER2_HDD
+#define TEST_HEADER2_HDD
+
+// 类型定义
+typedef struct {
+    float value;
+    char name[32];
+} HeaderType2;
+
+// 宏定义
+#define HEADER2_CONSTANT 200
+#define HEADER2_MAX_SIZE 1024
+
+// 函数声明
+void header_function2(void* a, void* b);
+HeaderType2* header2_create(void);
+
+#endif // TEST_HEADER2_HDD

@@ -1,0 +1,195 @@
+/**
+ * 测试文件：test_define_basic.cdd
+ * 测试目标：#define 基本宏定义
+ * 
+ * 覆盖场景：
+ * 1. 简单对象宏
+ * 2. 空宏定义
+ * 3. 数值宏
+ * 4. 字符串宏
+ * 5. 表达式宏
+ * 6. 多行宏
+ * 7. #undef 取消定义
+ */
+
+// ============================================
+// 测试1：简单对象宏
+// ============================================
+
+// 定义常量
+#define PI 3.14159265358979
+#define E  2.71828182845904
+
+// 定义整数常量
+#define MAX_SIZE 1024
+#define MIN_SIZE 1
+#define BUFFER_SIZE 4096
+
+// 定义字符常量
+#define NEWLINE '\n'
+#define TAB '\t'
+#define NULL_CHAR '\0'
+
+// 定义字符串常量
+#define VERSION "1.0.0"
+#define AUTHOR "CDD Team"
+#define EMPTY_STRING ""
+
+
+// ============================================
+// 测试2：空宏定义
+// ============================================
+
+// 用于条件编译的标志宏
+#define DEBUG
+#define FEATURE_ENABLED
+#define _INTERNAL_FLAG
+
+// 空宏也可以有空格
+#define   EMPTY_MACRO   
+
+
+// ============================================
+// 测试3：数值表达式宏
+// ============================================
+
+// 简单算术表达式
+#define DOUBLE_MAX (MAX_SIZE * 2)
+#define HALF_SIZE (BUFFER_SIZE / 2)
+
+// 位运算表达式
+#define FLAG_READ   (1 << 0)
+#define FLAG_WRITE  (1 << 1)
+#define FLAG_EXEC   (1 << 2)
+#define FLAG_ALL    (FLAG_READ | FLAG_WRITE | FLAG_EXEC)
+
+// 十六进制常量
+#define RED   0xFF0000
+#define GREEN 0x00FF00
+#define BLUE  0x0000FF
+#define WHITE 0xFFFFFF
+#define BLACK 0x000000
+
+// 八进制常量
+#define PERMISSION_RWX 0755
+#define PERMISSION_RW  0644
+
+
+// ============================================
+// 测试4：类型相关宏
+// ============================================
+
+// 类型别名（配合 typedef）
+#define BOOL int
+#define BYTE unsigned char
+#define WORD unsigned short
+#define DWORD unsigned int
+#define QWORD unsigned long long
+
+// 类型大小
+#define CHAR_BITS 8
+#define INT_BYTES 4
+#define POINTER_BYTES 8
+
+
+// ============================================
+// 测试5：复杂表达式宏
+// ============================================
+
+// 包含括号的复杂表达式
+#define AREA_CIRCLE(r) (PI * (r) * (r))
+#define CLAMP(x, lo, hi) ((x) < (lo) ? (lo) : ((x) > (hi) ? (hi) : (x)))
+
+// 条件表达式
+#define ABS(x) ((x) >= 0 ? (x) : -(x))
+#define SIGN(x) ((x) > 0 ? 1 : ((x) < 0 ? -1 : 0))
+
+
+// ============================================
+// 测试6：多行宏（使用反斜杠续行）
+// ============================================
+
+#define LONG_MACRO_1 \
+    "This is a very long string that spans " \
+    "multiple lines in the source code"
+
+#define MULTI_STATEMENT \
+    do { \
+        x = 0; \
+        y = 0; \
+        z = 0; \
+    } while(0)
+
+
+// ============================================
+// 测试7：#undef 取消定义
+// ============================================
+
+#define TEMP_VALUE 100
+
+int use_temp() {
+    return TEMP_VALUE;  // 使用宏
+}
+
+#undef TEMP_VALUE  // 取消定义
+
+// 重新定义
+#define TEMP_VALUE 200
+
+int use_temp_again() {
+    return TEMP_VALUE;  // 现在是 200
+}
+
+#undef TEMP_VALUE  // 再次取消
+
+// 取消未定义的宏（应该没有效果）
+#undef UNDEFINED_MACRO
+
+
+// ============================================
+// 测试8：宏重定义（相同定义）
+// ============================================
+
+#define CONSTANT 42
+#define CONSTANT 42  // 相同定义，应该不产生警告
+
+
+// ============================================
+// 测试9：主程序使用宏
+// ============================================
+
+int main() {
+    // 使用数值宏
+    double pi = PI;
+    double e = E;
+    
+    // 使用大小宏
+    int buffer[BUFFER_SIZE];
+    int max = MAX_SIZE;
+    
+    // 使用字符宏
+    char nl = NEWLINE;
+    char tab = TAB;
+    
+    // 使用字符串宏
+    char* version = VERSION;
+    char* author = AUTHOR;
+    
+    // 使用位运算宏
+    int flags = FLAG_ALL;
+    int read_only = FLAG_READ;
+    
+    // 使用表达式宏
+    int doubled = DOUBLE_MAX;
+    int half = HALF_SIZE;
+    
+    // 使用颜色宏
+    int color = RED | GREEN;  // 黄色
+    
+    // 使用类型宏
+    BOOL flag = 1;
+    BYTE b = 255;
+    DWORD dw = 0xFFFFFFFF;
+    
+    return 0;
+}

@@ -1,0 +1,493 @@
+/**
+ * @file test_enum.cdd
+ * @brief enum 关键字测试用例
+ * 
+ * 测试枚举的各种用法
+ */
+
+// ============== 基本枚举定义 ==============
+
+// 1. 基本枚举（自动递增从0开始）
+enum Color {
+    RED,      // 0
+    GREEN,    // 1
+    BLUE      // 2
+};
+
+// 2. 枚举变量声明
+enum Color global_color;
+
+// 3. 带初始化的枚举变量
+enum Color init_color = RED;
+
+// 4. 匿名枚举
+enum {
+    ANONYMOUS_A,
+    ANONYMOUS_B,
+    ANONYMOUS_C
+};
+
+// 5. 枚举类型和变量同时定义
+enum Status {
+    STATUS_OK,
+    STATUS_ERROR,
+    STATUS_PENDING
+} status1, status2;
+
+// ============== 指定枚举值 ==============
+
+// 6. 显式指定枚举值
+enum ErrorCode {
+    ERR_NONE = 0,
+    ERR_INVALID = -1,
+    ERR_TIMEOUT = -2,
+    ERR_MEMORY = -3
+};
+
+// 7. 部分指定（后续自动递增）
+enum Priority {
+    LOW = 1,
+    MEDIUM,     // 2
+    HIGH,       // 3
+    CRITICAL = 10,
+    EMERGENCY   // 11
+};
+
+// 8. 非连续值
+enum Flags {
+    FLAG_NONE = 0,
+    FLAG_READ = 1,
+    FLAG_WRITE = 2,
+    FLAG_EXECUTE = 4,
+    FLAG_ALL = 7
+};
+
+// 9. 位掩码枚举
+enum Permission {
+    PERM_NONE = 0x00,
+    PERM_READ = 0x01,
+    PERM_WRITE = 0x02,
+    PERM_EXEC = 0x04,
+    PERM_ALL = 0x07
+};
+
+// 10. 大整数值
+enum BigValues {
+    BIG_A = 1000000,
+    BIG_B = 2000000,
+    BIG_C = 3000000
+};
+
+// 11. 负数值
+enum Signed {
+    NEG_THREE = -3,
+    NEG_TWO = -2,
+    NEG_ONE = -1,
+    ZERO = 0,
+    POS_ONE = 1,
+    POS_TWO = 2
+};
+
+// 12. 十六进制值
+enum HexValues {
+    HEX_A = 0x0A,
+    HEX_B = 0x0B,
+    HEX_C = 0x0C,
+    HEX_D = 0x0D,
+    HEX_E = 0x0E,
+    HEX_F = 0x0F
+};
+
+// ============== 枚举用途 ==============
+
+// 13. 状态机
+enum State {
+    STATE_INIT,
+    STATE_RUNNING,
+    STATE_PAUSED,
+    STATE_STOPPED,
+    STATE_ERROR
+};
+
+// 14. 命令类型
+enum Command {
+    CMD_START,
+    CMD_STOP,
+    CMD_PAUSE,
+    CMD_RESUME,
+    CMD_RESET
+};
+
+// 15. 方向
+enum Direction {
+    DIR_UP,
+    DIR_DOWN,
+    DIR_LEFT,
+    DIR_RIGHT
+};
+
+// 16. 布尔枚举（比直接用 int 更清晰）
+enum Boolean {
+    FALSE = 0,
+    TRUE = 1
+};
+
+// 17. 星期
+enum Weekday {
+    SUNDAY = 0,
+    MONDAY,
+    TUESDAY,
+    WEDNESDAY,
+    THURSDAY,
+    FRIDAY,
+    SATURDAY
+};
+
+// 18. 月份
+enum Month {
+    JANUARY = 1,
+    FEBRUARY,
+    MARCH,
+    APRIL,
+    MAY,
+    JUNE,
+    JULY,
+    AUGUST,
+    SEPTEMBER,
+    OCTOBER,
+    NOVEMBER,
+    DECEMBER
+};
+
+// ============== 枚举指针 ==============
+
+// 19. 枚举指针
+enum Color* color_ptr;
+
+// 20. const 枚举指针
+const enum Color* const_color_ptr;
+
+// 21. 枚举的 const 指针
+enum Color* const color_const_ptr = 0;
+
+// ============== 枚举数组 ==============
+
+// 22. 枚举数组
+enum Color colors[10];
+
+// 23. 枚举数组初始化
+enum Color rainbow[] = {RED, GREEN, BLUE};
+
+// 24. 枚举作为数组索引
+int color_values[3];
+
+void init_color_values(void) {
+    color_values[RED] = 0xFF0000;
+    color_values[GREEN] = 0x00FF00;
+    color_values[BLUE] = 0x0000FF;
+}
+
+// ============== 枚举函数 ==============
+
+// 25. 返回枚举的函数
+enum Color get_color(int index) {
+    if (index == 0) return RED;
+    if (index == 1) return GREEN;
+    return BLUE;
+}
+
+// 26. 枚举参数
+int color_to_int(enum Color c) {
+    return (int)c;
+}
+
+// 27. 枚举指针参数
+void set_color(enum Color* c, int value) {
+    *c = (enum Color)value;
+}
+
+// 28. 枚举作为开关条件
+const char* color_name(enum Color c) {
+    switch (c) {
+        case RED:   return "Red";
+        case GREEN: return "Green";
+        case BLUE:  return "Blue";
+    }
+    return "Unknown";
+}
+
+// 29. 返回枚举指针的函数
+enum Color* get_color_ptr(void) {
+    return &global_color;
+}
+
+// ============== 枚举操作 ==============
+
+// 30. 枚举比较
+int test_enum_compare(void) {
+    enum Color c1 = RED;
+    enum Color c2 = GREEN;
+    
+    int eq = (c1 == c2);
+    int ne = (c1 != c2);
+    int lt = (c1 < c2);
+    int le = (c1 <= c2);
+    int gt = (c1 > c2);
+    int ge = (c1 >= c2);
+    
+    return lt;
+}
+
+// 31. 枚举算术（作为整数）
+enum Color next_color(enum Color c) {
+    return (enum Color)((int)c + 1);
+}
+
+// 32. 枚举与整数转换
+int enum_to_int(enum Color c) {
+    return (int)c;
+}
+
+enum Color int_to_enum(int i) {
+    return (enum Color)i;
+}
+
+// 33. sizeof 枚举
+int test_enum_sizeof(void) {
+    return sizeof(enum Color);
+}
+
+// 34. 枚举赋值
+void test_enum_assign(void) {
+    enum Color c1 = RED;
+    enum Color c2;
+    c2 = c1;
+    c2 = GREEN;
+}
+
+// ============== 高级用法 ==============
+
+// 35. 枚举与 switch
+int process_command(enum Command cmd) {
+    int result = 0;
+    switch (cmd) {
+        case CMD_START:
+            result = 1;
+            break;
+        case CMD_STOP:
+            result = 2;
+            break;
+        case CMD_PAUSE:
+            result = 3;
+            break;
+        case CMD_RESUME:
+            result = 4;
+            break;
+        case CMD_RESET:
+            result = 5;
+            break;
+        default:
+            result = -1;
+            break;
+    }
+    return result;
+}
+
+// 36. 枚举用于状态机
+enum State current_state = STATE_INIT;
+
+void state_machine_step(enum Command cmd) {
+    switch (current_state) {
+        case STATE_INIT:
+            if (cmd == CMD_START) {
+                current_state = STATE_RUNNING;
+            }
+            break;
+        case STATE_RUNNING:
+            if (cmd == CMD_PAUSE) {
+                current_state = STATE_PAUSED;
+            } else if (cmd == CMD_STOP) {
+                current_state = STATE_STOPPED;
+            }
+            break;
+        case STATE_PAUSED:
+            if (cmd == CMD_RESUME) {
+                current_state = STATE_RUNNING;
+            } else if (cmd == CMD_STOP) {
+                current_state = STATE_STOPPED;
+            }
+            break;
+        case STATE_STOPPED:
+            if (cmd == CMD_RESET) {
+                current_state = STATE_INIT;
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+// 37. 枚举作为结构体成员
+struct ColoredPoint {
+    int x;
+    int y;
+    enum Color color;
+};
+
+// 38. 枚举与 typedef
+typedef enum {
+    TYPE_A,
+    TYPE_B,
+    TYPE_C
+} Type;
+
+typedef enum Color ColorType;
+
+// 39. 枚举与 static
+static enum Color static_color = GREEN;
+
+// 40. 枚举与 const
+const enum Color const_color = BLUE;
+
+// 41. 枚举函数指针
+typedef enum Color (*ColorSelector)(int);
+ColorSelector selector_ptr = get_color;
+
+// 42. 枚举位运算（用于标志）
+int has_permission(int perms, enum Permission p) {
+    return (perms & p) != 0;
+}
+
+int add_permission(int perms, enum Permission p) {
+    return perms | p;
+}
+
+int remove_permission(int perms, enum Permission p) {
+    return perms & ~p;
+}
+
+// 43. 枚举迭代
+void iterate_colors(void) {
+    enum Color c;
+    for (c = RED; c <= BLUE; c = (enum Color)((int)c + 1)) {
+        // 处理每种颜色
+    }
+}
+
+// 44. 枚举数量常量
+enum ColorWithCount {
+    COLOR_RED,
+    COLOR_GREEN,
+    COLOR_BLUE,
+    COLOR_COUNT  // 用于表示枚举数量
+};
+
+// 45. 嵌套枚举使用
+struct Device {
+    enum {
+        DEV_UNKNOWN,
+        DEV_KEYBOARD,
+        DEV_MOUSE,
+        DEV_MONITOR
+    } type;
+    int id;
+};
+
+// 46. 枚举作为函数指针数组索引
+typedef int (*Operation)(int);
+
+int op_add(int x) { return x + 1; }
+int op_sub(int x) { return x - 1; }
+int op_mul(int x) { return x * 2; }
+
+enum Op {
+    OP_ADD,
+    OP_SUB,
+    OP_MUL
+};
+
+Operation operations[] = {op_add, op_sub, op_mul};
+
+int apply_op(enum Op op, int value) {
+    return operations[op](value);
+}
+
+// 47. 枚举前向声明（某些编译器支持）
+// enum ForwardEnum;  // C11 才支持
+
+// 48. 枚举与联合体
+union TypedValue {
+    int i;
+    float f;
+    char c;
+};
+
+struct TypedData {
+    enum {
+        DATA_INT,
+        DATA_FLOAT,
+        DATA_CHAR
+    } type;
+    union TypedValue value;
+};
+
+// 49. 多重枚举组合
+enum Access {
+    ACCESS_NONE = 0,
+    ACCESS_READ = 1 << 0,
+    ACCESS_WRITE = 1 << 1,
+    ACCESS_EXECUTE = 1 << 2,
+    ACCESS_DELETE = 1 << 3
+};
+
+int combine_access(void) {
+    return ACCESS_READ | ACCESS_WRITE;
+}
+
+// 50. 枚举默认值
+void test_default_enum(void) {
+    enum Color c;  // 未初始化，值不确定
+    c = RED;       // 显式初始化
+}
+
+int main(void) {
+    // 基本使用
+    enum Color c = RED;
+    
+    // 比较
+    if (c == RED) {
+        c = GREEN;
+    }
+    
+    // switch
+    switch (c) {
+        case RED:
+            break;
+        case GREEN:
+            break;
+        case BLUE:
+            break;
+    }
+    
+    // 枚举数组
+    enum Color arr[3] = {RED, GREEN, BLUE};
+    
+    // 枚举指针
+    enum Color* ptr = &c;
+    *ptr = BLUE;
+    
+    // 函数调用
+    enum Color next = get_color(1);
+    int value = color_to_int(c);
+    
+    // 状态机
+    state_machine_step(CMD_START);
+    state_machine_step(CMD_PAUSE);
+    
+    // 位运算
+    int perms = PERM_NONE;
+    perms = add_permission(perms, PERM_READ);
+    perms = add_permission(perms, PERM_WRITE);
+    
+    return 0;
+}

@@ -1,0 +1,60 @@
+/**
+ * @file test_struct_and_call.cdd
+ * @brief 结构体、指针传参与函数调用的运行期校验
+ *
+ * EXPECT_EXIT: 77
+ */
+
+// EXPECT_EXIT: 77
+
+struct Pair {
+    int a;
+    int b;
+};
+
+int add_pair(struct Pair* p) {
+    return p->a + p->b;
+}
+
+struct Pair make_pair(int x, int y) {
+    struct Pair tmp;
+    tmp.a = x;
+    tmp.b = y;
+    return tmp;
+}
+
+int add_values(int x, int y) {
+    return x + y;
+}
+
+int call_with_func(int (*fn)(int, int), int v1, int v2) {
+    return fn(v1, v2);
+}
+
+int main(void) {
+    struct Pair pair;
+    pair.a = 20;
+    pair.b = 22;
+
+    int base = add_pair(&pair);  // 42
+
+    struct Pair p2 = make_pair(3, 4);
+    base = base + p2.a + p2.b;   // +7 => 49
+
+    int (*fn_ptr)(int, int) = add_values;
+    base = base + call_with_func(fn_ptr, 5, 6); // +11 => 60
+
+    // 结构体赋值与取址
+    struct Pair copy = p2;
+    copy.a = copy.a + 1;  // 4
+    copy.b = copy.b + 2;  // 6
+    base = base + add_pair(&copy); // +10 => 70
+
+    // 指针与箭头、点操作混用
+    struct Pair *pp = &pair;
+    pp->a = pp->a + 2;  // 22
+    (*pp).b = (*pp).b + 5; // 27
+    base = base + add_pair(pp); // +49 => 119
+
+    return base - 42; // 77
+}

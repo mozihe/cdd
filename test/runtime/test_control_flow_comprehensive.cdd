@@ -1,0 +1,61 @@
+/**
+ * @file test_control_flow_comprehensive.cdd
+ * @brief 复合控制流与关键字覆盖的运行期校验
+ *
+ * EXPECT_EXIT: 17
+ */
+
+// EXPECT_EXIT: 17
+
+int main(void) {
+    int sum = 0;
+    int i = 0;
+
+    // while 循环
+    while (i < 3) {
+        sum = sum + i;  // 0 + 1 + 2
+        i = i + 1;
+    }
+
+    // do-while 循环至少执行一次
+    do {
+        sum = sum + i;  // +3, +2
+        i = i - 1;
+    } while (i > 1);
+
+    // for 循环包含 continue 与 break
+    for (int k = 0; k < 4; k = k + 1) {
+        if (k == 1) {
+            continue;
+        }
+        if (k == 3) {
+            break;
+        }
+        sum = sum + k;  // +0 +2
+    }
+
+    // switch/default 语句
+    int selector = 2;
+    switch (selector) {
+        case 0:
+            sum = sum + 10;
+            break;
+        case 2:
+            sum = sum + 5;
+            break;
+        default:
+            sum = sum + 1;
+            break;
+    }
+
+    // 三目运算符
+    sum = sum + (sum > 10 ? -2 : 2);
+
+    // goto 关键字
+    goto set_label;
+    sum = sum + 100;  // 不应被执行
+set_label:
+    sum = sum + 4;
+
+    return sum;  // 17
+}

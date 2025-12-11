@@ -1,0 +1,313 @@
+/**
+ * @file test_typedef.cdd
+ * @brief typedef 关键字测试用例
+ * 
+ * typedef 用于创建类型别名，提高代码可读性
+ */
+
+// ============== 基本类型别名 ==============
+
+// 1. typedef 基本整型
+typedef int Integer;
+typedef int INT;
+
+// 2. typedef unsigned
+typedef unsigned int UInt;
+typedef unsigned int uint;
+
+// 3. typedef signed
+typedef signed int SInt;
+
+// 4. typedef char
+typedef char Char;
+typedef unsigned char Byte;
+typedef unsigned char byte;
+
+// 5. typedef short
+typedef short Short;
+typedef unsigned short UShort;
+
+// 6. typedef long
+typedef long Long;
+typedef unsigned long ULong;
+
+// 7. typedef long long
+typedef long long LongLong;
+typedef long long int64;
+typedef unsigned long long uint64;
+
+// 8. typedef float
+typedef float Float;
+typedef float real32;
+
+// 9. typedef double
+typedef double Double;
+typedef double real64;
+
+// 10. typedef long double
+typedef long double LongDouble;
+
+// ============== 指针类型别名 ==============
+
+// 11. typedef 指针
+typedef int* IntPtr;
+typedef int* pint;
+
+// 12. typedef char 指针
+typedef char* String;
+typedef char* string;
+
+// 13. typedef void 指针
+typedef void* VoidPtr;
+typedef void* pointer;
+
+// 14. typedef const 指针
+typedef const int* ConstIntPtr;
+
+// 15. typedef 指针的指针
+typedef int** IntPtrPtr;
+
+// 16. typedef 指向 const 的 const 指针
+typedef const int* const ConstIntConstPtr;
+
+// ============== 数组类型别名 ==============
+
+// 17. typedef 数组
+typedef int IntArray10[10];
+typedef char CharArray100[100];
+
+// 18. typedef 多维数组
+typedef int Matrix3x3[3][3];
+typedef int Matrix4x4[4][4];
+
+// 19. typedef 数组指针
+typedef int (*ArrayPtr)[10];
+
+// ============== 函数指针类型别名 ==============
+
+// 20. typedef 函数指针
+typedef int (*IntFunc)(void);
+typedef void (*VoidFunc)(void);
+
+// 21. typedef 带参数的函数指针
+typedef int (*BinaryOp)(int, int);
+typedef int (*UnaryOp)(int);
+
+// 22. typedef 返回指针的函数指针
+typedef int* (*PtrFunc)(void);
+
+// 23. typedef 接受指针的函数指针
+typedef void (*AcceptPtr)(int*);
+
+// 24. typedef 复杂函数指针
+typedef int (*ComplexFunc)(int*, int, const char*);
+
+// 25. typedef 函数指针数组
+typedef int (*FuncArray[10])(int);
+
+// ============== 结构体类型别名 ==============
+
+// 26. typedef struct
+typedef struct {
+    int x;
+    int y;
+} Point;
+
+// 27. typedef 命名结构体
+typedef struct Point2D {
+    int x;
+    int y;
+} Point2D;
+
+// 28. typedef 结构体指针
+typedef struct Node* NodePtr;
+
+// 29. typedef 复杂结构体
+typedef struct {
+    int id;
+    char name[50];
+    float value;
+} Record;
+
+// 30. typedef 嵌套结构体
+typedef struct {
+    Point position;
+    int size;
+} Shape;
+
+// 31. typedef 链表节点
+typedef struct ListNode {
+    int data;
+    struct ListNode* next;
+} ListNode;
+
+// 32. typedef 二叉树节点
+typedef struct TreeNode {
+    int value;
+    struct TreeNode* left;
+    struct TreeNode* right;
+} TreeNode;
+
+// ============== 枚举类型别名 ==============
+
+// 33. typedef enum
+typedef enum {
+    RED,
+    GREEN,
+    BLUE
+} Color;
+
+// 34. typedef 命名枚举
+typedef enum Status {
+    STATUS_OK = 0,
+    STATUS_ERROR = -1,
+    STATUS_PENDING = 1
+} Status;
+
+// 35. typedef 位标志枚举
+typedef enum Flags {
+    FLAG_NONE = 0,
+    FLAG_READ = 1,
+    FLAG_WRITE = 2,
+    FLAG_EXECUTE = 4
+} Flags;
+
+// ============== 联合体类型别名 ==============
+
+// 36. typedef union
+typedef union {
+    int i;
+    float f;
+    char c[4];
+} Value;
+
+// 37. typedef 命名联合体
+typedef union Data {
+    int integer;
+    float floating;
+    char bytes[4];
+} Data;
+
+// ============== 复杂组合 ==============
+
+// 38. typedef 指向结构体的函数指针
+typedef void (*PointHandler)(Point*);
+
+// 39. typedef 返回结构体的函数指针
+typedef Point (*PointFactory)(int, int);
+
+// 40. typedef 函数指针结构体成员
+typedef struct {
+    int (*operation)(int, int);
+    const char* name;
+} Operation;
+
+// 41. typedef 回调函数类型
+typedef void (*Callback)(void* data, int status);
+
+// 42. typedef 比较函数
+typedef int (*CompareFunc)(const void*, const void*);
+
+// ============== 使用示例 ==============
+
+// 43. 使用 typedef 基本类型
+Integer use_integer(void) {
+    Integer a = 10;
+    Integer b = 20;
+    return a + b;
+}
+
+// 44. 使用 typedef 指针
+void use_pointer(void) {
+    int x = 42;
+    IntPtr ptr = &x;
+    *ptr = 100;
+}
+
+// 45. 使用 typedef 数组
+void use_array(void) {
+    IntArray10 arr = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    arr[0] = 100;
+}
+
+// 46. 使用 typedef 函数指针
+int add(int a, int b) {
+    return a + b;
+}
+
+int subtract(int a, int b) {
+    return a - b;
+}
+
+int use_func_ptr(BinaryOp op, int a, int b) {
+    return op(a, b);
+}
+
+// 47. 使用 typedef 结构体
+Point create_point(int x, int y) {
+    Point p;
+    p.x = x;
+    p.y = y;
+    return p;
+}
+
+// 48. 使用 typedef 枚举
+Color get_color(int idx) {
+    if (idx == 0) return RED;
+    if (idx == 1) return GREEN;
+    return BLUE;
+}
+
+// 49. 使用 typedef 联合体
+void use_union(void) {
+    Value v;
+    v.i = 0x41424344;
+    char c0 = v.c[0];
+    char c1 = v.c[1];
+}
+
+// 50. typedef 与 const 组合
+typedef const int ConstInt;
+typedef const char* ConstString;
+
+// 51. typedef 多层指针
+typedef int*** IntPtrPtrPtr;
+
+// 52. typedef volatile
+typedef volatile int VolatileInt;
+
+// 53. typedef 固定宽度类型模拟
+typedef signed char int8_t;
+typedef short int16_t;
+typedef int int32_t;
+typedef long long int64_t;
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
+typedef unsigned int uint32_t;
+typedef unsigned long long uint64_t_t;
+
+// 54. typedef size_t 模拟
+typedef unsigned long size_t_type;
+
+// 55. typedef 函数类型（然后取指针）
+typedef int FuncType(int, int);
+FuncType* func_type_ptr;
+
+int main(void) {
+    // 使用各种 typedef
+    Integer i = 42;
+    UInt u = 100;
+    IntPtr ptr = &i;
+    
+    Point p = create_point(10, 20);
+    
+    BinaryOp op = add;
+    int result = use_func_ptr(op, 5, 3);
+    
+    Color c = RED;
+    
+    IntArray10 arr;
+    arr[0] = 1;
+    
+    return 0;
+}

@@ -1,0 +1,62 @@
+/**
+ * @file test_loop_sum.cdd
+ * @brief for 循环与累加逻辑的运行期校验
+ *
+ * EXPECT_EXIT: 49
+ */
+
+// EXPECT_EXIT: 49
+
+int main(void) {
+    int sum = 0;
+    for (int i = 1; i <= 5; i = i + 1) {  // 1..5
+        if (i == 3) {
+            continue;  // skip 3
+        }
+        sum = sum + i;  // +1+2+4+5 = 12
+    }
+
+    int i = 0;
+    while (i < 4) {  // 0..3
+        if (i == 2) {
+            i = i + 1;
+            break;  // break at 2
+        }
+        sum = sum + i;  // +0 +1 = 13
+        i = i + 1;
+    }
+
+    do {
+        sum = sum + i;  // i==3 => 16
+        i = i + 1;
+    } while (i < 3);    // 只执行一次
+
+    // 嵌套循环与 scope 测试
+    int outer = 0;
+    for (int r = 0; r < 2; r = r + 1) {
+        for (int c = 0; c < 2; c = c + 1) {
+            outer = outer + r + c;  // 0+1+1+2=4
+        }
+    }
+    sum = sum + outer;  // 16 + 4 = 20
+
+    // 条件与三目
+    sum = sum + (sum > 10 ? 2 : -2); // +2 => 22
+    sum = sum + (sum == 21 ? 5 : 0); // 22!=21, +0 => 22
+
+    // 作用域 shadow
+    for (int sum = 0; sum < 3; sum = sum + 1) {
+        i = i + sum;  // sum 局部 0+1+2 -> i +=3 => i=7
+    }
+    // i 现在是 7
+    sum = sum + i;   // 22 + 7 = 29
+
+    // 计算阶乘-like 乘法累积
+    int mul = 1;
+    for (int n = 1; n <= 4; n = n + 1) {
+        mul = mul * n;  // 24
+    }
+    sum = sum + mul; // 29 + 24 = 53
+
+    return sum - 4;  // 49
+}

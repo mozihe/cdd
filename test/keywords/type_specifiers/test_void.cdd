@@ -1,0 +1,70 @@
+/**
+ * @file test_void.cdd
+ * @brief void 关键字测试用例
+ * 
+ * 测试 void 类型的各种用法
+ */
+
+// 1. void 返回类型函数
+void simple_void_function() {
+    return;
+}
+
+// 2. void 参数表示无参数
+int no_params(void) {
+    return 0;
+}
+
+// 3. void 指针 - 通用指针类型
+void* generic_pointer;
+
+// 4. 函数指针返回 void
+void (*void_func_ptr)(void);
+
+// 5. void 指针数组
+void* ptr_array[10];
+
+// 6. 返回 void 指针的函数
+void* return_void_ptr(void) {
+    return 0;
+}
+
+// 7. void 指针作为参数
+void accept_void_ptr(void* ptr) {
+    return;
+}
+
+// 8. void 指针的指针
+void** ptr_to_void_ptr;
+
+// 9. const void 指针
+const void* const_void_ptr;
+
+// 10. volatile void 指针
+volatile void* volatile_void_ptr;
+
+// 11. void 指针类型转换
+int test_void_cast() {
+    int x = 42;
+    void* vp = &x;
+    int* ip = (int*)vp;
+    return *ip;
+}
+
+// 12. 函数指针数组，元素是返回 void 的函数
+void (*func_ptr_array[5])(void);
+
+// 13. 返回函数指针的函数（返回类型是 void(*)(void)）
+void (*get_void_func(void))(void) {
+    return 0;
+}
+
+int main(void) {
+    simple_void_function();
+    no_params();
+    
+    generic_pointer = 0;
+    void_func_ptr = simple_void_function;
+    
+    return 0;
+}

@@ -1,0 +1,179 @@
+/**
+ * @file test_restrict.cdd
+ * @brief restrict 关键字测试用例 (C99)
+ * 
+ * restrict 用于指针，告诉编译器该指针是访问某对象的唯一方式
+ * 这允许编译器进行更激进的优化
+ */
+
+// 1. restrict 基本用法
+void basic_restrict(int* restrict ptr) {
+    *ptr = 100;
+    return;
+}
+
+// 2. restrict 与数组参数
+void array_restrict(int* restrict arr, int n) {
+    int i;
+    for (i = 0; i < n; i = i + 1) {
+        arr[i] = i;
+    }
+}
+
+// 3. restrict 用于两个不重叠的指针
+void copy_arrays(int* restrict dest, const int* restrict src, int n) {
+    int i;
+    for (i = 0; i < n; i = i + 1) {
+        dest[i] = src[i];
+    }
+}
+
+// 4. restrict 用于优化内存复制
+void memcpy_sim(void* restrict dest, const void* restrict src, int n) {
+    char* d = (char*)dest;
+    const char* s = (const char*)src;
+    int i;
+    for (i = 0; i < n; i = i + 1) {
+        d[i] = s[i];
+    }
+}
+
+// 5. restrict 与 const 组合
+void read_only_restrict(const int* restrict ptr) {
+    int val = *ptr;
+    return;
+}
+
+// 6. restrict 与 volatile 组合
+void volatile_restrict(volatile int* restrict ptr) {
+    *ptr = 100;
+    return;
+}
+
+// 7. restrict 用于向量加法优化
+void vector_add(float* restrict result, 
+                const float* restrict a, 
+                const float* restrict b, 
+                int n) {
+    int i;
+    for (i = 0; i < n; i = i + 1) {
+        result[i] = a[i] + b[i];
+    }
+}
+
+// 8. restrict 用于矩阵乘法
+void matrix_multiply(float* restrict C,
+                     const float* restrict A,
+                     const float* restrict B,
+                     int M, int N, int K) {
+    int i;
+    int j;
+    int k;
+    for (i = 0; i < M; i = i + 1) {
+        for (j = 0; j < N; j = j + 1) {
+            float sum = 0.0f;
+            for (k = 0; k < K; k = k + 1) {
+                sum = sum + A[i * K + k] * B[k * N + j];
+            }
+            C[i * N + j] = sum;
+        }
+    }
+}
+
+// 9. restrict 局部指针变量
+void local_restrict(int* data, int n) {
+    int* restrict local_ptr = data;
+    int i;
+    for (i = 0; i < n; i = i + 1) {
+        local_ptr[i] = local_ptr[i] * 2;
+    }
+}
+
+// 10. 多个 restrict 指针
+void triple_restrict(int* restrict a, 
+                     int* restrict b, 
+                     int* restrict c, 
+                     int n) {
+    int i;
+    for (i = 0; i < n; i = i + 1) {
+        c[i] = a[i] + b[i];
+    }
+}
+
+// 13. restrict 与结构体指针
+struct Data {
+    int x;
+    int y;
+};
+
+void struct_restrict(struct Data* restrict d) {
+    d->x = 10;
+    d->y = 20;
+}
+
+// 14. restrict 返回类型（某些编译器支持）
+int* restrict return_restrict(int* restrict ptr) {
+    return ptr;
+}
+
+// 15. restrict 用于字符串操作模拟
+void strcpy_sim(char* restrict dest, const char* restrict src) {
+    while (*src != '\0') {
+        *dest = *src;
+        dest = dest + 1;
+        src = src + 1;
+    }
+    *dest = '\0';
+}
+
+// 16. restrict 用于双精度运算
+void double_operation(double* restrict result,
+                      const double* restrict input,
+                      int n) {
+    int i;
+    for (i = 0; i < n; i = i + 1) {
+        result[i] = input[i] * input[i];
+    }
+}
+
+// 17. restrict 指针的指针
+void ptr_to_restrict(int* restrict* ptr) {
+    **ptr = 100;
+}
+
+// 18. restrict 用于缓冲区操作
+void buffer_process(unsigned char* restrict output,
+                    const unsigned char* restrict input,
+                    int len) {
+    int i;
+    for (i = 0; i < len; i = i + 1) {
+        output[i] = input[i] ^ 0xFF;
+    }
+}
+
+// 19. restrict 与不同类型指针
+void mixed_types(int* restrict iptr, float* restrict fptr, int n) {
+    int i;
+    for (i = 0; i < n; i = i + 1) {
+        fptr[i] = (float)iptr[i];
+    }
+}
+
+// 20. restrict 用于累加操作
+void accumulate(int* restrict sum, const int* restrict data, int n) {
+    int i;
+    for (i = 0; i < n; i = i + 1) {
+        *sum = *sum + data[i];
+    }
+}
+
+int main(void) {
+    int arr1[10];
+    int arr2[10];
+    int arr3[10];
+    
+    copy_arrays(arr1, arr2, 10);
+    triple_restrict(arr1, arr2, arr3, 10);
+    
+    return 0;
+}

@@ -1,0 +1,195 @@
+/**
+ * @file test_unsigned.cdd
+ * @brief unsigned 关键字测试用例
+ * 
+ * 测试 unsigned 类型修饰符的各种用法
+ */
+
+// 1. unsigned 单独使用（等价于 unsigned int）
+unsigned just_unsigned;
+
+// 2. unsigned 初始化
+unsigned unsigned_init = 100;
+
+// 3. unsigned char
+unsigned char unsigned_c = 255;
+
+// 4. unsigned char 最小值
+unsigned char unsigned_c_min = 0;
+
+// 5. unsigned short
+unsigned short unsigned_s = 65535;
+
+// 6. unsigned short 最小值
+unsigned short unsigned_s_min = 0;
+
+// 7. unsigned int
+unsigned int unsigned_i = 4294967295;
+
+// 8. unsigned int 最小值
+unsigned int unsigned_i_min = 0;
+
+// 9. unsigned long
+unsigned long unsigned_l = 4294967295;
+
+// 10. unsigned long long
+unsigned long long unsigned_ll = 18446744073709551615;
+
+// 11. unsigned short int
+unsigned short int usi = 50000;
+
+// 12. unsigned long int
+unsigned long int uli = 3000000000;
+
+// 13. unsigned long long int
+unsigned long long int ulli = 10000000000000;
+
+// 14. unsigned 数组
+unsigned unsigned_array[50];
+
+// 15. unsigned char 数组
+unsigned char uc_array[50];
+
+// 16. unsigned 指针
+unsigned* unsigned_ptr;
+
+// 17. unsigned char 指针
+unsigned char* uc_ptr;
+
+// 18. const unsigned
+const unsigned const_unsigned = 500;
+
+// 19. const unsigned char
+const unsigned char const_uc = 200;
+
+// 20. volatile unsigned
+volatile unsigned volatile_unsigned;
+
+// 21. unsigned 指针的指针
+unsigned** ptr_to_unsigned_ptr;
+
+// 22. unsigned char 指针的指针
+unsigned char** ptr_to_uc_ptr;
+
+// 23. 返回 unsigned 的函数
+unsigned get_unsigned(void) {
+    return 42;
+}
+
+// 24. 返回 unsigned char 的函数
+unsigned char get_unsigned_char(void) {
+    return 200;
+}
+
+// 25. unsigned 参数
+void accept_unsigned(unsigned u) {
+    return;
+}
+
+// 26. unsigned char 参数
+void accept_unsigned_char(unsigned char uc) {
+    return;
+}
+
+// 27. 函数指针，返回 unsigned
+unsigned (*unsigned_func_ptr)(void);
+
+// 28. 函数指针，返回 unsigned char
+unsigned char (*uc_func_ptr)(void);
+
+// 29. unsigned 运算
+unsigned unsigned_arithmetic() {
+    unsigned a = 100;
+    unsigned b = 50;
+    unsigned sum = a + b;
+    unsigned diff = a - b;
+    unsigned prod = a * b;
+    unsigned quot = a / b;
+    unsigned rem = a % b;
+    return sum;
+}
+
+// 30. unsigned char 运算
+unsigned char uc_arithmetic() {
+    unsigned char a = 100;
+    unsigned char b = 50;
+    unsigned char sum = a + b;
+    return sum;
+}
+
+// 31. unsigned 位运算
+unsigned unsigned_bitwise() {
+    unsigned a = 0x0F0F0F0F;
+    unsigned b = 0xF0F0F0F0;
+    unsigned and_result = a & b;
+    unsigned or_result = a | b;
+    unsigned xor_result = a ^ b;
+    unsigned not_result = ~a;
+    unsigned left_shift = a << 4;
+    unsigned right_shift = a >> 4;  // 逻辑右移，填0
+    return right_shift;
+}
+
+// 32. unsigned 比较
+int unsigned_compare() {
+    unsigned a = 10;
+    unsigned b = 20;
+    if (a < b) {
+        return 1;
+    }
+    return 0;
+}
+
+// 33. unsigned 类型转换
+signed unsigned_to_signed(unsigned u) {
+    return (signed)u;
+}
+
+// 34. unsigned char 到 int
+int uc_to_int(unsigned char uc) {
+    return (int)uc;  // 零扩展
+}
+
+// 35. unsigned 回绕测试（合法的无符号溢出）
+unsigned unsigned_wrap() {
+    unsigned a = 0;
+    unsigned b = a - 1;  // 回绕到最大值
+    return b;
+}
+
+// 36. unsigned 用于位掩码
+unsigned bit_mask_operations() {
+    unsigned flags = 0;
+    unsigned FLAG_A = 1 << 0;
+    unsigned FLAG_B = 1 << 1;
+    unsigned FLAG_C = 1 << 2;
+    
+    flags = flags | FLAG_A;    // 设置 FLAG_A
+    flags = flags | FLAG_B;    // 设置 FLAG_B
+    flags = flags & ~FLAG_A;   // 清除 FLAG_A
+    
+    if (flags & FLAG_B) {
+        return 1;
+    }
+    return 0;
+}
+
+// 37. unsigned 用于数组索引
+int array_indexing() {
+    int arr[10];
+    unsigned idx;
+    for (idx = 0; idx < 10; idx = idx + 1) {
+        arr[idx] = idx;
+    }
+    return arr[5];
+}
+
+int main(void) {
+    just_unsigned = 999;
+    unsigned_ptr = &just_unsigned;
+    
+    unsigned char local_uc = 200;
+    uc_ptr = &local_uc;
+    
+    return 0;
+}

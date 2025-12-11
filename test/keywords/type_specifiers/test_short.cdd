@@ -1,0 +1,114 @@
+/**
+ * @file test_short.cdd
+ * @brief short 关键字测试用例
+ * 
+ * 测试 short 类型的各种用法
+ */
+
+// 1. 基本 short 变量
+short basic_short;
+
+// 2. short 初始化
+short init_short = 100;
+
+// 3. short int（完整形式）
+short int short_int_var = 200;
+
+// 4. signed short
+signed short signed_s = -32768;
+
+// 5. signed short int
+signed short int signed_short_int = -1000;
+
+// 6. unsigned short
+unsigned short unsigned_s = 65535;
+
+// 7. unsigned short int
+unsigned short int unsigned_short_int = 50000;
+
+// 8. short 数组
+short short_array[50];
+
+// 9. short 数组初始化
+short init_array[] = {1, 2, 3, 4, 5};
+
+// 10. short 指针
+short* short_ptr;
+
+// 11. const short
+const short const_short = 1000;
+
+// 12. volatile short
+volatile short volatile_short;
+
+// 13. short 指针的指针
+short** ptr_to_short_ptr;
+
+// 14. short 数组的指针
+short (*ptr_to_short_array)[10];
+
+// 15. 返回 short 的函数
+short get_short(void) {
+    return 42;
+}
+
+// 16. short 参数
+void accept_short(short s) {
+    return;
+}
+
+// 17. 函数指针，返回 short
+short (*short_func_ptr)(void);
+
+// 18. 多维 short 数组
+short multi_short[5][10];
+
+// 19. short 类型转换
+int short_to_int(short s) {
+    return (int)s;
+}
+
+// 20. short 运算
+short short_arithmetic() {
+    short a = 100;
+    short b = 50;
+    short sum = a + b;
+    short diff = a - b;
+    short prod = a * b;
+    short quot = a / b;
+    short rem = a % b;
+    return sum;
+}
+
+// 21. short 位运算
+short short_bitwise() {
+    short a = 0x00FF;
+    short b = 0xFF00;
+    short and_result = a & b;
+    short or_result = a | b;
+    short xor_result = a ^ b;
+    short not_result = ~a;
+    short left_shift = a << 2;
+    short right_shift = b >> 2;
+    return or_result;
+}
+
+// 22. short 比较
+int short_compare() {
+    short a = 10;
+    short b = 20;
+    if (a < b) {
+        return 1;
+    }
+    return 0;
+}
+
+int main(void) {
+    basic_short = 500;
+    short_ptr = &basic_short;
+    
+    short local_short = -100;
+    unsigned short local_ushort = 100;
+    
+    return 0;
+}

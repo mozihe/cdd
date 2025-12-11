@@ -1,0 +1,18 @@
+/**
+ * 嵌套包含测试 - 第三层（最深层）
+ */
+
+#ifndef NESTED_LEVEL3_HDD
+#define NESTED_LEVEL3_HDD
+
+// 最深层定义
+#define LEVEL3_VALUE 3
+#define NESTED_TOTAL (LEVEL1_VALUE + LEVEL2_VALUE + LEVEL3_VALUE)
+
+typedef int Level3Type;
+
+void level3_func(void) {
+    // Level 3 function
+}
+
+#endif // NESTED_LEVEL3_HDD

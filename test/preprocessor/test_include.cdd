@@ -1,0 +1,127 @@
+/**
+ * 测试文件：test_include.cdd
+ * 测试目标：#include 预处理指令
+ * 
+ * 覆盖场景：
+ * 1. 双引号包含（用户头文件）
+ * 2. 子目录包含
+ * 3. 上级目录包含
+ * 4. 条件包含
+ * 5. 多层嵌套包含
+ * 6. 头文件保护（防止重复包含）
+ * 7. 路径带空格
+ */
+
+// ============================================
+// 测试1：双引号包含（同目录头文件）
+// ============================================
+
+// 包含同目录下的头文件
+#include "test_header1.hdd"
+
+
+// ============================================
+// 测试2：子目录包含
+// ============================================
+
+// 包含子目录的头文件
+#include "subdir/test_header2.hdd"
+
+
+// ============================================
+// 测试3：上级目录包含
+// ============================================
+
+// 包含上级目录的头文件
+#include "../common_header.hdd"
+
+
+// ============================================
+// 测试4：条件包含
+// ============================================
+
+// 根据宏定义决定是否包含
+#define USE_ADVANCED_FEATURES 1
+
+#ifdef USE_ADVANCED_FEATURES
+#include "advanced.hdd"
+#endif
+
+// NO_DEBUG 未定义，所以会包含 debug.hdd
+#ifndef NO_DEBUG
+#include "debug.hdd"
+#endif
+
+
+// ============================================
+// 测试5：多层嵌套包含
+// ============================================
+
+// nested_level1.hdd 包含 nested_level2.hdd
+// nested_level2.hdd 包含 nested_level3.hdd
+#include "nested_level1.hdd"
+
+
+// ============================================
+// 测试6：头文件保护测试
+// ============================================
+
+// 重复包含同一个头文件，应该被头文件保护阻止
+#include "test_header1.hdd"
+#include "test_header1.hdd"
+
+
+// ============================================
+// 测试7：路径带空格
+// ============================================
+
+#include "path with space/header.hdd"
+
+
+// ============================================
+// 主程序：使用包含的内容
+// ============================================
+
+int main() {
+    // 使用 test_header1.hdd 中的定义
+    HeaderType1 var1;
+    var1.x = HEADER1_CONSTANT;
+    var1.y = 0;
+    header1_init(&var1);
+    
+    // 使用 subdir/test_header2.hdd 中的定义
+    HeaderType2 var2;
+    int max_size = HEADER2_MAX_SIZE;
+    
+    // 使用 ../common_header.hdd 中的定义
+    CommonInt ci = COMMON_VERSION_MAJOR;
+    int buf_size = COMMON_BUFFER_SIZE;
+    common_init();
+    
+    // 使用 advanced.hdd 中的定义（条件包含）
+    #ifdef ADVANCED_FEATURE_A
+    AdvancedType adv;
+    advanced_init();
+    #endif
+    
+    // 使用 debug.hdd 中的定义（条件包含）
+    #ifdef DEBUG_ENABLED
+    debug_init();
+    #endif
+    
+    // 使用嵌套包含带来的定义
+    Level1Type l1 = LEVEL1_VALUE;
+    Level2Type l2 = LEVEL2_VALUE;
+    Level3Type l3 = LEVEL3_VALUE;
+    level1_func();
+    level2_func();
+    level3_func();
+    
+    // 使用路径带空格的头文件
+    #if SPACE_PATH_WORKS
+    SpacePathType sp = 1;
+    #endif
+    
+    common_cleanup();
+    return 0;
+}

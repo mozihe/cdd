@@ -1,0 +1,26 @@
+/**
+ * 调试头文件：debug.hdd
+ * 用于测试条件包含
+ */
+
+#ifndef DEBUG_HDD
+#define DEBUG_HDD
+
+// 调试宏
+#define DEBUG_ENABLED 1
+#define DEBUG_LEVEL 2
+
+// 调试打印宏
+#define DEBUG_PRINT(msg) /* debug print */
+#define DEBUG_LOG(fmt) /* debug log */
+
+// 调试函数实现
+void debug_init(void) {
+    // 初始化调试
+}
+
+void debug_log(const char* message) {
+    // 记录日志
+}
+
+#endif // DEBUG_HDD

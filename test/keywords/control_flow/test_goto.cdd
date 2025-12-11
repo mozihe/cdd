@@ -1,0 +1,582 @@
+/**
+ * @file test_goto.cdd
+ * @brief goto 关键字测试用例
+ * 
+ * 测试 goto 语句的各种用法
+ * goto 用于无条件跳转到标签位置
+ */
+
+// 1. 基本 goto 跳转
+int test_basic_goto(void) {
+    int x = 0;
+    goto skip;
+    x = 100;  // 这行被跳过
+skip:
+    return x;  // 返回 0
+}
+
+// 2. goto 向前跳转
+int test_goto_forward(int n) {
+    if (n < 0) {
+        goto negative;
+    }
+    return n * 2;
+negative:
+    return -1;
+}
+
+// 3. goto 向后跳转（循环）
+int test_goto_backward(int n) {
+    int i = 0;
+    int sum = 0;
+loop:
+    if (i >= n) {
+        goto end;
+    }
+    sum = sum + i;
+    i = i + 1;
+    goto loop;
+end:
+    return sum;
+}
+
+// 4. goto 跳出嵌套循环
+int test_goto_nested_exit(int n, int m) {
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (i == 3 && j == 3) {
+                goto done;  // 跳出所有循环
+            }
+            count = count + 1;
+        }
+    }
+done:
+    return count;
+}
+
+// 5. goto 错误处理
+int test_goto_error(int* ptr) {
+    if (ptr == 0) {
+        goto error;
+    }
+    *ptr = 100;
+    return 0;
+error:
+    return -1;
+}
+
+// 6. goto 资源清理
+int test_goto_cleanup(int step) {
+    int resource1 = 0;
+    int resource2 = 0;
+    int resource3 = 0;
+    
+    // 分配资源 1
+    resource1 = 1;
+    if (step < 1) goto cleanup;
+    
+    // 分配资源 2
+    resource2 = 1;
+    if (step < 2) goto cleanup;
+    
+    // 分配资源 3
+    resource3 = 1;
+    if (step < 3) goto cleanup;
+    
+    // 成功
+    return resource1 + resource2 + resource3;
+    
+cleanup:
+    // 清理所有已分配的资源
+    resource3 = 0;
+    resource2 = 0;
+    resource1 = 0;
+    return -1;
+}
+
+// 7. goto 实现状态机
+int test_goto_state_machine(int input) {
+    int result = 0;
+    
+state_a:
+    if (input == 0) {
+        result = 1;
+        goto end;
+    }
+    input = input - 1;
+    goto state_b;
+    
+state_b:
+    if (input == 0) {
+        result = 2;
+        goto end;
+    }
+    input = input - 1;
+    goto state_c;
+    
+state_c:
+    if (input == 0) {
+        result = 3;
+        goto end;
+    }
+    input = input - 1;
+    goto state_a;
+    
+end:
+    return result;
+}
+
+// 8. goto 多出口点
+int test_goto_multi_exit(int a, int b) {
+    if (a < 0) {
+        goto error_a;
+    }
+    if (b < 0) {
+        goto error_b;
+    }
+    if (a == b) {
+        goto equal;
+    }
+    return a + b;
+    
+error_a:
+    return -1;
+error_b:
+    return -2;
+equal:
+    return a * 2;
+}
+
+// 9. goto 跳过初始化
+int test_goto_skip_init(int flag) {
+    if (flag) {
+        goto skip;
+    }
+    int x = 100;
+    return x;
+skip:
+    return 0;
+}
+
+// 10. goto 实现 do-while
+int test_goto_do_while(int n) {
+    int i = 0;
+    int sum = 0;
+loop_start:
+    sum = sum + i;
+    i = i + 1;
+    if (i < n) {
+        goto loop_start;
+    }
+    return sum;
+}
+
+// 11. goto 在 switch 外跳转
+int test_goto_switch_exit(int val) {
+    switch (val) {
+        case 1:
+            goto found;
+        case 2:
+            goto found;
+        case 3:
+            goto not_found;
+        default:
+            goto not_found;
+    }
+found:
+    return 1;
+not_found:
+    return 0;
+}
+
+// 12. goto 重试逻辑
+int test_goto_retry(int max_attempts) {
+    int attempts = 0;
+retry:
+    attempts = attempts + 1;
+    if (attempts < max_attempts) {
+        // 模拟失败，重试
+        goto retry;
+    }
+    return attempts;
+}
+
+// 13. goto 条件跳转
+int test_goto_conditional(int x, int y) {
+    if (x > y) {
+        goto x_greater;
+    }
+    if (x < y) {
+        goto y_greater;
+    }
+    goto equal;
+    
+x_greater:
+    return 1;
+y_greater:
+    return -1;
+equal:
+    return 0;
+}
+
+// 14. goto 跳出深层嵌套
+int test_goto_deep_exit(int*** cube, int x, int y, int z, int target) {
+    for (int i = 0; i < x; i++) {
+        for (int j = 0; j < y; j++) {
+            for (int k = 0; k < z; k++) {
+                if (cube[i][j][k] == target) {
+                    goto found;
+                }
+            }
+        }
+    }
+    return -1;
+found:
+    return 1;
+}
+
+// 15. goto 分支合并
+int test_goto_merge(int type) {
+    int result = 0;
+    
+    if (type == 1) {
+        result = 10;
+        goto common;
+    }
+    if (type == 2) {
+        result = 20;
+        goto common;
+    }
+    if (type == 3) {
+        result = 30;
+        goto common;
+    }
+    return -1;
+    
+common:
+    // 公共处理
+    result = result * 2;
+    return result;
+}
+
+// 16. goto 实现 while
+int test_goto_while(int n) {
+    int i = 0;
+    int sum = 0;
+loop_check:
+    if (i >= n) {
+        goto loop_end;
+    }
+    sum = sum + i;
+    i = i + 1;
+    goto loop_check;
+loop_end:
+    return sum;
+}
+
+// 17. goto 多标签
+int test_goto_multi_label(int n) {
+    int result = 0;
+    
+    if (n == 1) goto label_1;
+    if (n == 2) goto label_2;
+    if (n == 3) goto label_3;
+    goto label_default;
+    
+label_1:
+    result = 100;
+    goto done;
+label_2:
+    result = 200;
+    goto done;
+label_3:
+    result = 300;
+    goto done;
+label_default:
+    result = 0;
+done:
+    return result;
+}
+
+// 18. goto 在错误恢复中
+int test_goto_recovery(int* values, int count) {
+    int sum = 0;
+    int i = 0;
+    
+process:
+    if (i >= count) {
+        goto success;
+    }
+    if (values[i] < 0) {
+        goto handle_error;
+    }
+    sum = sum + values[i];
+    i = i + 1;
+    goto process;
+    
+handle_error:
+    // 跳过错误值
+    i = i + 1;
+    goto process;
+    
+success:
+    return sum;
+}
+
+// 19. goto 在搜索中
+int test_goto_search(int* arr, int size, int target) {
+    int i = 0;
+search:
+    if (i >= size) {
+        goto not_found;
+    }
+    if (arr[i] == target) {
+        goto found;
+    }
+    i = i + 1;
+    goto search;
+    
+found:
+    return i;
+not_found:
+    return -1;
+}
+
+// 20. goto 终止处理
+int test_goto_terminate(int code) {
+    if (code == 0) {
+        goto success;
+    }
+    if (code == 1) {
+        goto warning;
+    }
+    goto error;
+    
+success:
+    return 0;
+warning:
+    return 1;
+error:
+    return -1;
+}
+
+// 21. goto 跳过代码块
+int test_goto_skip_block(int skip) {
+    int x = 0;
+    
+    if (skip) {
+        goto after_block;
+    }
+    
+    // 这个块可能被跳过
+    {
+        x = 100;
+        x = x + 50;
+    }
+    
+after_block:
+    return x;
+}
+
+// 22. goto 循环继续
+int test_goto_continue_like(int n) {
+    int i = 0;
+    int sum = 0;
+    
+loop:
+    if (i >= n) goto done;
+    i = i + 1;
+    if (i % 2 == 0) goto loop;  // 跳过偶数，类似 continue
+    sum = sum + i;
+    goto loop;
+    
+done:
+    return sum;
+}
+
+// 23. goto 多级退出
+int test_goto_multi_level(int** matrix, int rows, int cols, int target) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (matrix[i][j] == target) {
+                goto found;
+            }
+            if (matrix[i][j] < 0) {
+                goto error;
+            }
+        }
+    }
+    goto not_found;
+    
+found:
+    return 1;
+not_found:
+    return 0;
+error:
+    return -1;
+}
+
+// 24. goto 初始化后跳转
+int test_goto_after_init(int flag) {
+    int result = 0;
+    int initialized = 0;
+    
+    if (flag < 0) {
+        goto exit;
+    }
+    
+    initialized = 1;
+    result = flag * 2;
+    
+exit:
+    if (initialized) {
+        // 需要清理
+        result = result + 1;
+    }
+    return result;
+}
+
+// 25. goto 在验证中
+int test_goto_validate(int a, int b, int c) {
+    if (a < 0) goto invalid;
+    if (b < 0) goto invalid;
+    if (c < 0) goto invalid;
+    if (a + b <= c) goto invalid;
+    if (b + c <= a) goto invalid;
+    if (a + c <= b) goto invalid;
+    
+    // 有效三角形
+    return 1;
+    
+invalid:
+    return 0;
+}
+
+// 26. goto 事务处理
+int test_goto_transaction(int* data, int count) {
+    int* backup = 0;
+    int i;
+    
+    // 创建备份（简化）
+    backup = data;
+    
+    for (i = 0; i < count; i++) {
+        if (data[i] < 0) {
+            goto rollback;
+        }
+        data[i] = data[i] * 2;
+    }
+    
+    // 提交成功
+    return 0;
+    
+rollback:
+    // 回滚（简化）
+    return -1;
+}
+
+// 27. goto 解析状态
+int test_goto_parse(char* input) {
+    int result = 0;
+    char* p = input;
+    
+start:
+    if (*p == '\0') goto end;
+    if (*p >= '0' && *p <= '9') goto digit;
+    if (*p == ' ') goto space;
+    goto error;
+    
+digit:
+    result = result * 10 + (*p - '0');
+    p = p + 1;
+    goto start;
+    
+space:
+    p = p + 1;
+    goto start;
+    
+end:
+    return result;
+    
+error:
+    return -1;
+}
+
+// 28. goto 资源获取检查
+int test_goto_acquire(int step) {
+    int res1 = 0, res2 = 0, res3 = 0;
+    
+    res1 = 1;  // 获取资源 1
+    if (!res1) goto fail;
+    
+    if (step >= 1) {
+        res2 = 1;  // 获取资源 2
+        if (!res2) goto release1;
+    }
+    
+    if (step >= 2) {
+        res3 = 1;  // 获取资源 3
+        if (!res3) goto release2;
+    }
+    
+    return res1 + res2 + res3;  // 成功
+    
+release2:
+    res2 = 0;
+release1:
+    res1 = 0;
+fail:
+    return -1;
+}
+
+// 29. goto 简单跳转
+int test_goto_simple(int x) {
+    if (x == 0) goto zero;
+    return x;
+zero:
+    return 0;
+}
+
+// 30. goto 标签在语句后
+int test_goto_label_after(int n) {
+    int sum = 0;
+    int i = 0;
+again:
+    sum = sum + i;
+    i = i + 1;
+    if (i < n) goto again;
+    return sum;
+}
+
+int main(void) {
+    // 基本 goto
+    int x = 0;
+    goto label;
+    x = 100;  // 被跳过
+label:
+    x = x + 1;
+    
+    // goto 跳出嵌套循环
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 10; j++) {
+            if (i == 5 && j == 5) {
+                goto exit_loops;
+            }
+        }
+    }
+exit_loops:
+    
+    // goto 错误处理
+    int* ptr = 0;
+    if (ptr == 0) {
+        goto handle_null;
+    }
+    *ptr = 10;
+    goto done;
+handle_null:
+    x = -1;
+done:
+    
+    return 0;
+}

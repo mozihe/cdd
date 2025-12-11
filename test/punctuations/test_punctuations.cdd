@@ -1,0 +1,463 @@
+/**
+ * @file test_punctuations.cdd
+ * @brief 标点符号测试用例
+ * 
+ * 测试所有标点符号：括号、分号、逗号、冒号等
+ */
+
+// ============== 圆括号 () ==============
+
+// 1. 函数参数括号
+int func_no_params(void) {
+    return 0;
+}
+
+int func_one_param(int a) {
+    return a;
+}
+
+int func_multi_params(int a, int b, int c) {
+    return a + b + c;
+}
+
+// 2. 函数调用括号
+int test_func_call(void) {
+    int a = func_no_params();
+    int b = func_one_param(10);
+    int c = func_multi_params(1, 2, 3);
+    return a + b + c;
+}
+
+// 3. 表达式分组括号
+int test_expr_group(void) {
+    int a = (1 + 2) * 3;
+    int b = 1 + (2 * 3);
+    int c = ((1 + 2) * (3 + 4));
+    return a + b + c;
+}
+
+// 4. 类型转换括号
+int test_cast_paren(void) {
+    double d = 3.14;
+    int i = (int)d;
+    float f = (float)i;
+    return i;
+}
+
+// 5. 条件语句括号
+int test_if_paren(int x) {
+    if (x > 0) {
+        return 1;
+    }
+    if ((x < 0)) {
+        return -1;
+    }
+    return 0;
+}
+
+// 6. 循环语句括号
+int test_loop_paren(void) {
+    int sum = 0;
+    for (int i = 0; i < 10; i++) {
+        sum = sum + i;
+    }
+    while (sum > 0) {
+        sum = sum - 1;
+    }
+    do {
+        sum = sum + 1;
+    } while (sum < 10);
+    return sum;
+}
+
+// 7. sizeof 括号
+int test_sizeof_paren(void) {
+    int s1 = sizeof(int);
+    int s2 = sizeof(char);
+    int x;
+    int s3 = sizeof(x);
+    int s4 = sizeof x;  // 变量可以不用括号
+    return s1 + s2 + s3 + s4;
+}
+
+// 8. 函数指针括号
+int add(int a, int b) { return a + b; }
+
+int test_func_ptr_paren(void) {
+    int (*fp)(int, int) = add;
+    return (*fp)(2, 3);  // 或 fp(2, 3)
+}
+
+// ============== 方括号 [] ==============
+
+// 9. 数组声明
+int arr1[10];
+int arr2[5] = {1, 2, 3, 4, 5};
+int arr3[] = {1, 2, 3};
+
+// 10. 数组访问
+int test_array_access(void) {
+    int arr[5] = {10, 20, 30, 40, 50};
+    int a = arr[0];
+    int b = arr[1];
+    int c = arr[4];
+    arr[2] = 100;
+    return a + b + c;
+}
+
+// 11. 多维数组
+int test_multi_dim(void) {
+    int matrix[3][3] = {
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9}
+    };
+    return matrix[0][0] + matrix[1][1] + matrix[2][2];
+}
+
+// 12. 指针下标访问
+int test_ptr_subscript(void) {
+    int arr[5] = {1, 2, 3, 4, 5};
+    int* p = arr;
+    return p[0] + p[1] + p[2];
+}
+
+// 13. 函数参数数组
+int sum_array(int arr[], int size) {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        sum = sum + arr[i];
+    }
+    return sum;
+}
+
+// ============== 花括号 {} ==============
+
+// 14. 函数体
+int test_func_body(void) {
+    int x = 1;
+    return x;
+}
+
+// 15. 复合语句
+int test_compound(void) {
+    int x = 0;
+    {
+        int y = 1;
+        x = y + 1;
+    }
+    return x;
+}
+
+// 16. 数组初始化花括号
+int test_array_init(void) {
+    int arr1[3] = {1, 2, 3};
+    int arr2[] = {4, 5, 6, 7};
+    int matrix[2][2] = {{1, 2}, {3, 4}};
+    return arr1[0] + arr2[0];
+}
+
+// 17. 结构体初始化
+struct Point {
+    int x;
+    int y;
+};
+
+struct Point test_struct_init(void) {
+    struct Point p1 = {10, 20};
+    struct Point p2 = {.x = 30, .y = 40};
+    return p1;
+}
+
+// 18. 空花括号
+void test_empty_body(void) {
+}
+
+// ============== 分号 ; ==============
+
+// 19. 语句结束
+int test_semicolon(void) {
+    int a = 1;
+    int b = 2;
+    int c = a + b;
+    return c;
+}
+
+// 20. 空语句
+int test_empty_stmt(void) {
+    ;  // 空语句
+    int x = 0;;  // 多余分号
+    for (int i = 0; i < 10; i++)
+        ;  // 空循环体
+    return x;
+}
+
+// 21. for 循环分号
+int test_for_semicolon(void) {
+    int sum = 0;
+    for (int i = 0; i < 10; i++) {
+        sum = sum + i;
+    }
+    // 省略各部分
+    int j = 0;
+    for (; j < 5; ) {
+        j++;
+    }
+    for (;;) {
+        break;
+    }
+    return sum;
+}
+
+// ============== 逗号 , ==============
+
+// 22. 变量声明逗号
+int test_var_comma(void) {
+    int a, b, c;
+    int x = 1, y = 2, z = 3;
+    return a + b + c + x + y + z;
+}
+
+// 23. 函数参数逗号
+int multi_param(int a, int b, int c, int d) {
+    return a + b + c + d;
+}
+
+// 24. 数组初始化逗号
+int test_array_comma(void) {
+    int arr[] = {1, 2, 3, 4, 5};
+    return arr[0];
+}
+
+// 25. 逗号运算符
+int test_comma_operator(void) {
+    int a = (1, 2, 3);  // a = 3
+    int b = 0;
+    int c = (b = 1, b + 2);  // c = 3
+    return a + c;
+}
+
+// 26. for 循环逗号
+int test_for_comma(void) {
+    int sum = 0;
+    for (int i = 0, j = 10; i < j; i++, j--) {
+        sum = sum + i + j;
+    }
+    return sum;
+}
+
+// ============== 冒号 : ==============
+
+// 27. switch case 冒号
+int test_case_colon(int x) {
+    switch (x) {
+        case 1:
+            return 10;
+        case 2:
+            return 20;
+        default:
+            return 0;
+    }
+}
+
+// 28. 标签冒号
+int test_label_colon(int x) {
+    if (x < 0) {
+        goto error;
+    }
+    return x;
+error:
+    return -1;
+}
+
+// 29. 三元运算符冒号
+int test_ternary_colon(int x) {
+    return x > 0 ? 1 : -1;
+}
+
+// 30. 位域冒号
+struct BitField {
+    unsigned int a : 4;
+    unsigned int b : 4;
+    unsigned int c : 8;
+    unsigned int d : 16;
+};
+
+// 31. 指定初始化冒号
+struct Point test_designated_init(void) {
+    struct Point p = {.x = 10, .y = 20};
+    return p;
+}
+
+// ============== 省略号 ... ==============
+
+// 32. 可变参数
+int var_args(int count, ...) {
+    // 可变参数函数
+    return count;
+}
+
+int test_var_args(void) {
+    return var_args(3, 1, 2, 3);
+}
+
+// ============== 点 . ==============
+
+// 33. 结构体成员访问
+int test_dot_member(void) {
+    struct Point p;
+    p.x = 10;
+    p.y = 20;
+    return p.x + p.y;
+}
+
+// 34. 联合体成员访问
+union Data {
+    int i;
+    float f;
+};
+
+int test_union_dot(void) {
+    union Data d;
+    d.i = 100;
+    return d.i;
+}
+
+// 35. 指定初始化器点
+int test_designated_dot(void) {
+    int arr[5] = {[0] = 1, [2] = 3, [4] = 5};
+    struct Point p = {.x = 1, .y = 2};
+    return arr[0] + p.x;
+}
+
+// ============== 箭头 -> ==============
+
+// 36. 指针成员访问
+int test_arrow_member(void) {
+    struct Point p = {10, 20};
+    struct Point* pp = &p;
+    int x = pp->x;
+    int y = pp->y;
+    pp->x = 30;
+    return x + y;
+}
+
+// 37. 链表遍历箭头
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+int test_list_arrow(struct Node* head) {
+    int sum = 0;
+    struct Node* curr = head;
+    while (curr != 0) {
+        sum = sum + curr->data;
+        curr = curr->next;
+    }
+    return sum;
+}
+
+// ============== 问号 ? ==============
+
+// 38. 三元运算符
+int test_ternary(int x) {
+    int a = x > 0 ? x : -x;
+    int b = x == 0 ? 0 : 1;
+    int c = x > 10 ? 10 : (x < 0 ? 0 : x);
+    return a + b + c;
+}
+
+// ============== 井号 # (预处理) ==============
+
+// 39. 预处理指令（如果支持）
+// #define MAX 100
+// #include "header.h"
+
+// ============== 综合测试 ==============
+
+// 40. 所有括号组合
+int test_all_brackets(void) {
+    int arr[3] = {1, 2, 3};
+    struct Point p = {10, 20};
+    int sum = (arr[0] + arr[1]) * (p.x + p.y);
+    if ((sum > 0)) {
+        {
+            sum = sum + 1;
+        }
+    }
+    return sum;
+}
+
+// 41. 复杂声明标点
+int (*(*complex_ptr)[5])(int, int);
+
+// 42. 函数指针数组
+int op_add(int a, int b) { return a + b; }
+int op_sub(int a, int b) { return a - b; }
+
+int test_func_ptr_array(void) {
+    int (*ops[2])(int, int) = {op_add, op_sub};
+    return ops[0](5, 3) + ops[1](5, 3);
+}
+
+// 43. 嵌套结构体和数组
+struct Container {
+    int values[10];
+    struct Point points[3];
+};
+
+int test_nested_access(void) {
+    struct Container c;
+    c.values[0] = 100;
+    c.points[0].x = 10;
+    c.points[0].y = 20;
+    return c.values[0] + c.points[0].x;
+}
+
+// 44. 指针和数组组合
+int test_ptr_array_combo(void) {
+    int arr[3][3] = {{1,2,3},{4,5,6},{7,8,9}};
+    int (*p)[3] = arr;
+    return p[0][0] + p[1][1] + p[2][2];
+}
+
+// 45. 复杂表达式标点
+int test_complex_expr(void) {
+    int a = 1, b = 2, c = 3;
+    int result = ((a + b) * c) - ((a - b) / (c > 0 ? c : 1));
+    return result;
+}
+
+int main(void) {
+    // 圆括号
+    int a = (1 + 2) * 3;
+    int b = func_one_param(10);
+    
+    // 方括号
+    int arr[5] = {1, 2, 3, 4, 5};
+    int x = arr[0];
+    
+    // 花括号
+    {
+        int local = 100;
+    }
+    
+    // 分号
+    int c = 1;
+    int d = 2;
+    
+    // 逗号
+    int e, f, g;
+    
+    // 冒号
+    int h = c > d ? c : d;
+    
+    // 点和箭头
+    struct Point p = {10, 20};
+    struct Point* pp = &p;
+    int px = p.x;
+    int py = pp->y;
+    
+    return 0;
+}

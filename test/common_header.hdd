@@ -1,0 +1,31 @@
+/**
+ * 公共头文件：common_header.hdd
+ * 位于 test 目录，用于测试上级目录包含
+ */
+
+#ifndef COMMON_HEADER_HDD
+#define COMMON_HEADER_HDD
+
+// 公共类型
+typedef int CommonInt;
+typedef unsigned int CommonUInt;
+
+// 公共宏
+#define COMMON_VERSION_MAJOR 1
+#define COMMON_VERSION_MINOR 0
+#define COMMON_VERSION_PATCH 0
+
+// 公共常量
+#define COMMON_MAX_PATH 256
+#define COMMON_BUFFER_SIZE 4096
+
+// 公共函数实现
+void common_init(void) {
+    // 初始化
+}
+
+void common_cleanup(void) {
+    // 清理
+}
+
+#endif // COMMON_HEADER_HDD
