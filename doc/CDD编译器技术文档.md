@@ -970,10 +970,8 @@ make
 ### C. 测试运行
 
 ```bash
-cd test
-./run_tests.sh
+./test/run_tests.sh
 ```
 
 ---
 
-*文档结束*
