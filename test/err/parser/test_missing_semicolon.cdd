@@ -1,0 +1,8 @@
+// 测试缺少分号
+// 预期结果: 语法分析错误 - 缺少分号
+// EXPECT_COMPILE_ERROR
+
+int main() {
+    int x = 1
+    return 0;
+}

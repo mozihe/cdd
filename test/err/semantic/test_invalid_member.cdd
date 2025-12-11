@@ -1,0 +1,9 @@
+// 测试无效的成员访问
+// 预期结果: 语义分析错误 - 基类型不是结构体或联合体
+// EXPECT_COMPILE_ERROR
+
+int main() {
+    int x = 10;
+    int y = x.field;  // x 不是结构体
+    return 0;
+}

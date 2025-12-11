@@ -546,6 +546,10 @@ void Lexer::skipWhitespace() {
     }
 }
 
+void Lexer::reportError(const SourceLocation& loc, const std::string& message) {
+    errors_.push_back({loc, message});
+}
+
 //=============================================================================
 // Token 扫描
 //=============================================================================
@@ -597,13 +601,22 @@ Token Lexer::scanToken() {
                 }
             } else {
                 // 块注释：跳到 */
+                SourceLocation commentStart = currentLocation();
                 advance(); advance();
+                bool closed = false;
                 while (!isEof()) {
                     if (peek() == '*' && peek(1) == '/') {
                         advance(); advance();
+                        closed = true;
                         break;
                     }
                     advance();
+                }
+                if (!closed) {
+                    reportError(commentStart, "未闭合的块注释");
+                    Token tok(TokenKind::Invalid, commentStart);
+                    tok.stringValue = "未闭合的块注释";
+                    return tok;
                 }
             }
             continue;
@@ -650,21 +663,73 @@ Token Lexer::scanToken() {
         
         if (c == '\0' || !dfa_.step(c)) {
             // 无法转移，检查是否可以完成
-            LexerState fallback = getFallbackState(dfa_.current());
+            LexerState currentState = dfa_.current();
+            LexerState fallback = getFallbackState(currentState);
             
             if (fallback == LexerState::Done) {
-                return finalizeToken(dfa_.current());
+                return finalizeToken(currentState);
             } else if (fallback == LexerState::Error) {
                 if (lexeme_.empty()) {
                     // 非法字符
+                    char badChar = c;
                     advance();
                     Token tok(TokenKind::Invalid, tokenLoc_);
-                    tok.stringValue = std::string("Unexpected character: ") + c;
+                    std::string errMsg;
+                    if (badChar == '\0') {
+                        errMsg = "意外的文件结束";
+                    } else if (badChar < 32 || badChar > 126) {
+                        errMsg = "非法字符 (ASCII " + std::to_string(static_cast<int>(static_cast<unsigned char>(badChar))) + ")";
+                    } else {
+                        errMsg = std::string("非法字符 '") + badChar + "'";
+                    }
+                    tok.stringValue = errMsg;
+                    reportError(tokenLoc_, errMsg);
                     return tok;
                 }
-                // 部分 token 后出错
+                // 根据当前状态提供更具体的错误信息
                 Token tok(TokenKind::Invalid, tokenLoc_);
-                tok.stringValue = "Incomplete token: " + lexeme_;
+                std::string errMsg;
+                switch (currentState) {
+                    case LexerState::InString:
+                    case LexerState::InStringEscape:
+                    case LexerState::InStringOctal1:
+                    case LexerState::InStringOctal2:
+                    case LexerState::InStringHexStart:
+                    case LexerState::InStringHex1:
+                        errMsg = "未闭合的字符串字面量";
+                        break;
+                    case LexerState::InChar:
+                    case LexerState::InCharEscape:
+                    case LexerState::InCharEnd:
+                    case LexerState::InCharOctal1:
+                    case LexerState::InCharOctal2:
+                    case LexerState::InCharHexStart:
+                    case LexerState::InCharHex1:
+                        errMsg = "未闭合的字符字面量";
+                        break;
+                    case LexerState::InHexStart:
+                        errMsg = "无效的十六进制数字面量 '" + lexeme_ + "' (0x 后需要十六进制数字)";
+                        break;
+                    case LexerState::InBinaryStart:
+                        errMsg = "无效的二进制数字面量 '" + lexeme_ + "' (0b 后需要二进制数字)";
+                        break;
+                    case LexerState::InFloatExp:
+                    case LexerState::InFloatExpSign:
+                        errMsg = "无效的浮点数字面量 '" + lexeme_ + "' (指数部分不完整)";
+                        break;
+                    case LexerState::InBlockComment:
+                    case LexerState::InBlockCommentStar:
+                        errMsg = "未闭合的块注释";
+                        break;
+                    case LexerState::InDotDot:
+                        errMsg = "无效的运算符 '..' (您是否想输入 '...')";
+                        break;
+                    default:
+                        errMsg = "无效的词法单元 '" + lexeme_ + "'";
+                        break;
+                }
+                tok.stringValue = errMsg;
+                reportError(tokenLoc_, errMsg);
                 return tok;
             }
             break;
@@ -681,7 +746,8 @@ Token Lexer::scanToken() {
     
     // 不应该到达这里
     Token tok(TokenKind::Invalid, tokenLoc_);
-    tok.stringValue = "Unexpected end of input";
+    tok.stringValue = "意外的输入结束";
+    reportError(tokenLoc_, "意外的输入结束");
     return tok;
 }
 

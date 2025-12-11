@@ -1,0 +1,8 @@
+// 测试无效的十六进制数
+// 预期结果: 词法分析错误 - 无效的十六进制数
+// EXPECT_COMPILE_ERROR
+
+int main() {
+    int x = 0xGG;  // 0x 后面必须跟十六进制数字
+    return 0;
+}

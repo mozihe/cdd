@@ -1,0 +1,8 @@
+// 测试无效的二进制数
+// 预期结果: 词法分析错误 - 无效的二进制数
+// EXPECT_COMPILE_ERROR
+
+int main() {
+    int x = 0b22;  // 0b 后面只能是 0 或 1
+    return 0;
+}

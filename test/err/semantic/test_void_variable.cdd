@@ -1,0 +1,8 @@
+// 测试 void 类型变量
+// 预期结果: 语义分析错误 - 不能声明 void 类型变量
+// EXPECT_COMPILE_ERROR
+
+int main() {
+    void x;  // 不能声明 void 类型变量
+    return 0;
+}

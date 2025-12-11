@@ -200,6 +200,71 @@ run_tests_in_dir() {
     done < <(find "$dir" -name "$pattern" -type f -print0 | sort -z)
 }
 
+# 运行单个错误测试（期望编译失败）
+run_error_test() {
+    local test_file="$1"
+    local category="$2"
+    local test_name=$(basename "$test_file" .cdd)
+    local error_file="$OUTPUT_DIR/$test_name.err"
+    
+    ((TOTAL++))
+    
+    # 检查编译器是否存在
+    if [ ! -x "$CDD_COMPILER" ]; then
+        log_skip "$category/$test_name (编译器不存在: $CDD_COMPILER)"
+        ((SKIPPED++))
+        return
+    fi
+    
+    # 创建输出目录
+    mkdir -p "$OUTPUT_DIR"
+    
+    if [ $VERBOSE -eq 1 ]; then
+        log_info "Error test: $CDD_COMPILER -c $test_file (期望编译失败)"
+    fi
+    
+    # 运行编译器，期望失败（返回非零）
+    local output
+    output=$(timeout 5 "$CDD_COMPILER" -c "$test_file" -o /tmp/test_error_$$.bin 2>&1)
+    local exit_code=$?
+    
+    # 清理临时文件
+    rm -f /tmp/test_error_$$.bin /tmp/test_error_$$.bin.s
+    
+    if [ $exit_code -eq 124 ]; then
+        log_fail "$category/$test_name (编译器超时/死循环)"
+        ((FAILED++))
+    elif [ $exit_code -ne 0 ]; then
+        log_pass "$category/$test_name (正确检测到错误)"
+        ((PASSED++))
+        if [ $VERBOSE -eq 1 ]; then
+            echo "  错误输出:"
+            echo "$output" | sed 's/^/    /'
+        fi
+    else
+        log_fail "$category/$test_name (应该报错但编译通过)"
+        ((FAILED++))
+    fi
+}
+
+# 运行目录中的所有错误测试
+run_error_tests_in_dir() {
+    local dir="$1"
+    local category="$2"
+    
+    if [ ! -d "$dir" ]; then
+        return
+    fi
+    
+    # 查找所有测试文件
+    while IFS= read -r -d '' test_file; do
+        # 只运行带有 EXPECT_COMPILE_ERROR 标记的文件
+        if grep -q "EXPECT_COMPILE_ERROR" "$test_file" 2>/dev/null; then
+            run_error_test "$test_file" "$category"
+        fi
+    done < <(find "$dir" -name "*.cdd" -type f -print0 | sort -z)
+}
+
 # 打印测试摘要
 print_summary() {
     echo ""
@@ -313,6 +378,29 @@ main() {
         echo ""
         log_info "运行运行期测试..."
         run_tests_in_dir "$TEST_DIR/runtime"
+        
+        # 运行错误测试（期望编译失败的测试）
+        if [ -d "$TEST_DIR/err" ]; then
+            echo ""
+            log_info "运行错误检测测试..."
+            
+            if [ -d "$TEST_DIR/err/lexer" ]; then
+                log_info "  词法分析错误测试..."
+                run_error_tests_in_dir "$TEST_DIR/err/lexer" "lexer"
+            fi
+            
+            if [ -d "$TEST_DIR/err/parser" ]; then
+                echo ""
+                log_info "  语法分析错误测试..."
+                run_error_tests_in_dir "$TEST_DIR/err/parser" "parser"
+            fi
+            
+            if [ -d "$TEST_DIR/err/semantic" ]; then
+                echo ""
+                log_info "  语义分析错误测试..."
+                run_error_tests_in_dir "$TEST_DIR/err/semantic" "semantic"
+            fi
+        fi
     fi
     
     print_summary

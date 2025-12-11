@@ -141,9 +141,21 @@ int main(int argc, char *argv[]) {
                     std::cout << " \"" << tok.stringValue << "\"";
                 } else if (tok.kind == TokenKind::CharLiteral) {
                     std::cout << " '" << tok.charValue << "'";
+                } else if (tok.kind == TokenKind::Invalid) {
+                    std::cout << " [错误: " << tok.stringValue << "]";
                 }
                 std::cout << "\n";
             } while (!tok.isEof());
+            
+            // 输出词法分析错误
+            if (lexer.hasErrors()) {
+                std::cerr << "\n=== 词法分析错误 ===\n";
+                for (const auto& err : lexer.errors()) {
+                    std::cerr << "第 " << err.location.line << " 行，第 " 
+                              << err.location.column << " 列: " << err.message << "\n";
+                }
+                return 1;
+            }
             return 0;
         }
 
@@ -155,11 +167,20 @@ int main(int argc, char *argv[]) {
         Parser parser(parserLexer);
         auto ast = parser.parseTranslationUnit();
         
+        // 检查词法分析错误
+        if (parserLexer.hasErrors()) {
+            std::cerr << "错误: 词法分析失败\n";
+            for (const auto& err : parserLexer.errors()) {
+                std::cerr << "  第 " << err.location.line << " 行，第 " 
+                          << err.location.column << " 列: " << err.message << "\n";
+            }
+            return 1;
+        }
+        
         if (!ast || parser.hasErrors()) {
-            std::cerr << "Error: Parsing failed\n";
+            std::cerr << "错误: 语法分析失败\n";
             for (const auto& err : parser.errors()) {
-                std::cerr << "Parse error at line " << err.location.line 
-                          << ": " << err.what() << "\n";
+                std::cerr << "  " << err.what() << "\n";
             }
             return 1;
         }
@@ -183,18 +204,18 @@ int main(int argc, char *argv[]) {
         
         // Report semantic errors and warnings
         for (const auto& err : analyzer.errors()) {
-            std::cerr << "Semantic Error";
-            if (err.location.line > 0) std::cerr << " (line " << err.location.line << ")";
+            std::cerr << "语义错误";
+            if (err.location.line > 0) std::cerr << " (第 " << err.location.line << " 行)";
             std::cerr << ": " << err.message << "\n";
         }
         for (const auto& warn : analyzer.warnings()) {
-            std::cerr << "Warning";
-            if (warn.location.line > 0) std::cerr << " (line " << warn.location.line << ")";
+            std::cerr << "警告";
+            if (warn.location.line > 0) std::cerr << " (第 " << warn.location.line << " 行)";
             std::cerr << ": " << warn.message << "\n";
         }
         
         if (!semanticOK) {
-            std::cerr << "Error: Semantic analysis failed\n";
+            std::cerr << "错误: 语义分析失败\n";
             return 1;
         }
         

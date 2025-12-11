@@ -78,10 +78,16 @@ void Parser::errorAt(const Token& token, const std::string& message) {
 void Parser::synchronize() {
     advance();
     while (!isAtEnd()) {
+        // 遇到分号时，消费它并返回
         if (current().kind == TokenKind::Semicolon) {
             advance();
             return;
         }
+        // 遇到右花括号时返回（不消费）
+        if (current().kind == TokenKind::RightBrace) {
+            return;
+        }
+        // 遇到关键字时返回（不消费）
         switch (current().kind) {
             case TokenKind::KW_if:
             case TokenKind::KW_while:
@@ -93,6 +99,15 @@ void Parser::synchronize() {
             case TokenKind::KW_struct:
             case TokenKind::KW_enum:
             case TokenKind::KW_typedef:
+            case TokenKind::KW_static:
+            case TokenKind::KW_extern:
+            case TokenKind::KW_switch:
+            case TokenKind::KW_case:
+            case TokenKind::KW_default:
+            case TokenKind::KW_break:
+            case TokenKind::KW_continue:
+            case TokenKind::KW_do:
+            case TokenKind::KW_goto:
                 return;
             default:
                 break;
@@ -217,11 +232,30 @@ ast::DeclList Parser::parseDeclaration() {
     ast::DeclList result;
     SourceLocation startLoc = current().location;
 
+    // 处理 Invalid token - 跳过它们以避免死循环
+    while (check(TokenKind::Invalid)) {
+        std::string errMsg = current().stringValue;
+        if (errMsg.empty()) {
+            errMsg = "无效的词法单元";
+        }
+        error(errMsg);
+        advance();  // 消费 Invalid token
+    }
+    
+    // 如果跳过 Invalid token 后到达文件末尾，直接返回
+    if (isAtEnd()) {
+        return result;
+    }
+
     // 1. 解析声明说明符
     DeclSpec spec = parseDeclarationSpecifiers();
 
     if (!spec.type) {
         error("需要类型说明符");
+        // 跳过当前 token 以避免死循环
+        if (!isAtEnd()) {
+            advance();
+        }
         return result;
     }
 
@@ -1546,6 +1580,17 @@ ast::ExprPtr Parser::parsePostfixExpression() {
 
 ast::ExprPtr Parser::parsePrimaryExpression() {
     SourceLocation loc = current().location;
+
+    // 处理 Invalid token - 跳过它们以避免死循环
+    if (check(TokenKind::Invalid)) {
+        std::string errMsg = current().stringValue;
+        if (errMsg.empty()) {
+            errMsg = "无效的词法单元";
+        }
+        error(errMsg);
+        advance();  // 消费 Invalid token
+        return nullptr;
+    }
 
     // 标识符
     if (check(TokenKind::Identifier)) {

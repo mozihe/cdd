@@ -1,0 +1,8 @@
+// 测试无效的浮点数指数
+// 预期结果: 词法分析错误 - 无效的浮点数指数
+// EXPECT_COMPILE_ERROR
+
+int main() {
+    double x = 1.0e;  // 指数部分不完整
+    return 0;
+}

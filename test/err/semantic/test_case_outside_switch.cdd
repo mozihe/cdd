@@ -1,0 +1,9 @@
+// 测试 switch 外的 case
+// 预期结果: 语义分析错误 - case 不在 switch 中
+// EXPECT_COMPILE_ERROR
+
+int main() {
+    case 1:  // 不在 switch 中
+        return 1;
+    return 0;
+}

@@ -1,0 +1,12 @@
+// 测试 void 函数返回值
+// 预期结果: 语义分析错误 - void 函数不应返回值
+// EXPECT_COMPILE_ERROR
+
+void foo() {
+    return 42;  // void 函数不应返回值
+}
+
+int main() {
+    foo();
+    return 0;
+}

@@ -1,0 +1,9 @@
+// 测试解引用非指针
+// 预期结果: 语义分析错误 - 解引用需要指针类型操作数
+// EXPECT_COMPILE_ERROR
+
+int main() {
+    int x = 10;
+    int y = *x;  // x 不是指针
+    return 0;
+}

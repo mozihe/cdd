@@ -1,0 +1,6 @@
+// 测试缺少花括号
+// 预期结果: 语法分析错误 - 缺少花括号
+// EXPECT_COMPILE_ERROR
+
+int main() {
+    return 0;

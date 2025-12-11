@@ -1,0 +1,9 @@
+// 测试无效的 for 循环
+// 预期结果: 语法分析错误 - for 循环语法错误
+// EXPECT_COMPILE_ERROR
+
+int main() {
+    for int i = 0; i < 10; i++) {
+    }
+    return 0;
+}

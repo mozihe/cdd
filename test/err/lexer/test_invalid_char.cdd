@@ -1,0 +1,8 @@
+// 测试非法字符
+// 预期结果: 词法分析错误 - 非法字符
+// EXPECT_COMPILE_ERROR
+
+int main() {
+    int @ = 1;  // @ 不是有效的 C 语言字符
+    return 0;
+}

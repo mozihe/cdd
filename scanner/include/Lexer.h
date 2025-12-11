@@ -139,6 +139,15 @@ struct Token {
 };
 
 /**
+ * @struct LexerError
+ * @brief 词法分析错误信息
+ */
+struct LexerError {
+    SourceLocation location;  ///< 错误位置
+    std::string message;      ///< 错误消息
+};
+
+/**
  * @class Lexer
  * @brief 基于 DFA 的词法分析器
  * 
@@ -182,6 +191,18 @@ public:
      * @return 源代码字符串视图
      */
     std::string_view source() const { return source_; }
+    
+    /**
+     * @brief 获取词法分析错误列表
+     * @return 错误列表的常量引用
+     */
+    const std::vector<LexerError>& errors() const { return errors_; }
+    
+    /**
+     * @brief 检查是否有词法分析错误
+     * @return 有错误返回 true
+     */
+    bool hasErrors() const { return !errors_.empty(); }
 
 private:
     std::string_view source_;
@@ -200,6 +221,15 @@ private:
     SourceLocation tokenLoc_;
     std::string lexeme_;
     TokenKind pendingKind_ = TokenKind::Invalid;
+    
+    std::vector<LexerError> errors_;  ///< 词法分析错误列表
+    
+    /**
+     * @brief 报告词法错误
+     * @param loc 错误位置
+     * @param message 错误消息
+     */
+    void reportError(const SourceLocation& loc, const std::string& message);
 
     /**
      * @brief 初始化 DFA 状态机

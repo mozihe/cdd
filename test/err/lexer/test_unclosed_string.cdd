@@ -1,0 +1,8 @@
+// 测试未闭合的字符串字面量
+// 预期结果: 词法分析错误 - 未闭合的字符串字面量
+// EXPECT_COMPILE_ERROR
+
+int main() {
+    char *s = "这是一个未闭合的字符串
+    return 0;
+}

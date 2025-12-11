@@ -1,0 +1,8 @@
+// 测试无效的表达式
+// 预期结果: 语法分析错误 - 预期表达式
+// EXPECT_COMPILE_ERROR
+
+int main() {
+    int x = ;
+    return 0;
+}

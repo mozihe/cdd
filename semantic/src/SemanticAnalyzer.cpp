@@ -74,19 +74,19 @@ void SemanticAnalyzer::analyzeVarDecl(ast::VarDecl* decl) {
     // 1. 解析类型
     TypePtr varType = resolveAstType(decl->type.get());
     if (!varType) {
-        error(decl->location, "unknown type in variable declaration");
+        error(decl->location, "变量声明中存在未知类型");
         return;
     }
     
     // 2. 检查 void 类型变量
     if (varType->isVoid()) {
-        error(decl->location, "cannot declare variable of type 'void'");
+        error(decl->location, "不能声明 void 类型的变量");
         return;
     }
     
     std::string name = decl->name;
     if (name.empty()) {
-        error(decl->location, "variable declaration without name");
+        error(decl->location, "变量声明缺少名称");
         return;
     }
     
@@ -100,7 +100,7 @@ void SemanticAnalyzer::analyzeVarDecl(ast::VarDecl* decl) {
         if (isExternDecl && existingIsExtern) {
             // 多个 extern 声明是允许的，检查类型一致性
             if (!areTypesCompatible(existingSym->type, varType)) {
-                error(decl->location, "conflicting types for '" + name + "'");
+                error(decl->location, "'" + name + "' 的类型声明冲突");
             }
             return;  // 不需要重新添加符号
         } else if (isExternDecl && !existingIsExtern) {
@@ -111,7 +111,7 @@ void SemanticAnalyzer::analyzeVarDecl(ast::VarDecl* decl) {
             existingSym->storage = StorageClass::None;
             // 继续分析初始化表达式
         } else {
-            error(decl->location, "redefinition of '" + name + "'");
+            error(decl->location, "'" + name + "' 重复定义");
             return;
         }
     }
@@ -136,7 +136,7 @@ void SemanticAnalyzer::analyzeVarDecl(ast::VarDecl* decl) {
     if (decl->initializer) {
         TypePtr initType = analyzeExpr(decl->initializer.get());
         if (initType && !canImplicitlyConvert(initType, varType)) {
-            error(decl->location, "incompatible initializer type");
+            error(decl->location, "初始化表达式类型不兼容");
         }
     }
 }
@@ -186,11 +186,11 @@ void SemanticAnalyzer::analyzeFunctionDecl(ast::FunctionDecl* decl) {
     auto existingSym = symTable_.lookup(funcName);
     if (existingSym) {
         if (!existingSym->type->isFunction()) {
-            error(decl->location, "'" + funcName + "' redeclared as different kind of symbol");
+            error(decl->location, "'" + funcName + "' 被重新声明为不同类型的符号");
             return;
         }
         if (!areTypesCompatible(existingSym->type, funcType)) {
-            error(decl->location, "conflicting types for '" + funcName + "'");
+            error(decl->location, "'" + funcName + "' 的类型声明冲突");
             return;
         }
     } else {
@@ -234,7 +234,7 @@ void SemanticAnalyzer::analyzeRecordDecl(ast::RecordDecl* decl) {
         for (const auto& field : decl->fields) {
             TypePtr fieldType = resolveAstType(field->type.get());
             if (!fieldType) {
-                error(field->location, "invalid field type");
+                error(field->location, "无效的成员类型");
                 continue;
             }
             ut->members.push_back({field->name, fieldType, 0});
@@ -248,7 +248,7 @@ void SemanticAnalyzer::analyzeRecordDecl(ast::RecordDecl* decl) {
         for (const auto& field : decl->fields) {
             TypePtr fieldType = resolveAstType(field->type.get());
             if (!fieldType) {
-                error(field->location, "invalid field type");
+                error(field->location, "无效的成员类型");
                 continue;
             }
             
@@ -258,7 +258,7 @@ void SemanticAnalyzer::analyzeRecordDecl(ast::RecordDecl* decl) {
                     auto anon = static_cast<StructType*>(fieldType.get());
                     for (const auto& member : anon->members) {
                         if (st->findMember(member.name)) {
-                            error(field->location, "duplicate member '" + member.name + "'");
+                            error(field->location, "成员 '" + member.name + "' 重复定义");
                             continue;
                         }
                         int align = member.type->alignment();
@@ -270,7 +270,7 @@ void SemanticAnalyzer::analyzeRecordDecl(ast::RecordDecl* decl) {
                     auto anon = static_cast<UnionType*>(fieldType.get());
                     for (const auto& member : anon->members) {
                         if (st->findMember(member.name)) {
-                            error(field->location, "duplicate member '" + member.name + "'");
+                            error(field->location, "成员 '" + member.name + "' 重复定义");
                             continue;
                         }
                         st->members.push_back({member.name, member.type->clone(), offset});
@@ -284,7 +284,7 @@ void SemanticAnalyzer::analyzeRecordDecl(ast::RecordDecl* decl) {
                 }
             } else {
                 if (st->findMember(field->name)) {
-                    error(field->location, "duplicate member '" + field->name + "'");
+                    error(field->location, "成员 '" + field->name + "' 重复定义");
                     continue;
                 }
                 
@@ -329,7 +329,7 @@ void SemanticAnalyzer::analyzeEnumDecl(ast::EnumDecl* decl) {
         if (constant->value) {
             TypePtr valType = analyzeExpr(constant->value.get());
             if (!valType || !valType->isInteger()) {
-                error(decl->location, "enumerator value must be an integer");
+                error(decl->location, "枚举值必须是整数");
             } else {
                 int64_t constVal;
                 if (evaluateConstantExpr(constant->value.get(), constVal)) {
@@ -342,7 +342,7 @@ void SemanticAnalyzer::analyzeEnumDecl(ast::EnumDecl* decl) {
         
         auto sym = std::make_shared<Symbol>(name, SymbolKind::EnumConstant, makeInt(), constant->location);
         if (!symTable_.addSymbol(sym)) {
-            error(constant->location, "redefinition of enumerator '" + name + "'");
+            error(constant->location, "枚举常量 '" + name + "' 重复定义");
         }
         
         ++nextValue;
@@ -354,14 +354,14 @@ void SemanticAnalyzer::analyzeTypedefDecl(ast::TypedefDecl* decl) {
     
     TypePtr type = resolveAstType(decl->underlyingType.get());
     if (!type) {
-        error(decl->location, "invalid typedef");
+        error(decl->location, "无效的 typedef 类型");
         return;
     }
     
     std::string name = decl->name;
     auto sym = std::make_shared<Symbol>(name, SymbolKind::TypeDef, type, decl->location);
     if (!symTable_.addSymbol(sym)) {
-        error(decl->location, "redefinition of typedef '" + name + "'");
+        error(decl->location, "typedef '" + name + "' 重复定义");
     }
 }
 
@@ -481,7 +481,7 @@ void SemanticAnalyzer::analyzeSwitchStmt(ast::SwitchStmt* stmt) {
     
     TypePtr condType = analyzeExpr(stmt->condition.get());
     if (!condType || !condType->isInteger()) {
-        error(stmt->location, "switch expression must have integer type");
+        error(stmt->location, "switch 表达式必须是整数类型");
     }
     
     ++switchDepth_;
@@ -495,13 +495,13 @@ void SemanticAnalyzer::analyzeCaseStmt(ast::CaseStmt* stmt) {
     if (!stmt) return;
     
     if (switchDepth_ == 0) {
-        error(stmt->location, "'case' statement not in switch statement");
+        error(stmt->location, "'case' 语句不在 switch 语句中");
         return;
     }
     
     TypePtr valType = analyzeExpr(stmt->value.get());
     if (!valType || !valType->isInteger()) {
-        error(stmt->location, "case value must be an integer constant");
+        error(stmt->location, "case 值必须是整数常量");
     }
     
     if (stmt->stmt) analyzeStmt(stmt->stmt.get());
@@ -511,7 +511,7 @@ void SemanticAnalyzer::analyzeDefaultStmt(ast::DefaultStmt* stmt) {
     if (!stmt) return;
     
     if (switchDepth_ == 0) {
-        error(stmt->location, "'default' statement not in switch statement");
+        error(stmt->location, "'default' 语句不在 switch 语句中");
         return;
     }
     
@@ -521,14 +521,14 @@ void SemanticAnalyzer::analyzeDefaultStmt(ast::DefaultStmt* stmt) {
 void SemanticAnalyzer::analyzeBreakStmt(ast::BreakStmt* stmt) {
     if (!stmt) return;
     if (loopDepth_ == 0) {
-        error(stmt->location, "'break' statement not in loop or switch statement");
+        error(stmt->location, "'break' 语句不在循环或 switch 语句中");
     }
 }
 
 void SemanticAnalyzer::analyzeContinueStmt(ast::ContinueStmt* stmt) {
     if (!stmt) return;
     if (loopDepth_ == 0 || (switchDepth_ > 0 && loopDepth_ <= switchDepth_)) {
-        error(stmt->location, "'continue' statement not in loop");
+        error(stmt->location, "'continue' 语句不在循环中");
     }
 }
 
@@ -540,13 +540,13 @@ void SemanticAnalyzer::analyzeReturnStmt(ast::ReturnStmt* stmt) {
     if (stmt->value) {
         TypePtr actualType = analyzeExpr(stmt->value.get());
         if (expectedType && expectedType->isVoid()) {
-            error(stmt->location, "void function should not return a value");
+            error(stmt->location, "void 函数不应该返回值");
         } else if (actualType && expectedType && !canImplicitlyConvert(actualType, expectedType)) {
-            error(stmt->location, "incompatible return type");
+            error(stmt->location, "返回类型不兼容");
         }
     } else {
         if (expectedType && !expectedType->isVoid()) {
-            warning(stmt->location, "non-void function should return a value");
+            warning(stmt->location, "非 void 函数应该返回一个值");
         }
     }
 }
@@ -622,7 +622,7 @@ TypePtr SemanticAnalyzer::analyzeIdentExpr(ast::IdentExpr* expr) {
     
     auto sym = symTable_.lookup(expr->name);
     if (!sym) {
-        error(expr->location, "undeclared identifier '" + expr->name + "'");
+        error(expr->location, "未声明的标识符 '" + expr->name + "'");
         return nullptr;
     }
     
@@ -647,10 +647,10 @@ TypePtr SemanticAnalyzer::analyzeBinaryExpr(ast::BinaryExpr* expr) {
         case Op::AndAssign: case Op::OrAssign: case Op::XorAssign:
         case Op::ShlAssign: case Op::ShrAssign:
             if (!checkAssignable(expr->left.get())) {
-                error(expr->location, "expression is not assignable");
+                error(expr->location, "表达式不可赋值");
             }
             if (!canImplicitlyConvert(rightType, leftType)) {
-                error(expr->location, "incompatible types in assignment");
+                error(expr->location, "赋值语句中的类型不兼容");
             }
             return leftType;
         
@@ -666,14 +666,14 @@ TypePtr SemanticAnalyzer::analyzeBinaryExpr(ast::BinaryExpr* expr) {
         case Op::Mul:
         case Op::Div:
             if (!leftType->isArithmetic() || !rightType->isArithmetic()) {
-                error(expr->location, "invalid operands to binary expression");
+                error(expr->location, "二元运算符的操作数类型无效");
                 return nullptr;
             }
             return getCommonType(leftType, rightType);
         
         case Op::Mod:
             if (!leftType->isInteger() || !rightType->isInteger()) {
-                error(expr->location, "invalid operands to binary %%");
+                error(expr->location, "取模运算符的操作数类型无效");
                 return nullptr;
             }
             return getCommonType(leftType, rightType);
@@ -681,7 +681,7 @@ TypePtr SemanticAnalyzer::analyzeBinaryExpr(ast::BinaryExpr* expr) {
         case Op::BitAnd: case Op::BitOr: case Op::BitXor:
         case Op::Shl: case Op::Shr:
             if (!leftType->isInteger() || !rightType->isInteger()) {
-                error(expr->location, "invalid operands to bitwise operator");
+                error(expr->location, "位运算符的操作数必须是整数类型");
                 return nullptr;
             }
             return getCommonType(leftType, rightType);
@@ -713,14 +713,14 @@ TypePtr SemanticAnalyzer::analyzeUnaryExpr(ast::UnaryExpr* expr) {
     switch (expr->op) {
         case Op::Plus:
             if (!operandType->isArithmetic()) {
-                error(expr->location, "invalid argument type to unary +");
+                error(expr->location, "一元 + 运算符的操作数类型无效");
                 return nullptr;
             }
             return performIntegralPromotions(operandType);
         
         case Op::Minus:
             if (!operandType->isArithmetic()) {
-                error(expr->location, "invalid argument type to unary -");
+                error(expr->location, "一元 - 运算符的操作数类型无效");
                 return nullptr;
             }
             return performIntegralPromotions(operandType);
@@ -730,7 +730,7 @@ TypePtr SemanticAnalyzer::analyzeUnaryExpr(ast::UnaryExpr* expr) {
         
         case Op::BitNot:
             if (!operandType->isInteger()) {
-                error(expr->location, "invalid argument type to ~");
+                error(expr->location, "~ 运算符的操作数类型无效");
                 return nullptr;
             }
             return performIntegralPromotions(operandType);
@@ -738,13 +738,13 @@ TypePtr SemanticAnalyzer::analyzeUnaryExpr(ast::UnaryExpr* expr) {
         case Op::PreInc: case Op::PreDec:
         case Op::PostInc: case Op::PostDec:
             if (!checkAssignable(expr->operand.get())) {
-                error(expr->location, "expression is not assignable");
+                error(expr->location, "表达式不可赋值");
             }
             return operandType;
         
         case Op::Deref:
             if (!operandType->isPointer()) {
-                error(expr->location, "indirection requires pointer operand");
+                error(expr->location, "解引用运算符需要指针类型操作数");
                 return nullptr;
             }
             expr->isLValue = true;
@@ -752,7 +752,7 @@ TypePtr SemanticAnalyzer::analyzeUnaryExpr(ast::UnaryExpr* expr) {
         
         case Op::AddrOf:
             if (!checkAssignable(expr->operand.get())) {
-                warning(expr->location, "taking address of temporary");
+                warning(expr->location, "取临时值的地址");
             }
             return makePointer(operandType);
         
@@ -778,7 +778,7 @@ TypePtr SemanticAnalyzer::analyzeCallExpr(ast::CallExpr* expr) {
     }
     
     if (!calleeType->isFunction()) {
-        error(expr->location, "called object is not a function");
+        error(expr->location, "被调用的对象不是函数");
         return nullptr;
     }
     
@@ -788,16 +788,16 @@ TypePtr SemanticAnalyzer::analyzeCallExpr(ast::CallExpr* expr) {
     size_t actualArgs = expr->arguments.size();
     
     if (!funcType->isVariadic && actualArgs != expectedParams) {
-        error(expr->location, "wrong number of arguments");
+        error(expr->location, "参数数量不正确");
     } else if (funcType->isVariadic && actualArgs < expectedParams) {
-        error(expr->location, "too few arguments");
+        error(expr->location, "参数太少");
     }
     
     for (size_t i = 0; i < expr->arguments.size(); ++i) {
         TypePtr argType = analyzeExpr(expr->arguments[i].get());
         if (i < expectedParams && argType) {
             if (!canImplicitlyConvert(argType, funcType->paramTypes[i])) {
-                error(expr->location, "incompatible argument type");
+                error(expr->location, "参数类型不兼容");
             }
         }
     }
@@ -819,12 +819,12 @@ TypePtr SemanticAnalyzer::analyzeSubscriptExpr(ast::SubscriptExpr* expr) {
     if (baseType->isArray()) {
         elementType = static_cast<ArrayType*>(baseType.get())->elementType->clone();
         if (!indexType->isInteger()) {
-            error(expr->location, "array subscript is not an integer");
+            error(expr->location, "数组下标必须是整数");
         }
     } else if (baseType->isPointer()) {
         elementType = static_cast<PointerType*>(baseType.get())->pointee->clone();
         if (!indexType->isInteger()) {
-            error(expr->location, "array subscript is not an integer");
+            error(expr->location, "数组下标必须是整数");
         }
     } 
     // C 语言特性：index[array] 等同于 array[index]
@@ -834,11 +834,11 @@ TypePtr SemanticAnalyzer::analyzeSubscriptExpr(ast::SubscriptExpr* expr) {
         } else if (indexType->isPointer()) {
             elementType = static_cast<PointerType*>(indexType.get())->pointee->clone();
         } else {
-            error(expr->location, "subscript requires array or pointer");
+            error(expr->location, "下标运算符需要数组或指针");
             return nullptr;
         }
     } else {
-        error(expr->location, "subscript requires array or pointer");
+        error(expr->location, "下标运算符需要数组或指针");
         return nullptr;
     }
     
@@ -854,7 +854,7 @@ TypePtr SemanticAnalyzer::analyzeMemberExpr(ast::MemberExpr* expr) {
     
     if (expr->isArrow) {
         if (!baseType->isPointer()) {
-            error(expr->location, "member reference type is not a pointer");
+            error(expr->location, "成员引用的类型不是指针");
             return nullptr;
         }
         baseType = static_cast<PointerType*>(baseType.get())->pointee->clone();
@@ -866,12 +866,12 @@ TypePtr SemanticAnalyzer::analyzeMemberExpr(ast::MemberExpr* expr) {
     } else if (baseType->isUnion()) {
         member = static_cast<UnionType*>(baseType.get())->findMember(expr->member);
     } else {
-        error(expr->location, "member reference base type is not a struct or union");
+        error(expr->location, "成员引用的基类型不是结构体或联合体");
         return nullptr;
     }
     
     if (!member) {
-        error(expr->location, "no member named '" + expr->member + "'");
+        error(expr->location, "没有名为 '" + expr->member + "' 的成员");
         return nullptr;
     }
     
@@ -1049,7 +1049,7 @@ TypePtr SemanticAnalyzer::resolveAstType(ast::Type* astType) {
         if (sym && sym->kind == SymbolKind::TypeDef) {
             return sym->type->clone();
         }
-        error(SourceLocation{}, "unknown type name '" + typedefType->name + "'");
+        error(SourceLocation{}, "未知的类型名 '" + typedefType->name + "'");
         return nullptr;
     }
     
@@ -1137,7 +1137,7 @@ bool SemanticAnalyzer::checkAssignable(ast::Expr* expr) {
 bool SemanticAnalyzer::checkCondition(TypePtr type, const SourceLocation& loc) {
     if (!type) return false;
     if (!type->isScalar()) {
-        error(loc, "condition must have scalar type");
+        error(loc, "条件表达式必须是标量类型");
         return false;
     }
     return true;
