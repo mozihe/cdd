@@ -1062,10 +1062,29 @@ void CodeGenerator::translateAssign(const semantic::Quadruple& quad) {
         Location srcLoc = getLocation(quad.arg1);
         Location dstLoc = getLocation(quad.result);
         
+        // 判断是栈变量还是全局变量
+        bool srcIsStack = (srcLoc.type == Location::Type::Stack);
+        bool dstIsStack = (dstLoc.type == Location::Type::Stack);
+        
+        // 加载源地址到 %r11
+        if (srcIsStack) {
+            emitLine("leaq " + std::to_string(srcLoc.offset) + "(%rbp), %r11");
+        } else if (srcLoc.type == Location::Type::Global) {
+            emitLine("leaq " + srcLoc.name + "(%rip), %r11");
+        }
+        
+        // 加载目标地址到 %rax
+        if (dstIsStack) {
+            emitLine("leaq " + std::to_string(dstLoc.offset) + "(%rbp), %rax");
+        } else if (dstLoc.type == Location::Type::Global) {
+            emitLine("leaq " + dstLoc.name + "(%rip), %rax");
+        }
+        
+        // 使用 %r11=src, %rax=dst, %r10=临时
         for (int offset = 0; offset < typeSize; offset += 8) {
             int copySize = std::min(8, typeSize - offset);
-            std::string srcAsm = std::to_string(srcLoc.offset + offset) + "(%rbp)";
-            std::string dstAsm = std::to_string(dstLoc.offset + offset) + "(%rbp)";
+            std::string srcAsm = std::to_string(offset) + "(%r11)";
+            std::string dstAsm = std::to_string(offset) + "(%rax)";
             
             if (copySize >= 8) {
                 emitLine("movq " + srcAsm + ", %r10");
@@ -1074,10 +1093,9 @@ void CodeGenerator::translateAssign(const semantic::Quadruple& quad) {
                 emitLine("movl " + srcAsm + ", %r10d");
                 emitLine("movl %r10d, " + dstAsm);
             } else {
-                // 处理剩余的小块
                 for (int i = 0; i < copySize; ++i) {
-                    std::string srcByte = std::to_string(srcLoc.offset + offset + i) + "(%rbp)";
-                    std::string dstByte = std::to_string(dstLoc.offset + offset + i) + "(%rbp)";
+                    std::string srcByte = std::to_string(offset + i) + "(%r11)";
+                    std::string dstByte = std::to_string(offset + i) + "(%rax)";
                     emitLine("movb " + srcByte + ", %r10b");
                     emitLine("movb %r10b, " + dstByte);
                 }
@@ -1102,14 +1120,22 @@ void CodeGenerator::translateLoad(const semantic::Quadruple& quad) {
         Register addr = loadToRegister(quad.arg1);
         Location dstLoc = getLocation(quad.result);
         
-        // 保存地址到 %r11，因为 %r10 会被用于复制数据
+        // 保存源地址到 %r11
         emitLine("movq " + regName(addr) + ", %r11");
         regAlloc_.release(addr);
         
+        // 加载目标地址到 %rax
+        if (dstLoc.type == Location::Type::Stack) {
+            emitLine("leaq " + std::to_string(dstLoc.offset) + "(%rbp), %rax");
+        } else if (dstLoc.type == Location::Type::Global) {
+            emitLine("leaq " + dstLoc.name + "(%rip), %rax");
+        }
+        
+        // 使用 %r11=src, %rax=dst, %r10=临时
         for (int offset = 0; offset < size; offset += 8) {
             int copySize = std::min(8, size - offset);
             std::string srcAsm = std::to_string(offset) + "(%r11)";
-            std::string dstAsm = std::to_string(dstLoc.offset + offset) + "(%rbp)";
+            std::string dstAsm = std::to_string(offset) + "(%rax)";
             
             if (copySize >= 8) {
                 emitLine("movq " + srcAsm + ", %r10");
@@ -1118,10 +1144,9 @@ void CodeGenerator::translateLoad(const semantic::Quadruple& quad) {
                 emitLine("movl " + srcAsm + ", %r10d");
                 emitLine("movl %r10d, " + dstAsm);
             } else {
-                // 处理剩余的 1-3 字节
                 for (int i = 0; i < copySize; ++i) {
                     std::string srcByte = std::to_string(offset + i) + "(%r11)";
-                    std::string dstByte = std::to_string(dstLoc.offset + offset + i) + "(%rbp)";
+                    std::string dstByte = std::to_string(offset + i) + "(%rax)";
                     emitLine("movb " + srcByte + ", %r10b");
                     emitLine("movb %r10b, " + dstByte);
                 }
@@ -1172,28 +1197,31 @@ void CodeGenerator::translateStore(const semantic::Quadruple& quad) {
         
         // 获取源基址
         Location srcLoc = getLocation(quad.arg1);
-        Register srcBase = regAlloc_.allocate();
-        if (srcBase == Register::NONE) srcBase = Register::R11;
+        
+        // 将 dst 保存到 RAX
+        emitLine("movq " + regName(dst) + ", %rax");
+        regAlloc_.release(dst);
         
         switch (srcLoc.type) {
             case Location::Type::Stack:
-                emitLine("leaq " + srcLoc.toAsm() + ", " + regName(srcBase));
+                emitLine("leaq " + srcLoc.toAsm() + ", %r11");
                 break;
             case Location::Type::Global:
-                emitLine("leaq " + srcLoc.toAsm() + ", " + regName(srcBase));
+                emitLine("leaq " + srcLoc.toAsm() + ", %r11");
                 break;
             case Location::Type::Immediate:
                 // 不期望结构体立即数，这里防御性跳过
                 break;
             case Location::Type::Register:
-                emitLine("movq " + regName(srcLoc.reg) + ", " + regName(srcBase));
+                emitLine("movq " + regName(srcLoc.reg) + ", %r11");
                 break;
         }
         
+        // 使用 RAX=dst, R11=src, R10=临时
         for (int offset = 0; offset < size; offset += 8) {
             int copySize = std::min(8, size - offset);
-            std::string srcAsm = std::to_string(offset) + "(" + regName(srcBase) + ")";
-            std::string dstAsm = std::to_string(offset) + "(" + regName(dst) + ")";
+            std::string srcAsm = std::to_string(offset) + "(%r11)";
+            std::string dstAsm = std::to_string(offset) + "(%rax)";
             
             if (copySize >= 8) {
                 emitLine("movq " + srcAsm + ", %r10");
@@ -1203,16 +1231,14 @@ void CodeGenerator::translateStore(const semantic::Quadruple& quad) {
                 emitLine("movl %r10d, " + dstAsm);
             } else {
                 for (int i = 0; i < copySize; ++i) {
-                    std::string srcByte = std::to_string(offset + i) + "(" + regName(srcBase) + ")";
-                    std::string dstByte = std::to_string(offset + i) + "(" + regName(dst) + ")";
+                    std::string srcByte = std::to_string(offset + i) + "(%r11)";
+                    std::string dstByte = std::to_string(offset + i) + "(%rax)";
                     emitLine("movb " + srcByte + ", %r10b");
                     emitLine("movb %r10b, " + dstByte);
                 }
             }
         }
         
-        regAlloc_.release(dst);
-        regAlloc_.release(srcBase);
         return;
     }
 

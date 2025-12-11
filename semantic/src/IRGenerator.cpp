@@ -433,13 +433,38 @@ void IRGenerator::collectGlobalInitializer(ast::Expr* init, TypePtr type,
             int initCount = static_cast<int>(initList->elements.size());
             int memberCount = static_cast<int>(structType->members.size());
             
+            int currentOffset = 0;
             for (int i = 0; i < memberCount; ++i) {
-                if (i < initCount) {
-                    collectGlobalInitializer(initList->elements[i].get(), 
-                                             structType->members[i].type, values);
-                } else {
-                    values.push_back(GlobalInitValue::zero(structType->members[i].type->size()));
+                const Member& member = structType->members[i];
+                // 处理成员间的填充
+                if (member.offset > currentOffset) {
+                    values.push_back(GlobalInitValue::zero(member.offset - currentOffset));
                 }
+                if (i < initCount) {
+                    collectGlobalInitializer(initList->elements[i].get(), member.type, values);
+                } else {
+                    values.push_back(GlobalInitValue::zero(member.type->size()));
+                }
+                currentOffset = member.offset + member.type->size();
+            }
+            // 处理尾部填充
+            if (currentOffset < structType->size()) {
+                values.push_back(GlobalInitValue::zero(structType->size() - currentOffset));
+            }
+        } else if (type->isUnion()) {
+            auto unionType = static_cast<UnionType*>(type.get());
+            // 联合体：只初始化第一个成员，其余用零填充
+            if (!initList->elements.empty() && !unionType->members.empty()) {
+                const Member& firstMember = unionType->members[0];
+                collectGlobalInitializer(initList->elements[0].get(), firstMember.type, values);
+                // 填充联合体剩余空间
+                int usedSize = firstMember.type->size();
+                if (usedSize < unionType->size()) {
+                    values.push_back(GlobalInitValue::zero(unionType->size() - usedSize));
+                }
+            } else {
+                // 空初始化列表或空联合体：全零填充
+                values.push_back(GlobalInitValue::zero(unionType->size()));
             }
         }
         return;
@@ -543,15 +568,72 @@ void IRGenerator::genVarDecl(ast::VarDecl* decl) {
             }
             
             if (auto initList = dynamic_cast<ast::InitListExpr*>(decl->initializer.get())) {
-                // int arr[] = {1, 2, 3} - 逐个初始化数组元素
+                // 数组初始化列表
                 Operand arrAddr = Operand::temp(newTemp(), makePointer(elemType));
                 emit(IROpcode::LoadAddr, arrAddr, Operand::variable(irName, varType));
                 
                 for (size_t i = 0; i < initList->elements.size(); ++i) {
-                    Operand elemVal = genExpr(initList->elements[i].get());
                     Operand elemAddr = Operand::temp(newTemp(), makePointer(elemType));
                     emit(IROpcode::IndexAddr, elemAddr, arrAddr, Operand::intConst(i));
-                    emit(IROpcode::Store, elemAddr, elemVal);
+                    
+                    // 检查元素是否是嵌套的初始化列表（用于结构体/联合体数组）
+                    if (auto nestedInit = dynamic_cast<ast::InitListExpr*>(initList->elements[i].get())) {
+                        if (elemType->isStruct()) {
+                            // 结构体数组元素初始化
+                            auto structType = static_cast<StructType*>(elemType.get());
+                            for (size_t j = 0; j < nestedInit->elements.size() && j < structType->members.size(); ++j) {
+                                const Member& member = structType->members[j];
+                                Operand memberAddr = Operand::temp(newTemp(), makePointer(member.type));
+                                emit(IROpcode::MemberAddr, memberAddr, elemAddr, Operand::intConst(member.offset));
+                                Operand memberVal = genExpr(nestedInit->elements[j].get());
+                                emit(IROpcode::Store, memberAddr, memberVal);
+                            }
+                        } else if (elemType->isUnion()) {
+                            // 联合体数组元素初始化：只初始化第一个成员
+                            auto unionType = static_cast<UnionType*>(elemType.get());
+                            if (!nestedInit->elements.empty() && !unionType->members.empty()) {
+                                const Member& member = unionType->members[0];
+                                Operand memberAddr = Operand::temp(newTemp(), makePointer(member.type));
+                                emit(IROpcode::MemberAddr, memberAddr, elemAddr, Operand::intConst(0));
+                                Operand memberVal = genExpr(nestedInit->elements[0].get());
+                                emit(IROpcode::Store, memberAddr, memberVal);
+                            }
+                        }
+                    } else {
+                        // 普通数组元素初始化
+                        Operand elemVal = genExpr(initList->elements[i].get());
+                        emit(IROpcode::Store, elemAddr, elemVal);
+                    }
+                }
+                return;
+            }
+        }
+        
+        // 单独的结构体/联合体变量初始化 (非数组)
+        if (varType->isStruct() || varType->isUnion()) {
+            if (auto initList = dynamic_cast<ast::InitListExpr*>(decl->initializer.get())) {
+                Operand varAddr = Operand::temp(newTemp(), makePointer(varType));
+                emit(IROpcode::LoadAddr, varAddr, Operand::variable(irName, varType));
+                
+                if (varType->isStruct()) {
+                    auto structType = static_cast<StructType*>(varType.get());
+                    for (size_t i = 0; i < initList->elements.size() && i < structType->members.size(); ++i) {
+                        const Member& member = structType->members[i];
+                        Operand memberAddr = Operand::temp(newTemp(), makePointer(member.type));
+                        emit(IROpcode::MemberAddr, memberAddr, varAddr, Operand::intConst(member.offset));
+                        Operand memberVal = genExpr(initList->elements[i].get());
+                        emit(IROpcode::Store, memberAddr, memberVal);
+                    }
+                } else {
+                    // 联合体：只初始化第一个成员
+                    auto unionType = static_cast<UnionType*>(varType.get());
+                    if (!initList->elements.empty() && !unionType->members.empty()) {
+                        const Member& member = unionType->members[0];
+                        Operand memberAddr = Operand::temp(newTemp(), makePointer(member.type));
+                        emit(IROpcode::MemberAddr, memberAddr, varAddr, Operand::intConst(0));
+                        Operand memberVal = genExpr(initList->elements[0].get());
+                        emit(IROpcode::Store, memberAddr, memberVal);
+                    }
                 }
                 return;
             }
@@ -1724,6 +1806,21 @@ TypePtr IRGenerator::getExprSemType(ast::Expr* expr) {
     if (auto identExpr = dynamic_cast<ast::IdentExpr*>(expr)) {
         auto sym = symTable_.lookup(identExpr->name);
         if (sym) return sym->type;
+    }
+    
+    // 对于下标表达式，获取元素类型
+    if (auto subscriptExpr = dynamic_cast<ast::SubscriptExpr*>(expr)) {
+        TypePtr baseType = getExprSemType(subscriptExpr->array.get());
+        if (!baseType) return nullptr;
+        
+        if (baseType->isArray()) {
+            auto arrType = static_cast<ArrayType*>(baseType.get());
+            return arrType->elementType;
+        } else if (baseType->isPointer()) {
+            auto ptrType = static_cast<PointerType*>(baseType.get());
+            return ptrType->pointee;
+        }
+        return nullptr;
     }
     
     // 对于成员表达式，从结构体/联合体类型中查找成员类型

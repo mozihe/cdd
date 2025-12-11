@@ -1094,6 +1094,32 @@ ast::TypePtr SemanticAnalyzer::convertToAstType(TypePtr semType) {
     } else if (semType->isPointer()) {
         auto ptrType = static_cast<PointerType*>(semType.get());
         return std::make_unique<ast::PointerType>(convertToAstType(ptrType->pointee));
+    } else if (semType->isStruct()) {
+        auto structType = static_cast<StructType*>(semType.get());
+        return std::make_unique<ast::RecordType>(false, structType->name);
+    } else if (semType->isUnion()) {
+        auto unionType = static_cast<UnionType*>(semType.get());
+        return std::make_unique<ast::RecordType>(true, unionType->name);
+    } else if (semType->isArray()) {
+        auto arrType = static_cast<ArrayType*>(semType.get());
+        auto elemAstType = convertToAstType(arrType->elementType);
+        auto result = std::make_unique<ast::ArrayType>(std::move(elemAstType), nullptr);
+        if (arrType->length >= 0) {
+            result->size = std::make_unique<ast::IntLiteral>(SourceLocation{}, arrType->length);
+        }
+        return result;
+    } else if (semType->isEnum()) {
+        auto enumType = static_cast<EnumType*>(semType.get());
+        return std::make_unique<ast::EnumType>(enumType->name);
+    } else if (semType->isFunction()) {
+        auto funcType = static_cast<FunctionType*>(semType.get());
+        auto retAstType = convertToAstType(funcType->returnType);
+        auto result = std::make_unique<ast::FunctionType>(std::move(retAstType));
+        result->isVariadic = funcType->isVariadic;
+        for (const auto& paramType : funcType->paramTypes) {
+            result->paramTypes.push_back(convertToAstType(paramType));
+        }
+        return result;
     }
     
     return nullptr;
