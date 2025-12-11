@@ -2,7 +2,7 @@
 
 **作者**: mozihe
 
-CDD (C Derived Dialect) 是一个 C 语言子集编译器，用于教学目的。
+CDD (C Decrease Decrease) (C--) 是一个 C 语言子集编译器，用于学习编译方法。
 
 ## 功能特性
 
