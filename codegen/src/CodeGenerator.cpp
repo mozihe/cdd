@@ -457,6 +457,8 @@ void CodeGenerator::emitFunction(const semantic::FunctionIR& func) {
     inFunction_ = true;
     locations_.clear();
     localOffset_ = -40;  // 跳过5个 callee-saved 寄存器（每个8字节）
+    minLocalOffset_ = localOffset_;
+    currentStackPlaceholder_.clear();
     
     // 2. 生成函数序言
     emitPrologue(func);
@@ -511,6 +513,13 @@ void CodeGenerator::emitFunction(const semantic::FunctionIR& func) {
     emitLabel("." + currentFunction_ + "_exit");
     emitEpilogue();
     
+    // 6. 根据实际使用情况回填栈大小占位符
+    int localsSize = std::max(0, -minLocalOffset_ - 40);  // 去除 callee-saved 区域
+    int alignedLocals = (localsSize + 15) & ~15;          // 16 字节对齐
+    int stackReserve = alignedLocals + 8;                 // 补偿 5 次 push 导致的 8 字节错位
+    stackSize_ = stackReserve;
+    finalizeStackSize(currentFunction_, stackReserve);
+
     emitDirective(".size " + currentFunction_ + ", .-" + currentFunction_);
     inFunction_ = false;
 }
@@ -531,16 +540,23 @@ void CodeGenerator::emitPrologue(const semantic::FunctionIR& func) {
     emitLine("pushq %r14");
     emitLine("pushq %r15");
     
-    // 计算栈帧大小：使用固定的较大值以容纳所有局部变量和临时变量
-    // 代码生成器在翻译过程中动态分配栈空间，无法预知确切大小
-    // 使用 2048 字节作为默认值，以覆盖 Debug 构建下更多临时变量
-    // TODO: 实现两阶段生成，先用占位符，最后替换为实际大小
-    int stackReserve = 2048;
-    stackReserve = (stackReserve + 15) & ~15;  // 先对齐到 16 字节
-    stackReserve += 8;  // 额外 8 字节补偿 5 次 push，保证调用前 16 字节对齐
-    stackSize_ = stackReserve;
-    
-    emitLine("subq $" + std::to_string(stackReserve) + ", %rsp");
+    // 预留占位符，待函数体生成完毕后回填真实栈大小
+    currentStackPlaceholder_ = "__STACK_SIZE_" + func.name + "__";
+    emitLine("subq $" + currentStackPlaceholder_ + ", %rsp");
+}
+
+void CodeGenerator::finalizeStackSize(const std::string& funcName, int stackSize) {
+    if (stackSize <= 0) return;
+
+    std::string placeholder = "__STACK_SIZE_" + funcName + "__";
+    std::string text = textSection_.str();
+    auto pos = text.rfind(placeholder);
+    if (pos != std::string::npos) {
+        text.replace(pos, placeholder.size(), std::to_string(stackSize));
+        textSection_.str(text);
+        textSection_.clear();               // 清除状态标志
+        textSection_.seekp(0, std::ios::end);  // 移动写指针到末尾
+    }
 }
 
 void CodeGenerator::emitEpilogue() {
@@ -1101,20 +1117,33 @@ void CodeGenerator::translateLoad(const semantic::Quadruple& quad) {
             } else if (copySize >= 4) {
                 emitLine("movl " + srcAsm + ", %r10d");
                 emitLine("movl %r10d, " + dstAsm);
+            } else {
+                // 处理剩余的 1-3 字节
+                for (int i = 0; i < copySize; ++i) {
+                    std::string srcByte = std::to_string(offset + i) + "(%r11)";
+                    std::string dstByte = std::to_string(dstLoc.offset + offset + i) + "(%rbp)";
+                    emitLine("movb " + srcByte + ", %r10b");
+                    emitLine("movb %r10b, " + dstByte);
+                }
             }
         }
     } else {
         Register addr = loadToRegister(quad.arg1);
+        bool isUnsigned = quad.result.type && quad.result.type->isUnsigned;
 
         switch (size) {
             case 1:
-                emitLine("movzbl (" + regName(addr) + "), " + regName(addr, 4));
+                emitLine(std::string(isUnsigned ? "movzbq " : "movsbq ") + "(" + regName(addr) + "), " + regName(addr));
                 break;
             case 2:
-                emitLine("movzwl (" + regName(addr) + "), " + regName(addr, 4));
+                emitLine(std::string(isUnsigned ? "movzwq " : "movswq ") + "(" + regName(addr) + "), " + regName(addr));
                 break;
             case 4:
-                emitLine("movl (" + regName(addr) + "), " + regName(addr, 4));
+                if (isUnsigned) {
+                    emitLine("movl (" + regName(addr) + "), " + regName(addr, 4));
+                } else {
+                    emitLine("movslq (" + regName(addr) + "), " + regName(addr));
+                }
                 break;
             default:
                 emitLine("movq (" + regName(addr) + "), " + regName(addr));
@@ -1126,9 +1155,6 @@ void CodeGenerator::translateLoad(const semantic::Quadruple& quad) {
 }
 
 void CodeGenerator::translateStore(const semantic::Quadruple& quad) {
-    Register val = loadToRegister(quad.arg1);
-    Register addr = loadToRegister(quad.result);
-    
     // 根据地址指向的类型选择正确的存储大小
     int size = 8;  // 默认 64 位
     if (quad.result.type && quad.result.type->isPointer()) {
@@ -1140,6 +1166,58 @@ void CodeGenerator::translateStore(const semantic::Quadruple& quad) {
         size = getTypeSize(quad.arg1.type);
     }
     
+    // 结构体等大对象：按块复制
+    if (size > 8) {
+        Register dst = loadToRegister(quad.result);  // 目标地址
+        
+        // 获取源基址
+        Location srcLoc = getLocation(quad.arg1);
+        Register srcBase = regAlloc_.allocate();
+        if (srcBase == Register::NONE) srcBase = Register::R11;
+        
+        switch (srcLoc.type) {
+            case Location::Type::Stack:
+                emitLine("leaq " + srcLoc.toAsm() + ", " + regName(srcBase));
+                break;
+            case Location::Type::Global:
+                emitLine("leaq " + srcLoc.toAsm() + ", " + regName(srcBase));
+                break;
+            case Location::Type::Immediate:
+                // 不期望结构体立即数，这里防御性跳过
+                break;
+            case Location::Type::Register:
+                emitLine("movq " + regName(srcLoc.reg) + ", " + regName(srcBase));
+                break;
+        }
+        
+        for (int offset = 0; offset < size; offset += 8) {
+            int copySize = std::min(8, size - offset);
+            std::string srcAsm = std::to_string(offset) + "(" + regName(srcBase) + ")";
+            std::string dstAsm = std::to_string(offset) + "(" + regName(dst) + ")";
+            
+            if (copySize >= 8) {
+                emitLine("movq " + srcAsm + ", %r10");
+                emitLine("movq %r10, " + dstAsm);
+            } else if (copySize >= 4) {
+                emitLine("movl " + srcAsm + ", %r10d");
+                emitLine("movl %r10d, " + dstAsm);
+            } else {
+                for (int i = 0; i < copySize; ++i) {
+                    std::string srcByte = std::to_string(offset + i) + "(" + regName(srcBase) + ")";
+                    std::string dstByte = std::to_string(offset + i) + "(" + regName(dst) + ")";
+                    emitLine("movb " + srcByte + ", %r10b");
+                    emitLine("movb %r10b, " + dstByte);
+                }
+            }
+        }
+        
+        regAlloc_.release(dst);
+        regAlloc_.release(srcBase);
+        return;
+    }
+
+    Register val = loadToRegister(quad.arg1);
+    Register addr = loadToRegister(quad.result);
     std::string suffix = getSizeSuffix(size);
     emitLine("mov" + suffix + " " + regName(val, size) + ", (" + regName(addr) + ")");
     regAlloc_.release(val);
@@ -1526,6 +1604,7 @@ int CodeGenerator::allocateStack(int size, int align) {
     } else {
         localOffset_ = (localOffset_ / align) * align;
     }
+    minLocalOffset_ = std::min(minLocalOffset_, localOffset_);
     return localOffset_;
 }
 

@@ -243,7 +243,9 @@ private:
     std::string currentFunction_;
     int stackSize_ = 0;
     int localOffset_ = 0;
+    int minLocalOffset_ = 0;              ///< 记录当前函数的最小栈偏移，用于最终栈大小计算
     bool inFunction_ = false;
+    std::string currentStackPlaceholder_; ///< 当前函数序言中的栈大小占位符
     
     std::unordered_map<std::string, Location> locations_;
     std::vector<semantic::Operand> callParams_;
@@ -257,6 +259,9 @@ private:
     /** @brief 生成浮点数字面量到 .rodata 段 */
     void emitFloatLiterals();
     
+    /** @brief 将序言中的栈大小占位符替换为真实大小 */
+    void finalizeStackSize(const std::string& funcName, int stackSize);
+
     /** @brief 发射一行汇编指令 */
     void emitLine(const std::string& line);
     
