@@ -34,12 +34,36 @@ enum class Register {
 };
 
 /**
+ * @enum XmmRegister
+ * @brief SSE/AVX 浮点寄存器枚举
+ * 
+ * 用于浮点运算和 SIMD 操作，遵循 System V AMD64 ABI：
+ * - XMM0-XMM7：传递浮点参数
+ * - XMM0-XMM1：返回浮点值
+ * - XMM8-XMM15：调用者保存寄存器
+ */
+enum class XmmRegister {
+    XMM0, XMM1, XMM2, XMM3,
+    XMM4, XMM5, XMM6, XMM7,
+    XMM8, XMM9, XMM10, XMM11,
+    XMM12, XMM13, XMM14, XMM15,
+    NONE
+};
+
+/**
  * @brief 获取寄存器名称字符串
  * @param reg 寄存器枚举值
  * @param size 寄存器大小（1=8位, 2=16位, 4=32位, 8=64位）
  * @return AT&T 语法的寄存器名（如 %rax, %eax, %ax, %al）
  */
 std::string regName(Register reg, int size = 8);
+
+/**
+ * @brief 获取 XMM 寄存器名称字符串
+ * @param reg XMM 寄存器枚举值
+ * @return AT&T 语法的寄存器名（如 %xmm0）
+ */
+std::string xmmName(XmmRegister reg);
 
 /**
  * @struct Location
@@ -127,6 +151,53 @@ private:
 };
 
 /**
+ * @class XmmAllocator
+ * @brief XMM 浮点寄存器分配器
+ * 
+ * 管理 XMM 寄存器的分配和释放，用于浮点运算。
+ * 遵循 System V AMD64 ABI 调用约定。
+ */
+class XmmAllocator {
+public:
+    XmmAllocator();
+    
+    /**
+     * @brief 分配一个可用的 XMM 寄存器
+     * @return 分配的寄存器，如无可用则返回 NONE
+     */
+    XmmRegister allocate();
+    
+    /**
+     * @brief 释放 XMM 寄存器
+     * @param reg 要释放的寄存器
+     */
+    void release(XmmRegister reg);
+    
+    /**
+     * @brief 检查 XMM 寄存器是否可用
+     * @param reg 要检查的寄存器
+     * @return 如果可用返回 true
+     */
+    bool isAvailable(XmmRegister reg) const;
+    
+    /**
+     * @brief 尝试分配指定的 XMM 寄存器
+     * @param reg 要分配的特定寄存器
+     * @return 如果成功返回 true
+     */
+    bool allocateSpecific(XmmRegister reg);
+    
+    /**
+     * @brief 释放所有 XMM 寄存器（均为调用者保存）
+     */
+    void releaseAll();
+    
+private:
+    std::unordered_set<XmmRegister> available_;
+    std::unordered_set<XmmRegister> used_;
+};
+
+/**
  * @class CodeGenerator
  * @brief x86-64 汇编代码生成器
  * 
@@ -162,6 +233,7 @@ public:
 private:
     const semantic::IRProgram& program_;
     RegisterAllocator regAlloc_;
+    XmmAllocator xmmAlloc_;        ///< XMM 浮点寄存器分配器
     
     std::stringstream dataSection_;
     std::stringstream bssSection_;
@@ -253,11 +325,17 @@ private:
      */
     void translateQuad(const semantic::Quadruple& quad);
     
-    /** @brief 翻译算术运算（Add, Sub, Mul, Div, Mod） */
+    /** @brief 翻译整数算术运算（Add, Sub, Mul, Div, Mod） */
     void translateArithmetic(const semantic::Quadruple& quad);
     
-    /** @brief 翻译取负运算 */
+    /** @brief 翻译整数取负运算 */
     void translateNeg(const semantic::Quadruple& quad);
+    
+    /** @brief 翻译浮点算术运算（FAdd, FSub, FMul, FDiv） */
+    void translateFloatArithmetic(const semantic::Quadruple& quad);
+    
+    /** @brief 翻译浮点取负运算 */
+    void translateFloatNeg(const semantic::Quadruple& quad);
     
     /** @brief 翻译位运算（And, Or, Xor, Shl, Shr） */
     void translateBitwise(const semantic::Quadruple& quad);
@@ -265,8 +343,11 @@ private:
     /** @brief 翻译按位取反 */
     void translateBitNot(const semantic::Quadruple& quad);
     
-    /** @brief 翻译比较运算（Eq, Ne, Lt, Le, Gt, Ge） */
+    /** @brief 翻译整数比较运算（Eq, Ne, Lt, Le, Gt, Ge） */
     void translateComparison(const semantic::Quadruple& quad);
+    
+    /** @brief 翻译浮点比较运算（FEq, FNe, FLt, FLe, FGt, FGe） */
+    void translateFloatComparison(const semantic::Quadruple& quad);
     
     /** @brief 翻译逻辑运算（And, Or） */
     void translateLogical(const semantic::Quadruple& quad);
@@ -343,6 +424,27 @@ private:
      * @return 后缀字符串（b/w/l/q）
      */
     std::string getSizeSuffix(int size) const;
+    
+    /**
+     * @brief 判断操作数是否为浮点类型
+     * @param operand 操作数
+     * @return 如果是浮点类型返回 true
+     */
+    bool isFloatType(const semantic::Operand& operand) const;
+    
+    /**
+     * @brief 将浮点操作数加载到 XMM 寄存器
+     * @param operand 操作数
+     * @return 分配的 XMM 寄存器
+     */
+    XmmRegister loadToXmm(const semantic::Operand& operand);
+    
+    /**
+     * @brief 将 XMM 寄存器值存储到目标操作数
+     * @param reg XMM 寄存器
+     * @param dest 目标操作数
+     */
+    void storeFromXmm(XmmRegister reg, const semantic::Operand& dest);
 };
 
 /**

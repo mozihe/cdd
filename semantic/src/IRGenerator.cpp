@@ -71,6 +71,49 @@ bool Operand::isConst() const {
            kind == OperandKind::StringConst;
 }
 
+//=============================================================================
+// GlobalInitValue 实现
+//=============================================================================
+
+GlobalInitValue GlobalInitValue::integer(int64_t v, int sz) {
+    GlobalInitValue val;
+    val.kind = Kind::Integer;
+    val.intValue = v;
+    val.size = sz;
+    return val;
+}
+
+GlobalInitValue GlobalInitValue::floating(double v, int sz) {
+    GlobalInitValue val;
+    val.kind = Kind::Float;
+    val.floatValue = v;
+    val.size = sz;
+    return val;
+}
+
+GlobalInitValue GlobalInitValue::string(const std::string& label) {
+    GlobalInitValue val;
+    val.kind = Kind::String;
+    val.strLabel = label;
+    val.size = 8;  // 指针大小
+    return val;
+}
+
+GlobalInitValue GlobalInitValue::address(const std::string& name) {
+    GlobalInitValue val;
+    val.kind = Kind::Address;
+    val.strLabel = name;
+    val.size = 8;
+    return val;
+}
+
+GlobalInitValue GlobalInitValue::zero(int sz) {
+    GlobalInitValue val;
+    val.kind = Kind::Zero;
+    val.size = sz;
+    return val;
+}
+
 std::string Operand::toString() const {
     switch (kind) {
         case OperandKind::None: return "_";
@@ -97,6 +140,11 @@ const char* opcodeToString(IROpcode op) {
         case IROpcode::Div: return "DIV";
         case IROpcode::Mod: return "MOD";
         case IROpcode::Neg: return "NEG";
+        case IROpcode::FAdd: return "FADD";
+        case IROpcode::FSub: return "FSUB";
+        case IROpcode::FMul: return "FMUL";
+        case IROpcode::FDiv: return "FDIV";
+        case IROpcode::FNeg: return "FNEG";
         case IROpcode::BitAnd: return "AND";
         case IROpcode::BitOr: return "OR";
         case IROpcode::BitXor: return "XOR";
@@ -109,6 +157,12 @@ const char* opcodeToString(IROpcode op) {
         case IROpcode::Le: return "LE";
         case IROpcode::Gt: return "GT";
         case IROpcode::Ge: return "GE";
+        case IROpcode::FEq: return "FEQ";
+        case IROpcode::FNe: return "FNE";
+        case IROpcode::FLt: return "FLT";
+        case IROpcode::FLe: return "FLE";
+        case IROpcode::FGt: return "FGT";
+        case IROpcode::FGe: return "FGE";
         case IROpcode::LogicalAnd: return "LAND";
         case IROpcode::LogicalOr: return "LOR";
         case IROpcode::LogicalNot: return "LNOT";
@@ -261,6 +315,14 @@ void IRGenerator::genDecl(ast::Decl* decl) {
     }
 }
 
+/**
+ * @brief 生成全局变量声明的 IR
+ * 
+ * 处理流程：
+ * 1. 解析变量类型
+ * 2. 添加符号到符号表
+ * 3. 收集编译期常量初始化值
+ */
 void IRGenerator::genGlobalVar(ast::VarDecl* decl) {
     if (!decl) return;
     
@@ -281,7 +343,141 @@ void IRGenerator::genGlobalVar(ast::VarDecl* decl) {
     gv.hasInitializer = (decl->initializer != nullptr);
     gv.isExtern = isExtern;
     
+    // 处理初始化器
+    if (decl->initializer && !isExtern) {
+        collectGlobalInitializer(decl->initializer.get(), varType, gv.initValues);
+    }
+    
     program_.globals.push_back(gv);
+}
+
+/**
+ * @brief 收集全局变量初始化值
+ * 
+ * 将编译期常量表达式转换为静态初始化数据。
+ * 支持整数、浮点数、字符串指针和初始化列表。
+ */
+void IRGenerator::collectGlobalInitializer(ast::Expr* init, TypePtr type, 
+                                            std::vector<GlobalInitValue>& values) {
+    if (!init || !type) {
+        // 无初始化器，零初始化
+        values.push_back(GlobalInitValue::zero(type ? type->size() : 8));
+        return;
+    }
+    
+    int typeSize = type->size();
+    
+    // 整数字面量
+    if (auto intLit = dynamic_cast<ast::IntLiteral*>(init)) {
+        values.push_back(GlobalInitValue::integer(intLit->value, typeSize));
+        return;
+    }
+    
+    // 字符字面量
+    if (auto charLit = dynamic_cast<ast::CharLiteral*>(init)) {
+        values.push_back(GlobalInitValue::integer(charLit->value, typeSize));
+        return;
+    }
+    
+    // 浮点字面量
+    if (auto floatLit = dynamic_cast<ast::FloatLiteral*>(init)) {
+        values.push_back(GlobalInitValue::floating(floatLit->value, typeSize));
+        return;
+    }
+    
+    // 字符串字面量（指针类型或字符数组）
+    if (auto strLit = dynamic_cast<ast::StringLiteral*>(init)) {
+        if (type->isArray()) {
+            // 字符数组：逐字符初始化
+            auto arrType = static_cast<ArrayType*>(type.get());
+            size_t len = strLit->value.size();
+            for (size_t i = 0; i < len && static_cast<int>(i) < arrType->length; ++i) {
+                values.push_back(GlobalInitValue::integer(
+                    static_cast<unsigned char>(strLit->value[i]), 1));
+            }
+            // 填充剩余空间（包括 null 终止符）
+            int remaining = arrType->length - static_cast<int>(len);
+            if (remaining > 0) {
+                values.push_back(GlobalInitValue::zero(remaining));
+            }
+        } else {
+            // 指针类型：存储字符串标签地址
+            std::string label = addStringLiteral(strLit->value);
+            values.push_back(GlobalInitValue::string(label));
+        }
+        return;
+    }
+    
+    // 初始化列表
+    if (auto initList = dynamic_cast<ast::InitListExpr*>(init)) {
+        if (type->isArray()) {
+            auto arrType = static_cast<ArrayType*>(type.get());
+            TypePtr elemType = arrType->elementType;
+            int elemSize = elemType->size();
+            int count = arrType->length;
+            int initCount = static_cast<int>(initList->elements.size());
+            
+            // 处理已提供的初始化元素
+            for (int i = 0; i < initCount && i < count; ++i) {
+                collectGlobalInitializer(initList->elements[i].get(), elemType, values);
+            }
+            
+            // 剩余元素零初始化
+            if (initCount < count) {
+                int remaining = (count - initCount) * elemSize;
+                values.push_back(GlobalInitValue::zero(remaining));
+            }
+        } else if (type->isStruct()) {
+            auto structType = static_cast<StructType*>(type.get());
+            int initCount = static_cast<int>(initList->elements.size());
+            int memberCount = static_cast<int>(structType->members.size());
+            
+            for (int i = 0; i < memberCount; ++i) {
+                if (i < initCount) {
+                    collectGlobalInitializer(initList->elements[i].get(), 
+                                             structType->members[i].type, values);
+                } else {
+                    values.push_back(GlobalInitValue::zero(structType->members[i].type->size()));
+                }
+            }
+        }
+        return;
+    }
+    
+    // 标识符表达式（可能是其他全局变量或函数地址）
+    if (auto identExpr = dynamic_cast<ast::IdentExpr*>(init)) {
+        // 查找符号
+        auto sym = symTable_.lookup(identExpr->name);
+        if (sym) {
+            if (sym->kind == SymbolKind::Function) {
+                values.push_back(GlobalInitValue::address(identExpr->name));
+                return;
+            } else if (sym->storage == StorageClass::Static || 
+                       sym->storage == StorageClass::Extern) {
+                values.push_back(GlobalInitValue::address(identExpr->name));
+                return;
+            }
+        }
+        // 可能是枚举常量
+        auto it = enumConstValues_.find(identExpr->name);
+        if (it != enumConstValues_.end()) {
+            values.push_back(GlobalInitValue::integer(it->second, typeSize));
+            return;
+        }
+    }
+    
+    // 取地址表达式
+    if (auto unaryExpr = dynamic_cast<ast::UnaryExpr*>(init)) {
+        if (unaryExpr->op == ast::UnaryOp::AddrOf) {
+            if (auto identExpr = dynamic_cast<ast::IdentExpr*>(unaryExpr->operand.get())) {
+                values.push_back(GlobalInitValue::address(identExpr->name));
+                return;
+            }
+        }
+    }
+    
+    // 不支持的表达式，零初始化
+    values.push_back(GlobalInitValue::zero(typeSize));
 }
 
 /**
@@ -368,6 +564,23 @@ void IRGenerator::genVarDecl(ast::VarDecl* decl) {
             Operand addr = Operand::temp(newTemp(), varType);
             emit(IROpcode::LoadAddr, addr, src);
             src = addr;
+        }
+        
+        // 类型转换：处理 int <-> float 转换
+        if (src.type && varType) {
+            bool srcIsFloat = src.type->isFloat();
+            bool dstIsFloat = varType->isFloat();
+            if (srcIsFloat && !dstIsFloat && varType->isInteger()) {
+                // FloatToInt
+                Operand converted = Operand::temp(newTemp(), varType);
+                emit(IROpcode::FloatToInt, converted, src);
+                src = converted;
+            } else if (!srcIsFloat && dstIsFloat && src.type->isInteger()) {
+                // IntToFloat
+                Operand converted = Operand::temp(newTemp(), varType);
+                emit(IROpcode::IntToFloat, converted, src);
+                src = converted;
+            }
         }
         
         emit(IROpcode::Assign, dest, src);
@@ -816,20 +1029,20 @@ Operand IRGenerator::genIdentExpr(ast::IdentExpr* expr) {
         return Operand::label(expr->name);
     }
     
-    // 全局变量或静态变量
-    if (symTable_.isGlobalScope() || sym->storage == StorageClass::Static || 
-        sym->storage == StorageClass::Extern) {
-        return Operand::global(expr->name, sym->type);
-    }
-    
     // 局部变量或参数：使用唯一的 IR 名称
     auto it = varIRNames_.find(sym.get());
     if (it != varIRNames_.end()) {
         return Operand::variable(it->second, sym->type);
     }
     
-    // 回退到原始名称（参数等）
-    return Operand::variable(expr->name, sym->type);
+    // 显式的 static 或 extern 变量
+    if (sym->storage == StorageClass::Static || sym->storage == StorageClass::Extern) {
+        return Operand::global(expr->name, sym->type);
+    }
+    
+    // 如果变量不在 varIRNames_ 中且不是局部变量，则是全局变量
+    // （全局变量不会被添加到 varIRNames_，局部变量在 genVarDecl 中会被添加）
+    return Operand::global(expr->name, sym->type);
 }
 
 Operand IRGenerator::genBinaryExpr(ast::BinaryExpr* expr) {
@@ -853,12 +1066,15 @@ Operand IRGenerator::genBinaryExpr(ast::BinaryExpr* expr) {
         Operand leftVal = Operand::temp(newTemp(), leftType);
         emit(IROpcode::Load, leftVal, left);
         
+        // 根据操作数类型选择整数或浮点操作码
+        bool isFloatOp = leftType->isFloat();
+        
         IROpcode op;
         switch (expr->op) {
-            case Op::AddAssign: op = IROpcode::Add; break;
-            case Op::SubAssign: op = IROpcode::Sub; break;
-            case Op::MulAssign: op = IROpcode::Mul; break;
-            case Op::DivAssign: op = IROpcode::Div; break;
+            case Op::AddAssign: op = isFloatOp ? IROpcode::FAdd : IROpcode::Add; break;
+            case Op::SubAssign: op = isFloatOp ? IROpcode::FSub : IROpcode::Sub; break;
+            case Op::MulAssign: op = isFloatOp ? IROpcode::FMul : IROpcode::Mul; break;
+            case Op::DivAssign: op = isFloatOp ? IROpcode::FDiv : IROpcode::Div; break;
             case Op::ModAssign: op = IROpcode::Mod; break;
             case Op::AndAssign: op = IROpcode::BitAnd; break;
             case Op::OrAssign: op = IROpcode::BitOr; break;
@@ -990,23 +1206,46 @@ Operand IRGenerator::genBinaryExpr(ast::BinaryExpr* expr) {
     }
     
     IROpcode op;
+    
+    // 根据操作数类型选择整数或浮点操作码
+    bool isFloatOp = (leftType && leftType->isFloat()) || (rightType && rightType->isFloat());
+    
+    // 混合运算类型转换：如果是浮点运算但有整数操作数，需要先转换为浮点
+    if (isFloatOp) {
+        TypePtr floatType = makeDouble();
+        
+        // 左操作数是整数，需要转换为浮点
+        if (leftType && leftType->isInteger() && !leftType->isFloat()) {
+            Operand converted = Operand::temp(newTemp(), floatType);
+            emit(IROpcode::IntToFloat, converted, left);
+            left = converted;
+        }
+        
+        // 右操作数是整数，需要转换为浮点
+        if (rightType && rightType->isInteger() && !rightType->isFloat()) {
+            Operand converted = Operand::temp(newTemp(), floatType);
+            emit(IROpcode::IntToFloat, converted, right);
+            right = converted;
+        }
+    }
+    
     switch (expr->op) {
-        case Op::Add: op = IROpcode::Add; break;
-        case Op::Sub: op = IROpcode::Sub; break;
-        case Op::Mul: op = IROpcode::Mul; break;
-        case Op::Div: op = IROpcode::Div; break;
-        case Op::Mod: op = IROpcode::Mod; break;
+        case Op::Add: op = isFloatOp ? IROpcode::FAdd : IROpcode::Add; break;
+        case Op::Sub: op = isFloatOp ? IROpcode::FSub : IROpcode::Sub; break;
+        case Op::Mul: op = isFloatOp ? IROpcode::FMul : IROpcode::Mul; break;
+        case Op::Div: op = isFloatOp ? IROpcode::FDiv : IROpcode::Div; break;
+        case Op::Mod: op = IROpcode::Mod; break;  // 浮点取模需要 fmod 函数，暂不支持
         case Op::BitAnd: op = IROpcode::BitAnd; break;
         case Op::BitOr: op = IROpcode::BitOr; break;
         case Op::BitXor: op = IROpcode::BitXor; break;
         case Op::Shl: op = IROpcode::Shl; break;
         case Op::Shr: op = IROpcode::Shr; break;
-        case Op::Eq: op = IROpcode::Eq; break;
-        case Op::Ne: op = IROpcode::Ne; break;
-        case Op::Lt: op = IROpcode::Lt; break;
-        case Op::Le: op = IROpcode::Le; break;
-        case Op::Gt: op = IROpcode::Gt; break;
-        case Op::Ge: op = IROpcode::Ge; break;
+        case Op::Eq: op = isFloatOp ? IROpcode::FEq : IROpcode::Eq; break;
+        case Op::Ne: op = isFloatOp ? IROpcode::FNe : IROpcode::Ne; break;
+        case Op::Lt: op = isFloatOp ? IROpcode::FLt : IROpcode::Lt; break;
+        case Op::Le: op = isFloatOp ? IROpcode::FLe : IROpcode::Le; break;
+        case Op::Gt: op = isFloatOp ? IROpcode::FGt : IROpcode::Gt; break;
+        case Op::Ge: op = isFloatOp ? IROpcode::FGe : IROpcode::Ge; break;
         default: return Operand::none();
     }
     
@@ -1045,6 +1284,25 @@ Operand IRGenerator::genBinaryExpr(ast::BinaryExpr* expr) {
 Operand IRGenerator::genAssignment(ast::BinaryExpr* expr) {
     Operand addr = genLValueAddr(expr->left.get());
     Operand value = genExpr(expr->right.get());
+    
+    // 类型转换：处理 int <-> float 转换
+    TypePtr leftType = getExprSemType(expr->left.get());
+    if (value.type && leftType) {
+        bool srcIsFloat = value.type->isFloat();
+        bool dstIsFloat = leftType->isFloat();
+        if (srcIsFloat && !dstIsFloat && leftType->isInteger()) {
+            // FloatToInt
+            Operand converted = Operand::temp(newTemp(), leftType);
+            emit(IROpcode::FloatToInt, converted, value);
+            value = converted;
+        } else if (!srcIsFloat && dstIsFloat && value.type->isInteger()) {
+            // IntToFloat
+            Operand converted = Operand::temp(newTemp(), leftType);
+            emit(IROpcode::IntToFloat, converted, value);
+            value = converted;
+        }
+    }
+    
     emit(IROpcode::Store, addr, value);
     return value;
 }
@@ -1107,7 +1365,8 @@ Operand IRGenerator::genUnaryExpr(ast::UnaryExpr* expr) {
             TypePtr resultType = getExprSemType(expr);
             if (!resultType) return Operand::none();
             Operand result = Operand::temp(newTemp(), resultType);
-            emit(IROpcode::Neg, result, operand);
+            // 根据类型选择整数或浮点取负
+            emit(resultType->isFloat() ? IROpcode::FNeg : IROpcode::Neg, result, operand);
             return result;
         }
         

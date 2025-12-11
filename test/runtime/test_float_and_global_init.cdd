@@ -1,0 +1,206 @@
+/**
+ * @file test_float_and_global_init.cdd
+ * @brief 浮点运算、全局变量初始化和类型转换测试
+ *
+ * 测试内容：
+ * 1. 全局变量初始化（整数、浮点、数组）
+ * 2. XMM 寄存器浮点算术运算
+ * 3. 浮点比较运算
+ * 4. IntToFloat / FloatToInt 类型转换
+ *
+ * EXPECT_EXIT: 42
+ */
+
+// ============================================================================
+// 全局变量初始化测试
+// ============================================================================
+
+// 整数全局变量初始化
+int g_int = 10;
+int g_arr[5] = {1, 2, 3, 4, 5};
+
+// 浮点全局变量初始化
+double g_pi = 3.14159;
+double g_e = 2.71828;
+
+// 字符串全局变量
+char* g_msg = "Hello";
+
+// ============================================================================
+// 辅助函数
+// ============================================================================
+
+/**
+ * @brief 计算两个双精度浮点数的和
+ */
+double add_double(double a, double b) {
+    return a + b;
+}
+
+/**
+ * @brief 计算两个双精度浮点数的差
+ */
+double sub_double(double a, double b) {
+    return a - b;
+}
+
+/**
+ * @brief 计算两个双精度浮点数的积
+ */
+double mul_double(double a, double b) {
+    return a * b;
+}
+
+/**
+ * @brief 计算两个双精度浮点数的商
+ */
+double div_double(double a, double b) {
+    return a / b;
+}
+
+/**
+ * @brief 整数转浮点测试
+ */
+double int_to_float(int x) {
+    double d = x;  // 隐式 IntToFloat
+    return d;
+}
+
+/**
+ * @brief 浮点转整数测试（截断）
+ */
+int float_to_int(double d) {
+    int i = d;  // 隐式 FloatToInt，截断
+    return i;
+}
+
+// ============================================================================
+// 主测试函数
+// ============================================================================
+
+int main(void) {
+    int result = 0;
+    
+    // ========================================
+    // 测试 1：全局变量初始化验证
+    // ========================================
+    
+    // 验证整数全局变量
+    if (g_int == 10) {
+        result = result + 1;  // +1 = 1
+    }
+    
+    // 验证数组初始化
+    int sum = g_arr[0] + g_arr[1] + g_arr[2] + g_arr[3] + g_arr[4];
+    if (sum == 15) {
+        result = result + 2;  // +2 = 3
+    }
+    
+    // ========================================
+    // 测试 2：XMM 浮点算术运算
+    // ========================================
+    
+    double a = 10.5;
+    double b = 3.5;
+    
+    // 加法测试
+    double add_result = add_double(a, b);
+    if (add_result > 13.9 && add_result < 14.1) {
+        result = result + 4;  // +4 = 7
+    }
+    
+    // 减法测试
+    double sub_result = sub_double(a, b);
+    if (sub_result > 6.9 && sub_result < 7.1) {
+        result = result + 4;  // +4 = 11
+    }
+    
+    // 乘法测试
+    double mul_result = mul_double(a, b);
+    if (mul_result > 36.7 && mul_result < 36.8) {
+        result = result + 4;  // +4 = 15
+    }
+    
+    // 除法测试
+    double div_result = div_double(a, b);
+    if (div_result > 2.9 && div_result < 3.1) {
+        result = result + 4;  // +4 = 19
+    }
+    
+    // ========================================
+    // 测试 3：浮点比较运算
+    // ========================================
+    
+    double x = 5.5;
+    double y = 3.3;
+    
+    // 小于
+    if (y < x) {
+        result = result + 2;  // +2 = 21
+    }
+    
+    // 大于
+    if (x > y) {
+        result = result + 2;  // +2 = 23
+    }
+    
+    // 小于等于
+    double z = 5.5;
+    if (x <= z) {
+        result = result + 2;  // +2 = 25
+    }
+    
+    // 大于等于
+    if (z >= x) {
+        result = result + 2;  // +2 = 27
+    }
+    
+    // 等于
+    if (x == z) {
+        result = result + 2;  // +2 = 29
+    }
+    
+    // 不等于
+    if (x != y) {
+        result = result + 2;  // +2 = 31
+    }
+    
+    // ========================================
+    // 测试 4：类型转换
+    // ========================================
+    
+    // IntToFloat
+    int int_val = 42;
+    double float_val = int_to_float(int_val);
+    if (float_val > 41.9 && float_val < 42.1) {
+        result = result + 3;  // +3 = 34
+    }
+    
+    // FloatToInt（截断测试）
+    double d1 = 7.9;
+    int i1 = float_to_int(d1);
+    if (i1 == 7) {  // 截断，不是四舍五入
+        result = result + 3;  // +3 = 37
+    }
+    
+    // 负数截断测试
+    double d2 = -3.7;
+    int i2 = float_to_int(d2);
+    if (i2 == -3) {  // 向零截断
+        result = result + 3;  // +3 = 40
+    }
+    
+    // ========================================
+    // 测试 5：混合运算
+    // ========================================
+    
+    // 整数和浮点混合计算
+    int base = 2;
+    double factor = 1.0;
+    double mixed = base * factor;  // 整数自动转换为浮点
+    if (mixed > 1.9 && mixed < 2.1) {
+        result = result + 2;  // +2 = 42
+    }
+    
+    return result;  // EXPECT_EXIT: 42
+}

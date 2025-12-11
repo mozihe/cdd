@@ -25,18 +25,33 @@ namespace semantic {
  * @brief 四元式操作码
  */
 enum class IROpcode {
-    Add, Sub, Mul, Div, Mod, Neg,           ///< 算术运算
-    BitAnd, BitOr, BitXor, BitNot, Shl, Shr,///< 位运算
-    Eq, Ne, Lt, Le, Gt, Ge,                 ///< 比较运算
-    LogicalAnd, LogicalOr, LogicalNot,      ///< 逻辑运算
-    Assign, Load, Store, LoadAddr,          ///< 数据移动
-    IndexAddr, MemberAddr,                  ///< 数组和结构体
-    Label, Jump, JumpTrue, JumpFalse,       ///< 控制流
-    Param, Call, Return,                    ///< 函数调用
-    IntToFloat, FloatToInt,                 ///< 类型转换
+    // 整数算术运算
+    Add, Sub, Mul, Div, Mod, Neg,
+    // 浮点算术运算
+    FAdd, FSub, FMul, FDiv, FNeg,
+    // 位运算
+    BitAnd, BitOr, BitXor, BitNot, Shl, Shr,
+    // 整数比较运算
+    Eq, Ne, Lt, Le, Gt, Ge,
+    // 浮点比较运算
+    FEq, FNe, FLt, FLe, FGt, FGe,
+    // 逻辑运算
+    LogicalAnd, LogicalOr, LogicalNot,
+    // 数据移动
+    Assign, Load, Store, LoadAddr,
+    // 数组和结构体
+    IndexAddr, MemberAddr,
+    // 控制流
+    Label, Jump, JumpTrue, JumpFalse,
+    // 函数调用
+    Param, Call, Return,
+    // 类型转换
+    IntToFloat, FloatToInt,
     IntExtend, IntTrunc, PtrToInt, IntToPtr,
-    Switch, Case,                           ///< Switch 支持
-    Nop, Comment,                           ///< 其他
+    // Switch 支持
+    Switch, Case,
+    // 其他
+    Nop, Comment,
 };
 
 /**
@@ -132,6 +147,34 @@ struct FunctionIR {
 };
 
 /**
+ * @struct GlobalInitValue
+ * @brief 全局变量初始化值
+ * 
+ * 用于存储编译期常量初始化值。
+ */
+struct GlobalInitValue {
+    enum class Kind {
+        Integer,    ///< 整数常量
+        Float,      ///< 浮点常量
+        String,     ///< 字符串标签引用
+        Address,    ///< 地址（全局变量/函数地址）
+        Zero        ///< 零初始化
+    };
+    
+    Kind kind = Kind::Zero;
+    int64_t intValue = 0;
+    double floatValue = 0.0;
+    std::string strLabel;
+    int size = 8;           ///< 值大小（字节）
+    
+    static GlobalInitValue integer(int64_t v, int sz = 8);
+    static GlobalInitValue floating(double v, int sz = 8);
+    static GlobalInitValue string(const std::string& label);
+    static GlobalInitValue address(const std::string& name);
+    static GlobalInitValue zero(int sz);
+};
+
+/**
  * @struct GlobalVar
  * @brief 全局变量
  */
@@ -139,7 +182,8 @@ struct GlobalVar {
     std::string name;
     TypePtr type;
     bool hasInitializer = false;
-    bool isExtern = false;  ///< 是否为 extern 声明（不生成定义）
+    bool isExtern = false;                      ///< 是否为 extern 声明（不生成定义）
+    std::vector<GlobalInitValue> initValues;    ///< 初始化值列表（支持数组/结构体）
 };
 
 /**
@@ -319,6 +363,15 @@ private:
     
     /** @brief 生成类型转换代码 */
     Operand convertType(Operand src, TypePtr targetType);
+    
+    /**
+     * @brief 收集全局变量初始化值
+     * @param init 初始化表达式
+     * @param type 目标类型
+     * @param values 输出初始化值列表
+     */
+    void collectGlobalInitializer(ast::Expr* init, TypePtr type, 
+                                  std::vector<GlobalInitValue>& values);
 };
 
 /**
