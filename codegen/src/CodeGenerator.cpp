@@ -536,7 +536,8 @@ void CodeGenerator::emitPrologue(const semantic::FunctionIR& func) {
     // 使用 1024 字节作为默认值，足以处理较复杂的函数
     // TODO: 实现两阶段生成，先用占位符，最后替换为实际大小
     int stackReserve = 1024;
-    stackReserve = (stackReserve + 15) & ~15;  // 16 字节对齐
+    stackReserve = (stackReserve + 15) & ~15;  // 先对齐到 16 字节
+    stackReserve += 8;  // 额外 8 字节补偿 5 次 push，保证调用前 16 字节对齐
     stackSize_ = stackReserve;
     
     emitLine("subq $" + std::to_string(stackReserve) + ", %rsp");

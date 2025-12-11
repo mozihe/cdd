@@ -76,6 +76,39 @@ static void _cdd_putd(long n) {
     _cdd_putu((unsigned long)n, 10, 0);
 }
 
+// 输出浮点数，默认保留 precision 位小数
+static void _cdd_putf(double value, int precision) {
+    if (precision < 0) {
+        precision = 6;
+    }
+
+    // 简单处理负数
+    if (value < 0) {
+        _cdd_putc('-');
+        value = -value;
+    }
+
+    // 四舍五入到指定精度
+    double rounding = 0.5;
+    for (int i = 0; i < precision; ++i) {
+        rounding /= 10.0;
+    }
+    value += rounding;
+
+    long int_part = (long)value;
+    double frac = value - (double)int_part;
+
+    _cdd_putu((unsigned long)int_part, 10, 0);
+    _cdd_putc('.');
+
+    for (int i = 0; i < precision; ++i) {
+        frac *= 10.0;
+        int digit = (int)frac;
+        _cdd_putc('0' + digit);
+        frac -= digit;
+    }
+}
+
 /* ============================================================================
  * printf 实现
  * ============================================================================ */
@@ -139,6 +172,12 @@ int printf(const char* format, ...) {
                     _cdd_putu(va_arg(args, unsigned int), 10, 0);
                 }
                 break;
+
+            case 'f': {
+                double d = va_arg(args, double);
+                _cdd_putf(d, 6);  // 默认 6 位小数
+                break;
+            }
                 
             case 'x':
                 if (is_long) {
