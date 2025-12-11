@@ -5,6 +5,12 @@ add_executable(cdd
 # 包含生成的版本头文件
 target_include_directories(cdd PRIVATE
     ${CMAKE_SOURCE_DIR}/codegen/include
+    ${CMAKE_SOURCE_DIR}/preprocessor/include
+    ${CMAKE_SOURCE_DIR}/parser/include
+    ${CMAKE_SOURCE_DIR}/scanner/include
+    ${CMAKE_SOURCE_DIR}/semantic/include
+    ${CMAKE_SOURCE_DIR}/codegen/include
+    ${CMAKE_SOURCE_DIR}/common/include
     ${CMAKE_BINARY_DIR}/generated
 )
 

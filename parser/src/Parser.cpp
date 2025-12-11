@@ -5,8 +5,8 @@
  */
 
 #include "Parser.h"
-#include <sstream>
 #include <cassert>
+#include <sstream>
 
 namespace cdd {
 
@@ -646,7 +646,7 @@ Parser::Declarator Parser::parseDirectDeclarator(ast::TypePtr baseType) {
             // 这是无名抽象声明符（如类型转换中的 (int*)）
             decl.name = "";
             decl.isFunction = true;
-            decl.params = std::move(parseParameterTypeList(decl.isVariadic));
+            decl.params = parseParameterTypeList(decl.isVariadic);
             expect(TokenKind::RightParen, "参数列表后需要 ')'");
             return decl;
         }

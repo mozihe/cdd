@@ -22,7 +22,8 @@ static int _cdd_out_pos = 0;
 // 刷新输出缓冲区
 static void _cdd_flush(void) {
     if (_cdd_out_pos > 0) {
-        write(1, _cdd_out_buf, _cdd_out_pos);
+        ssize_t written = write(1, _cdd_out_buf, _cdd_out_pos);
+        (void)written;
         _cdd_out_pos = 0;
     }
 }
@@ -345,7 +346,8 @@ end:
  */
 int putchar(int c) {
     char ch = (char)c;
-    write(1, &ch, 1);
+    ssize_t written = write(1, &ch, 1);
+    (void)written;
     return c;
 }
 

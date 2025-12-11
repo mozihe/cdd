@@ -310,10 +310,10 @@ private:
     void genDefaultStmt(ast::DefaultStmt* stmt);
     
     /** @brief 生成 break 语句 */
-    void genBreakStmt(ast::BreakStmt* stmt);
+    void genBreakStmt(ast::BreakStmt*);
     
     /** @brief 生成 continue 语句 */
-    void genContinueStmt(ast::ContinueStmt* stmt);
+    void genContinueStmt(ast::ContinueStmt*);
     
     /** @brief 生成 return 语句 */
     void genReturnStmt(ast::ReturnStmt* stmt);

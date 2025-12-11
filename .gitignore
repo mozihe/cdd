@@ -33,6 +33,7 @@ test_output/
 # ============================================================================
 # CLion / IntelliJ
 .idea/
+.cursor/
 
 # VS Code
 .vscode/
@@ -87,6 +88,7 @@ Desktop.ini
 *.tmp
 *.temp
 *.bak
+.cache/
 
 # 压缩包
 *.tar.gz

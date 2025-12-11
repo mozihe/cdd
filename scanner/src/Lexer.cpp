@@ -6,7 +6,6 @@
 
 #include "Lexer.h"
 #include <cstdlib>
-#include <stdexcept>
 #include <unordered_map>
 
 namespace cdd {
@@ -23,7 +22,7 @@ Lexer::Lexer(std::string_view source, std::string_view filename)
  * - 标识符：[a-zA-Z_] 开头
  * - 数字：整数、浮点、十六进制、八进制、二进制
  * - 字符/字符串：单引号和双引号
- * - 注释：// 和 /*
+ * - 注释：单行 //，多行块注释
  * - 运算符：单字符和多字符运算符
  */
 void Lexer::initDFA() {

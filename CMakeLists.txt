@@ -15,6 +15,7 @@ option(CDD_ENABLE_DEBUG "Enable debug output" OFF)
 # ============================================================================
 # 编译器设置
 # ============================================================================
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)

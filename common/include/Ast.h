@@ -128,7 +128,7 @@ struct Type : Node {
  * @brief 基本类型
  */
 struct BasicType : Type {
-    BasicTypeKind kind;
+    BasicTypeKind kind { BasicTypeKind::Int };
 
     BasicType(BasicTypeKind k) : kind(k) {}
     BasicType(SourceLocation loc, BasicTypeKind k) : Type(loc), kind(k) {}
@@ -815,48 +815,48 @@ public:
     virtual ~AstVisitor() = default;
 
     // 表达式
-    virtual void visit(IntLiteral& node) {}
-    virtual void visit(FloatLiteral& node) {}
-    virtual void visit(CharLiteral& node) {}
-    virtual void visit(StringLiteral& node) {}
-    virtual void visit(IdentExpr& node) {}
-    virtual void visit(UnaryExpr& node) {}
-    virtual void visit(SizeofTypeExpr& node) {}
-    virtual void visit(BinaryExpr& node) {}
-    virtual void visit(ConditionalExpr& node) {}
-    virtual void visit(CastExpr& node) {}
-    virtual void visit(SubscriptExpr& node) {}
-    virtual void visit(CallExpr& node) {}
-    virtual void visit(MemberExpr& node) {}
-    virtual void visit(InitListExpr& node) {}
-    virtual void visit(DesignatedInitExpr& node) {}
+    virtual void visit(IntLiteral&) {}
+    virtual void visit(FloatLiteral&) {}
+    virtual void visit(CharLiteral&) {}
+    virtual void visit(StringLiteral&) {}
+    virtual void visit(IdentExpr&) {}
+    virtual void visit(UnaryExpr&) {}
+    virtual void visit(SizeofTypeExpr&) {}
+    virtual void visit(BinaryExpr&) {}
+    virtual void visit(ConditionalExpr&) {}
+    virtual void visit(CastExpr&) {}
+    virtual void visit(SubscriptExpr&) {}
+    virtual void visit(CallExpr&) {}
+    virtual void visit(MemberExpr&) {}
+    virtual void visit(InitListExpr&) {}
+    virtual void visit(DesignatedInitExpr&) {}
 
     // 语句
-    virtual void visit(ExprStmt& node) {}
-    virtual void visit(CompoundStmt& node) {}
-    virtual void visit(IfStmt& node) {}
-    virtual void visit(SwitchStmt& node) {}
-    virtual void visit(CaseStmt& node) {}
-    virtual void visit(DefaultStmt& node) {}
-    virtual void visit(WhileStmt& node) {}
-    virtual void visit(DoWhileStmt& node) {}
-    virtual void visit(ForStmt& node) {}
-    virtual void visit(GotoStmt& node) {}
-    virtual void visit(ContinueStmt& node) {}
-    virtual void visit(BreakStmt& node) {}
-    virtual void visit(ReturnStmt& node) {}
-    virtual void visit(LabelStmt& node) {}
+    virtual void visit(ExprStmt&) {}
+    virtual void visit(CompoundStmt&) {}
+    virtual void visit(IfStmt&) {}
+    virtual void visit(SwitchStmt&) {}
+    virtual void visit(CaseStmt&) {}
+    virtual void visit(DefaultStmt&) {}
+    virtual void visit(WhileStmt&) {}
+    virtual void visit(DoWhileStmt&) {}
+    virtual void visit(ForStmt&) {}
+    virtual void visit(GotoStmt&) {}
+    virtual void visit(ContinueStmt&) {}
+    virtual void visit(BreakStmt&) {}
+    virtual void visit(ReturnStmt&) {}
+    virtual void visit(LabelStmt&) {}
 
     // 声明
-    virtual void visit(VarDecl& node) {}
-    virtual void visit(ParamDecl& node) {}
-    virtual void visit(FunctionDecl& node) {}
-    virtual void visit(FieldDecl& node) {}
-    virtual void visit(RecordDecl& node) {}
-    virtual void visit(EnumConstantDecl& node) {}
-    virtual void visit(EnumDecl& node) {}
-    virtual void visit(TypedefDecl& node) {}
-    virtual void visit(TranslationUnit& node) {}
+    virtual void visit(VarDecl&) {}
+    virtual void visit(ParamDecl&) {}
+    virtual void visit(FunctionDecl&) {}
+    virtual void visit(FieldDecl&) {}
+    virtual void visit(RecordDecl&) {}
+    virtual void visit(EnumConstantDecl&) {}
+    virtual void visit(EnumDecl&) {}
+    virtual void visit(TypedefDecl&) {}
+    virtual void visit(TranslationUnit&) {}
 };
 
 /**

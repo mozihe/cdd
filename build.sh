@@ -119,8 +119,8 @@ echo -e "${GREEN}Build successful!${NC}"
 if [ "$RUN_TESTS" = true ]; then
     echo ""
     echo -e "${YELLOW}Running tests...${NC}"
-    cd "$PROJECT_DIR/test"
-    ./run_tests.sh
+    cd "$PROJECT_DIR"
+    ./test/run_tests.sh
 fi
 
 # 安装

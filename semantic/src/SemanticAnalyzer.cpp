@@ -564,9 +564,9 @@ TypePtr SemanticAnalyzer::analyzeExpr(ast::Expr* expr) {
         result = analyzeIntLiteral(intLit);
     } else if (auto floatLit = dynamic_cast<ast::FloatLiteral*>(expr)) {
         result = analyzeFloatLiteral(floatLit);
-    } else if (auto charLit = dynamic_cast<ast::CharLiteral*>(expr)) {
+    } else if (dynamic_cast<ast::CharLiteral*>(expr)) {
         result = makeChar();
-    } else if (auto strLit = dynamic_cast<ast::StringLiteral*>(expr)) {
+    } else if (dynamic_cast<ast::StringLiteral*>(expr)) {
         result = makePointer(makeChar());
     } else if (auto identExpr = dynamic_cast<ast::IdentExpr*>(expr)) {
         result = analyzeIdentExpr(identExpr);
@@ -582,7 +582,7 @@ TypePtr SemanticAnalyzer::analyzeExpr(ast::Expr* expr) {
         result = analyzeMemberExpr(memberExpr);
     } else if (auto castExpr = dynamic_cast<ast::CastExpr*>(expr)) {
         result = analyzeCastExpr(castExpr);
-    } else if (auto sizeofExpr = dynamic_cast<ast::SizeofTypeExpr*>(expr)) {
+    } else if (dynamic_cast<ast::SizeofTypeExpr*>(expr)) {
         result = makeLong(true);
     } else if (auto condExpr = dynamic_cast<ast::ConditionalExpr*>(expr)) {
         result = analyzeConditionalExpr(condExpr);
@@ -1063,7 +1063,7 @@ ast::TypePtr SemanticAnalyzer::convertToAstType(TypePtr semType) {
         return std::make_unique<ast::BasicType>(ast::BasicTypeKind::Void);
     } else if (semType->isInteger()) {
         auto intType = static_cast<IntegerType*>(semType.get());
-        ast::BasicTypeKind kind;
+        ast::BasicTypeKind kind = ast::BasicTypeKind::Int;
         switch (intType->intKind) {
             case IntegerKind::Char:
                 kind = intType->isUnsigned ? ast::BasicTypeKind::UChar : ast::BasicTypeKind::Char;
@@ -1084,7 +1084,7 @@ ast::TypePtr SemanticAnalyzer::convertToAstType(TypePtr semType) {
         return std::make_unique<ast::BasicType>(kind);
     } else if (semType->isFloat()) {
         auto floatType = static_cast<FloatType*>(semType.get());
-        ast::BasicTypeKind kind;
+        ast::BasicTypeKind kind = ast::BasicTypeKind::Double;
         switch (floatType->floatKind) {
             case FloatKind::Float: kind = ast::BasicTypeKind::Float; break;
             case FloatKind::Double: kind = ast::BasicTypeKind::Double; break;

@@ -913,13 +913,13 @@ void IRGenerator::genDefaultStmt(ast::DefaultStmt* stmt) {
     if (stmt->stmt) genStmt(stmt->stmt.get());
 }
 
-void IRGenerator::genBreakStmt(ast::BreakStmt* stmt) {
+void IRGenerator::genBreakStmt(ast::BreakStmt*) {
     if (!breakTargets_.empty()) {
         emitJump(breakTargets_.back());
     }
 }
 
-void IRGenerator::genContinueStmt(ast::ContinueStmt* stmt) {
+void IRGenerator::genContinueStmt(ast::ContinueStmt*) {
     if (!continueTargets_.empty()) {
         emitJump(continueTargets_.back());
     }
