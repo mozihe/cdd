@@ -533,9 +533,9 @@ void CodeGenerator::emitPrologue(const semantic::FunctionIR& func) {
     
     // 计算栈帧大小：使用固定的较大值以容纳所有局部变量和临时变量
     // 代码生成器在翻译过程中动态分配栈空间，无法预知确切大小
-    // 使用 1024 字节作为默认值，足以处理较复杂的函数
+    // 使用 2048 字节作为默认值，以覆盖 Debug 构建下更多临时变量
     // TODO: 实现两阶段生成，先用占位符，最后替换为实际大小
-    int stackReserve = 1024;
+    int stackReserve = 2048;
     stackReserve = (stackReserve + 15) & ~15;  // 先对齐到 16 字节
     stackReserve += 8;  // 额外 8 字节补偿 5 次 push，保证调用前 16 字节对齐
     stackSize_ = stackReserve;
@@ -651,7 +651,22 @@ Register CodeGenerator::loadToRegister(const semantic::Operand& operand) {
             else if (operand.name.size() >= 3 && operand.name[0] == '.' && operand.name[1] == 'L' && operand.name[2] == 'C') {
                 emitLine("leaq " + operand.name + "(%rip), " + regName(reg));
             } else {
-                emitLine("movq " + operand.name + "(%rip), " + regName(reg));
+                int size = getTypeSize(operand.type);
+                bool isUnsigned = operand.type && operand.type->isUnsigned;
+                
+                if (size == 1) {
+                    emitLine(std::string(isUnsigned ? "movzbq " : "movsbq ") + operand.name + "(%rip), " + regName(reg));
+                } else if (size == 2) {
+                    emitLine(std::string(isUnsigned ? "movzwq " : "movswq ") + operand.name + "(%rip), " + regName(reg));
+                } else if (size == 4) {
+                    if (isUnsigned) {
+                        emitLine("movl " + operand.name + "(%rip), " + regName(reg, 4));
+                    } else {
+                        emitLine("movslq " + operand.name + "(%rip), " + regName(reg));
+                    }
+                } else {
+                    emitLine("movq " + operand.name + "(%rip), " + regName(reg));
+                }
             }
             break;
 
@@ -666,7 +681,22 @@ Register CodeGenerator::loadToRegister(const semantic::Operand& operand) {
             if (operand.type && operand.type->isArray()) {
                 emitLine("leaq " + loc.toAsm() + ", " + regName(reg));
             } else {
-                emitLine("movq " + loc.toAsm() + ", " + regName(reg));
+                int size = getTypeSize(operand.type);
+                bool isUnsigned = operand.type && operand.type->isUnsigned;
+                
+                if (size == 1) {
+                    emitLine(std::string(isUnsigned ? "movzbq " : "movsbq ") + loc.toAsm() + ", " + regName(reg));
+                } else if (size == 2) {
+                    emitLine(std::string(isUnsigned ? "movzwq " : "movswq ") + loc.toAsm() + ", " + regName(reg));
+                } else if (size == 4) {
+                    if (isUnsigned) {
+                        emitLine("movl " + loc.toAsm() + ", " + regName(reg, 4));
+                    } else {
+                        emitLine("movslq " + loc.toAsm() + ", " + regName(reg));
+                    }
+                } else {
+                    emitLine("movq " + loc.toAsm() + ", " + regName(reg));
+                }
             }
             break;
         }
@@ -677,12 +707,31 @@ Register CodeGenerator::loadToRegister(const semantic::Operand& operand) {
 
 void CodeGenerator::storeFromRegister(Register reg, const semantic::Operand& dest) {
     using Kind = semantic::OperandKind;
+    int size = getTypeSize(dest.type);
+    if (size <= 0) size = 8;
+    
+    auto emitStore = [&](const std::string& addr) {
+        switch (size) {
+            case 1:
+                emitLine("movb " + regName(reg, 1) + ", " + addr);
+                break;
+            case 2:
+                emitLine("movw " + regName(reg, 2) + ", " + addr);
+                break;
+            case 4:
+                emitLine("movl " + regName(reg, 4) + ", " + addr);
+                break;
+            default:
+                emitLine("movq " + regName(reg) + ", " + addr);
+                break;
+        }
+    };
     
     if (dest.kind == Kind::Global) {
-        emitLine("movq " + regName(reg) + ", " + dest.name + "(%rip)");
+        emitStore(dest.name + "(%rip)");
     } else {
         Location loc = getLocation(dest);
-        emitLine("movq " + regName(reg) + ", " + loc.toAsm());
+        emitStore(loc.toAsm());
     }
 }
 
