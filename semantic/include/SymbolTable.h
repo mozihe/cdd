@@ -199,6 +199,12 @@ public:
     bool addTag(SymbolPtr sym);
 
     /**
+     * @brief 获取所有类型标签
+     * @return 标签映射表的常量引用
+     */
+    const std::unordered_map<std::string, SymbolPtr>& getAllTags() const { return tags_; }
+
+    /**
      * @brief 设置当前函数信息
      * @param name 函数名
      * @param returnType 返回类型

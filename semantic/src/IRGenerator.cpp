@@ -304,8 +304,9 @@ void IRGenerator::genDecl(ast::Decl* decl) {
         for (const auto& constant : enumDecl->constants) {
             int64_t value = nextValue;
             if (constant->value) {
-                if (auto intLit = dynamic_cast<ast::IntLiteral*>(constant->value.get())) {
-                    value = intLit->value;
+                if (!evaluateConstExpr(constant->value.get(), value)) {
+                    // 求值失败，使用默认递增值
+                    value = nextValue;
                 }
             }
             // 存储枚举常量值到映射
@@ -1900,6 +1901,120 @@ Operand IRGenerator::convertType(Operand src, TypePtr targetType) {
     
     emit(IROpcode::Assign, result, src);
     return result;
+}
+
+/**
+ * @brief 计算常量表达式的值
+ * 
+ * 支持的表达式类型：
+ * - 整数字面量
+ * - 字符字面量
+ * - 枚举常量
+ * - 一元表达式（+、-、~、!）
+ * - 二元表达式（算术、位运算、比较、逻辑）
+ * - 条件表达式
+ * - 类型转换表达式
+ */
+bool IRGenerator::evaluateConstExpr(ast::Expr* expr, int64_t& result) {
+    if (!expr) return false;
+    
+    // 整数字面量
+    if (auto intLit = dynamic_cast<ast::IntLiteral*>(expr)) {
+        result = intLit->value;
+        return true;
+    }
+    
+    // 字符字面量
+    if (auto charLit = dynamic_cast<ast::CharLiteral*>(expr)) {
+        result = static_cast<int64_t>(charLit->value);
+        return true;
+    }
+    
+    // 标识符（枚举常量）
+    if (auto identExpr = dynamic_cast<ast::IdentExpr*>(expr)) {
+        auto it = enumConstValues_.find(identExpr->name);
+        if (it != enumConstValues_.end()) {
+            result = it->second;
+            return true;
+        }
+        return false;
+    }
+    
+    // 一元表达式
+    if (auto unaryExpr = dynamic_cast<ast::UnaryExpr*>(expr)) {
+        int64_t operand;
+        if (!evaluateConstExpr(unaryExpr->operand.get(), operand)) {
+            return false;
+        }
+        
+        using Op = ast::UnaryOp;
+        switch (unaryExpr->op) {
+            case Op::Plus:   result = operand; return true;
+            case Op::Minus:  result = -operand; return true;
+            case Op::BitNot: result = ~operand; return true;
+            case Op::Not:    result = !operand; return true;
+            default: return false;
+        }
+    }
+    
+    // 二元表达式
+    if (auto binaryExpr = dynamic_cast<ast::BinaryExpr*>(expr)) {
+        int64_t left, right;
+        if (!evaluateConstExpr(binaryExpr->left.get(), left)) {
+            return false;
+        }
+        if (!evaluateConstExpr(binaryExpr->right.get(), right)) {
+            return false;
+        }
+        
+        using Op = ast::BinaryOp;
+        switch (binaryExpr->op) {
+            case Op::Add:    result = left + right; return true;
+            case Op::Sub:    result = left - right; return true;
+            case Op::Mul:    result = left * right; return true;
+            case Op::Div:
+                if (right == 0) return false;
+                result = left / right;
+                return true;
+            case Op::Mod:
+                if (right == 0) return false;
+                result = left % right;
+                return true;
+            case Op::BitAnd: result = left & right; return true;
+            case Op::BitOr:  result = left | right; return true;
+            case Op::BitXor: result = left ^ right; return true;
+            case Op::Shl:    result = left << right; return true;
+            case Op::Shr:    result = left >> right; return true;
+            case Op::Eq:     result = left == right; return true;
+            case Op::Ne:     result = left != right; return true;
+            case Op::Lt:     result = left < right; return true;
+            case Op::Le:     result = left <= right; return true;
+            case Op::Gt:     result = left > right; return true;
+            case Op::Ge:     result = left >= right; return true;
+            case Op::LogAnd: result = left && right; return true;
+            case Op::LogOr:  result = left || right; return true;
+            default: return false;
+        }
+    }
+    
+    // 条件表达式
+    if (auto condExpr = dynamic_cast<ast::ConditionalExpr*>(expr)) {
+        int64_t cond;
+        if (!evaluateConstExpr(condExpr->condition.get(), cond)) {
+            return false;
+        }
+        return evaluateConstExpr(
+            cond ? condExpr->thenExpr.get() : condExpr->elseExpr.get(),
+            result
+        );
+    }
+    
+    // 类型转换表达式
+    if (auto castExpr = dynamic_cast<ast::CastExpr*>(expr)) {
+        return evaluateConstExpr(castExpr->operand.get(), result);
+    }
+    
+    return false;
 }
 
 } // namespace semantic

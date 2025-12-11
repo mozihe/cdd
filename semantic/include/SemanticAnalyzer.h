@@ -213,6 +213,14 @@ private:
      * @return 提升后的类型
      */
     TypePtr performIntegralPromotions(TypePtr type);
+    
+    /**
+     * @brief 求值整数常量表达式
+     * @param expr 表达式 AST
+     * @param[out] result 计算结果
+     * @return 成功求值返回 true
+     */
+    bool evaluateConstantExpr(ast::Expr* expr, int64_t& result);
 };
 
 } // namespace semantic

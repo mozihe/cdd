@@ -316,6 +316,12 @@ void SemanticAnalyzer::analyzeEnumDecl(ast::EnumDecl* decl) {
     std::string tagName = decl->name;
     auto enumType = std::make_shared<EnumType>(tagName);
     
+    // 先注册枚举标签（允许常量表达式引用同枚举中已定义的常量）
+    if (!tagName.empty()) {
+        auto tagSym = std::make_shared<Symbol>(tagName, SymbolKind::EnumTag, enumType, decl->location);
+        symTable_.addTag(tagSym);
+    }
+    
     int64_t nextValue = 0;
     for (const auto& constant : decl->constants) {
         std::string name = constant->name;
@@ -324,6 +330,11 @@ void SemanticAnalyzer::analyzeEnumDecl(ast::EnumDecl* decl) {
             TypePtr valType = analyzeExpr(constant->value.get());
             if (!valType || !valType->isInteger()) {
                 error(decl->location, "enumerator value must be an integer");
+            } else {
+                int64_t constVal;
+                if (evaluateConstantExpr(constant->value.get(), constVal)) {
+                    nextValue = constVal;
+                }
             }
         }
         
@@ -335,11 +346,6 @@ void SemanticAnalyzer::analyzeEnumDecl(ast::EnumDecl* decl) {
         }
         
         ++nextValue;
-    }
-    
-    if (!tagName.empty()) {
-        auto sym = std::make_shared<Symbol>(tagName, SymbolKind::EnumTag, enumType, decl->location);
-        symTable_.addTag(sym);
     }
 }
 
@@ -1006,10 +1012,21 @@ TypePtr SemanticAnalyzer::resolveAstType(ast::Type* astType) {
         // 首先检查是否是带常量的枚举定义
         if (!enumType->constants.empty()) {
             auto et = std::make_shared<EnumType>(enumType->name);
+            
+            // 先注册枚举标签（用于常量表达式求值时查找已定义的枚举常量）
+            if (!enumType->name.empty()) {
+                auto tagSym = std::make_shared<Symbol>(
+                    enumType->name, SymbolKind::EnumTag, et, SourceLocation{});
+                symTable_.addTag(tagSym);
+            }
+            
             int64_t nextValue = 0;
             for (const auto& constant : enumType->constants) {
                 if (constant->value) {
-                    // TODO: 计算常量表达式的值
+                    int64_t constVal;
+                    if (evaluateConstantExpr(constant->value.get(), constVal)) {
+                        nextValue = constVal;
+                    }
                 }
                 et->enumerators[constant->name] = nextValue;
                 
@@ -1021,11 +1038,6 @@ TypePtr SemanticAnalyzer::resolveAstType(ast::Type* astType) {
                 nextValue++;
             }
             
-            if (!enumType->name.empty()) {
-                auto sym = std::make_shared<Symbol>(
-                    enumType->name, SymbolKind::EnumTag, et, SourceLocation{});
-                symTable_.addTag(sym);
-            }
             return et;
         }
         
@@ -1113,6 +1125,136 @@ TypePtr SemanticAnalyzer::performIntegralPromotions(TypePtr type) {
         return makeInt(false);
     }
     return type->clone();
+}
+
+/**
+ * @brief 求值整数常量表达式
+ * 
+ * 支持以下表达式类型：
+ * - 整数字面量
+ * - 字符字面量
+ * - 枚举常量
+ * - 一元运算符（+、-、~、!）
+ * - 二元运算符（+、-、*、/、%、&、|、^、<<、>>）
+ * - 条件表达式（?:）
+ * - 括号表达式
+ * 
+ * @param expr 表达式 AST
+ * @param[out] result 计算结果
+ * @return 成功求值返回 true
+ */
+bool SemanticAnalyzer::evaluateConstantExpr(ast::Expr* expr, int64_t& result) {
+    if (!expr) return false;
+    
+    // 整数字面量
+    if (auto intLit = dynamic_cast<ast::IntLiteral*>(expr)) {
+        result = intLit->value;
+        return true;
+    }
+    
+    // 字符字面量
+    if (auto charLit = dynamic_cast<ast::CharLiteral*>(expr)) {
+        result = static_cast<int64_t>(charLit->value);
+        return true;
+    }
+    
+    // 标识符（枚举常量）
+    if (auto identExpr = dynamic_cast<ast::IdentExpr*>(expr)) {
+        auto sym = symTable_.lookup(identExpr->name);
+        if (sym && sym->kind == SymbolKind::EnumConstant) {
+            // 枚举常量的值存储在 Symbol 的 enumValue 字段
+            // 如果没有，尝试遍历所有枚举标签查找
+            for (const auto& [tagName, tagSym] : symTable_.getAllTags()) {
+                if (tagSym->type && tagSym->type->isEnum()) {
+                    auto enumType = static_cast<EnumType*>(tagSym->type.get());
+                    auto it = enumType->enumerators.find(identExpr->name);
+                    if (it != enumType->enumerators.end()) {
+                        result = it->second;
+                        return true;
+                    }
+                }
+            }
+            // 枚举常量尚未注册到枚举类型中，返回失败
+            return false;
+        }
+        return false;
+    }
+    
+    // 一元表达式
+    if (auto unaryExpr = dynamic_cast<ast::UnaryExpr*>(expr)) {
+        int64_t operand;
+        if (!evaluateConstantExpr(unaryExpr->operand.get(), operand)) {
+            return false;
+        }
+        
+        using Op = ast::UnaryOp;
+        switch (unaryExpr->op) {
+            case Op::Plus:   result = operand; return true;
+            case Op::Minus:  result = -operand; return true;
+            case Op::BitNot: result = ~operand; return true;
+            case Op::Not:    result = !operand; return true;
+            default: return false;
+        }
+    }
+    
+    // 二元表达式
+    if (auto binaryExpr = dynamic_cast<ast::BinaryExpr*>(expr)) {
+        int64_t left, right;
+        if (!evaluateConstantExpr(binaryExpr->left.get(), left)) {
+            return false;
+        }
+        if (!evaluateConstantExpr(binaryExpr->right.get(), right)) {
+            return false;
+        }
+        
+        using Op = ast::BinaryOp;
+        switch (binaryExpr->op) {
+            case Op::Add:    result = left + right; return true;
+            case Op::Sub:    result = left - right; return true;
+            case Op::Mul:    result = left * right; return true;
+            case Op::Div:
+                if (right == 0) return false;
+                result = left / right;
+                return true;
+            case Op::Mod:
+                if (right == 0) return false;
+                result = left % right;
+                return true;
+            case Op::BitAnd: result = left & right; return true;
+            case Op::BitOr:  result = left | right; return true;
+            case Op::BitXor: result = left ^ right; return true;
+            case Op::Shl:    result = left << right; return true;
+            case Op::Shr:    result = left >> right; return true;
+            case Op::Eq:     result = left == right; return true;
+            case Op::Ne:     result = left != right; return true;
+            case Op::Lt:     result = left < right; return true;
+            case Op::Le:     result = left <= right; return true;
+            case Op::Gt:     result = left > right; return true;
+            case Op::Ge:     result = left >= right; return true;
+            case Op::LogAnd: result = left && right; return true;
+            case Op::LogOr:  result = left || right; return true;
+            default: return false;
+        }
+    }
+    
+    // 条件表达式
+    if (auto condExpr = dynamic_cast<ast::ConditionalExpr*>(expr)) {
+        int64_t cond;
+        if (!evaluateConstantExpr(condExpr->condition.get(), cond)) {
+            return false;
+        }
+        return evaluateConstantExpr(
+            cond ? condExpr->thenExpr.get() : condExpr->elseExpr.get(),
+            result
+        );
+    }
+    
+    // 类型转换表达式
+    if (auto castExpr = dynamic_cast<ast::CastExpr*>(expr)) {
+        return evaluateConstantExpr(castExpr->operand.get(), result);
+    }
+    
+    return false;
 }
 
 } // namespace semantic

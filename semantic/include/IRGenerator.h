@@ -372,6 +372,14 @@ private:
      */
     void collectGlobalInitializer(ast::Expr* init, TypePtr type, 
                                   std::vector<GlobalInitValue>& values);
+    
+    /**
+     * @brief 计算常量表达式的值
+     * @param expr 表达式 AST
+     * @param result 输出计算结果
+     * @return 成功求值返回 true
+     */
+    bool evaluateConstExpr(ast::Expr* expr, int64_t& result);
 };
 
 /**

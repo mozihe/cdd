@@ -1,0 +1,73 @@
+/**
+ * @file test_enum_const_expr.cdd
+ * @brief 枚举常量表达式计算测试
+ *
+ * 测试内容：
+ * 1. 基本枚举值（自动递增）
+ * 2. 显式整数赋值
+ * 3. 常量表达式计算（算术、位运算）
+ *
+ * EXPECT_EXIT: 42
+ */
+
+// 基本枚举值测试
+enum BasicEnum {
+    ZERO,           // 0
+    ONE,            // 1
+    TEN = 10,       // 10
+    ELEVEN          // 11
+};
+
+// 带常量表达式的枚举
+enum ExprEnum {
+    A = 5 + 3,          // 8
+    B = 100 / 5,        // 20
+    C = 20 % 7,         // 6
+    D = 1 << 4,         // 16
+    E = 32 >> 2,        // 8
+    F = 255 & 0x0F,     // 15
+    G = 8 | 4,          // 12
+    H = 15 ^ 5          // 10
+};
+
+// 一元运算符枚举
+enum UnaryEnum {
+    POS = +10,          // 10
+    NEG = -5,           // -5
+    NOT = !0,           // 1
+    BNOT = ~0 & 0xFF    // 255
+};
+
+int main(void) {
+    int result = 0;
+    
+    // 验证基本枚举值
+    if (ZERO == 0) result = result + 1;      // +1 = 1
+    if (ONE == 1) result = result + 1;       // +1 = 2
+    if (TEN == 10) result = result + 1;      // +1 = 3
+    if (ELEVEN == 11) result = result + 1;   // +1 = 4
+    
+    // 验证表达式枚举值
+    if (A == 8) result = result + 2;         // +2 = 6
+    if (B == 20) result = result + 2;        // +2 = 8
+    if (C == 6) result = result + 2;         // +2 = 10
+    if (D == 16) result = result + 2;        // +2 = 12
+    if (E == 8) result = result + 2;         // +2 = 14
+    if (F == 15) result = result + 2;        // +2 = 16
+    if (G == 12) result = result + 2;        // +2 = 18
+    if (H == 10) result = result + 2;        // +2 = 20
+    
+    // 验证一元枚举值
+    if (POS == 10) result = result + 3;      // +3 = 23
+    if (NOT == 1) result = result + 3;       // +3 = 26
+    if (BNOT == 255) result = result + 3;    // +3 = 29
+    
+    // 枚举值在表达式中使用
+    int sum = A + C;  // 8 + 6 = 14
+    if (sum == 14) result = result + 5;      // +5 = 34
+    
+    int product = D / E;  // 16 / 8 = 2
+    if (product == 2) result = result + 8;   // +8 = 42
+    
+    return result;  // EXPECT_EXIT: 42
+}
