@@ -630,7 +630,7 @@ Token Lexer::scanToken() {
     tokenLoc_ = currentLocation();
     lexeme_.clear();
     
-    // 处理单字符分隔符（不需要状态机）
+    // 处理单字符分隔符
     char c = peek();
     TokenKind singleCharKind = TokenKind::Invalid;
     switch (c) {

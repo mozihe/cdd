@@ -677,11 +677,22 @@ Parser::Declarator Parser::parseDirectDeclarator(ast::TypePtr baseType) {
         // ( declarator ) 或 ( 参数列表 )
         // 需要区分函数指针 (*fp) 和无名抽象声明符
         if (isDeclarationSpecifier() || check(TokenKind::RightParen)) {
-            // 这是无名抽象声明符（如类型转换中的 (int*)）
+            // 这是无名函数声明符的参数列表（如 int (int) 或 int (void)）
             decl.name = "";
             decl.isFunction = true;
             decl.params = parseParameterTypeList(decl.isVariadic);
             expect(TokenKind::RightParen, "参数列表后需要 ')'");
+
+            // 构建函数类型，确保类型信息完整
+            auto funcType = std::make_unique<ast::FunctionType>(std::move(decl.type));
+            funcType->isVariadic = decl.isVariadic;
+            for (const auto& param : decl.params) {
+                if (param && param->type) {
+                    funcType->paramTypes.push_back(param->type->clone());
+                }
+            }
+            decl.type = std::move(funcType);
+
             return decl;
         }
         // 括号括起来的声明符（如函数指针 (*fp)）
@@ -700,7 +711,7 @@ Parser::Declarator Parser::parseDirectDeclarator(ast::TypePtr baseType) {
         // 保留对内部类型链末端的引用，以便后续插入后缀类型
         // 需要找到最内层的指针/数组的 pointee/elementType
         // 对于 int (*foo(int))(int, int)，内部是 FunctionType(PointerType(nullptr))
-        // 我们需要找到 PointerType 的 pointee 并将其设为外层的 baseType
+        // 需要找到 PointerType 的 pointee 并将其设为外层的 baseType
         innerTypeSlot = &decl.type;
         while (*innerTypeSlot) {
             if (auto* func = dynamic_cast<ast::FunctionType*>(innerTypeSlot->get())) {

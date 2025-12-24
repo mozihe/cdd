@@ -306,7 +306,7 @@ bool Preprocessor::parseDefine(const std::string& line) {
 
     std::string body = (keyEnd < s.length()) ? trim(s.substr(keyEnd)) : "";
     
-    // 移除行尾的 // 注释（需要注意字符串字面量中的 //）
+    // 移除行尾的 // 注释
     size_t commentPos = std::string::npos;
     bool inString = false;
     char stringChar = 0;
@@ -910,14 +910,14 @@ std::string Preprocessor::expandMacros(const std::string& line, const std::unord
                         size_t afterCallPos = i; // 从宏名后开始找
                         std::vector<std::string> rawArgs = parseMacroArgs(line, afterCallPos);
 
-                        // [关键] 步骤 A: 对实参进行预展开
+                        // 步骤 A: 对实参进行预展开
                         std::vector<std::string> expandedArgs;
                         for (const auto& arg : rawArgs) {
                             // 实参展开时，不继承当前的 forbidden 集合
                             expandedArgs.push_back(expandMacros(arg));
                         }
 
-                        // [关键] 步骤 B: 替换文本
+                        // 步骤 B: 替换文本
                         substitution = substituteArgs(def.body, def.params, expandedArgs);
                         i = afterCallPos; // 更新指针，跳过整个宏调用
                         expanded = true;
@@ -929,7 +929,7 @@ std::string Preprocessor::expandMacros(const std::string& line, const std::unord
                 }
 
                 if (expanded) {
-                    // [关键] 步骤 C: 对替换后的结果进行重扫描 (Rescan)
+                    // 步骤 C: 对替换后的结果进行重扫描 (Rescan)
                     // 将当前宏加入 forbidden，防止直接递归
                     std::unordered_set<std::string> nextForbidden = forbidden;
                     nextForbidden.insert(word);
@@ -958,89 +958,4 @@ std::string Preprocessor::trim(const std::string& str) {
     if (std::string::npos == first) return "";
     size_t last = str.find_last_not_of(" \t\r\n");
     return str.substr(first, (last - first + 1));
-}
-
-std::string Preprocessor::generateDocumentation() {
-    std::ostringstream doc;
-    doc << "╔══════════════════════════════════════════════════════════════════════════════╗\n";
-    doc << "║                           CDD 预处理器文档                                   ║\n";
-    doc << "╚══════════════════════════════════════════════════════════════════════════════╝\n\n";
-    
-    doc << "█ 支持的预处理指令\n";
-    doc << "────────────────────────────────────────────────────────────────────────────────\n";
-    doc << "  #include <file>     系统头文件包含\n";
-    doc << "  #include \"file\"     用户头文件包含\n";
-    doc << "  #define NAME        对象式宏定义\n";
-    doc << "  #define NAME value  带值的对象式宏\n";
-    doc << "  #define F(x)        函数式宏（支持参数）\n";
-    doc << "  #define F(a,b) ...  多参数函数式宏\n";
-    doc << "  #undef NAME         取消宏定义\n\n";
-    
-    doc << "█ 条件编译指令\n";
-    doc << "────────────────────────────────────────────────────────────────────────────────\n";
-    doc << "  #ifdef NAME         如果宏已定义\n";
-    doc << "  #ifndef NAME        如果宏未定义\n";
-    doc << "  #if expr            如果表达式为真\n";
-    doc << "  #elif expr          否则如果表达式为真\n";
-    doc << "  #else               否则\n";
-    doc << "  #endif              结束条件编译块\n\n";
-    doc << "  支持的表达式运算符:\n";
-    doc << "    defined(MACRO)    检查宏是否定义\n";
-    doc << "    ||, &&            逻辑或、与\n";
-    doc << "    ==, !=            等于、不等于\n";
-    doc << "    <, >, <=, >=      比较运算\n";
-    doc << "    +, -, *, /        算术运算\n";
-    doc << "    !                 逻辑非\n";
-    doc << "    ()                括号\n\n";
-    
-    doc << "█ 环境变量\n";
-    doc << "────────────────────────────────────────────────────────────────────────────────\n";
-    doc << "  CDD_INCLUDE_PATH    头文件搜索路径（冒号分隔）\n";
-    doc << "                      示例: export CDD_INCLUDE_PATH=/opt/include:/usr/local/include\n\n";
-    
-    doc << "█ 头文件搜索顺序\n";
-    doc << "────────────────────────────────────────────────────────────────────────────────\n";
-    doc << "  对于 #include \"file\":\n";
-    doc << "    1. 当前源文件所在目录\n";
-    doc << "    2. CDD_INCLUDE_PATH 中的路径\n";
-    doc << "    3. /usr/local/include\n";
-    doc << "    4. /usr/include\n\n";
-    doc << "  对于 #include <file>:\n";
-    doc << "    1. CDD_INCLUDE_PATH 中的路径\n";
-    doc << "    2. /usr/local/include\n";
-    doc << "    3. /usr/include\n\n";
-    
-    doc << "█ 宏展开特性\n";
-    doc << "────────────────────────────────────────────────────────────────────────────────\n";
-    doc << "  • 递归展开：宏体中的宏会被递归展开\n";
-    doc << "  • 自引用保护：宏不会无限递归展开自身\n";
-    doc << "  • 参数替换：函数式宏支持参数替换\n";
-    doc << "  • 续行符：支持反斜杠续行\n\n";
-    
-    doc << "█ 示例\n";
-    doc << "────────────────────────────────────────────────────────────────────────────────\n";
-    doc << "  // 对象式宏\n";
-    doc << "  #define PI 3.14159\n";
-    doc << "  #define MAX_SIZE 100\n\n";
-    doc << "  // 函数式宏\n";
-    doc << "  #define SQUARE(x) ((x) * (x))\n";
-    doc << "  #define MAX(a, b) ((a) > (b) ? (a) : (b))\n\n";
-    doc << "  // 条件编译\n";
-    doc << "  #ifdef DEBUG\n";
-    doc << "      // 调试代码\n";
-    doc << "  #endif\n\n";
-    doc << "  #if VERSION >= 2\n";
-    doc << "      // 版本2以上的代码\n";
-    doc << "  #elif VERSION == 1\n";
-    doc << "      // 版本1的代码\n";
-    doc << "  #else\n";
-    doc << "      // 其他版本\n";
-    doc << "  #endif\n\n";
-    doc << "  // 头文件保护\n";
-    doc << "  #ifndef _MYHEADER_H\n";
-    doc << "  #define _MYHEADER_H\n";
-    doc << "      // 头文件内容\n";
-    doc << "  #endif\n\n";
-    
-    return doc.str();
 }

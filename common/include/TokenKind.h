@@ -31,7 +31,7 @@ enum class TokenKind : uint8_t {
     // ========== 特殊 Token ==========
     Invalid = 0,        ///< 无效 Token
     EndOfFile,          ///< 文件结束
-    Comment,            ///< 注释（通常被跳过）
+    Comment,            ///< 注释（被跳过）
 
     // ========== 字面量 ==========
     Identifier = 10,    ///< 标识符

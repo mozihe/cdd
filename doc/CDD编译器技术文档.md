@@ -539,6 +539,117 @@ Start --[/]--> InSlash --[/]--> InLineComment --[\n]--> Done
 - **typedef 函数类型**：`typedef int FuncType(int, int);`
 - **标签后声明**：支持在标签语句后直接放置声明（C11）
 
+### 4.6 语法层次关系
+
+#### 顶层结构
+
+```
+TranslationUnit (翻译单元)
+  └─> Declaration* (顶层声明列表)
+```
+
+**TranslationUnit** 是 AST 的根节点，只包含顶层声明，不能直接包含语句或表达式。
+
+#### 声明层次
+
+```
+Declaration (声明)
+  ├─> VarDecl (变量声明)
+  │   └─> initializer: Expression* (初始化表达式)
+  │
+  ├─> FunctionDecl (函数声明/定义)
+  │   └─> body: CompoundStmt (函数体)
+  │       └─> items: (Stmt | Decl)* (语句或声明)
+  │
+  ├─> RecordDecl (结构体/联合体声明)
+  │   └─> fields: FieldDecl* (成员声明)
+  │
+  ├─> EnumDecl (枚举声明)
+  │   └─> constants: EnumConstantDecl* (枚举常量)
+  │
+  └─> TypedefDecl (类型别名声明)
+```
+
+#### 语句层次
+
+```
+Statement (语句)
+  ├─> ExprStmt (表达式语句)
+  │   └─> expr: Expression* (表达式)
+  │
+  ├─> CompoundStmt (复合语句 { ... })
+  │   └─> items: (Stmt | Decl)* (语句或块内声明)
+  │
+  ├─> IfStmt (if 语句)
+  │   ├─> condition: Expression (条件表达式)
+  │   ├─> thenStmt: Statement (then 分支)
+  │   └─> elseStmt: Statement* (else 分支，可选)
+  │
+  ├─> SwitchStmt (switch 语句)
+  │   ├─> condition: Expression (条件表达式)
+  │   └─> body: Statement (switch 体)
+  │
+  ├─> WhileStmt / DoWhileStmt / ForStmt (循环语句)
+  │   ├─> condition: Expression (条件表达式)
+  │   └─> body: Statement (循环体)
+  │
+  └─> ReturnStmt (return 语句)
+      └─> value: Expression* (返回值表达式，可选)
+```
+
+**Statement** 只能出现在：
+- 函数体内
+- 复合语句内
+- 其他控制流语句的体部分
+
+#### 表达式层次
+
+```
+Expression (表达式，按优先级从低到高)
+  ├─> BinaryExpr (二元表达式)
+  │   ├─> left: Expression (左操作数)
+  │   └─> right: Expression (右操作数)
+  │
+  ├─> UnaryExpr (一元表达式)
+  │   └─> operand: Expression (操作数)
+  │
+  ├─> CallExpr (函数调用)
+  │   ├─> callee: Expression (被调用函数)
+  │   └─> arguments: Expression* (参数列表)
+  │
+  ├─> SubscriptExpr (数组下标)
+  │   ├─> array: Expression (数组表达式)
+  │   └─> index: Expression (索引表达式)
+  │
+  ├─> MemberExpr (成员访问)
+  │   ├─> object: Expression (对象表达式)
+  │   └─> member: string (成员名)
+  │
+  └─> Primary Expression (基本表达式)
+      ├─> IdentExpr (标识符)
+      ├─> IntLiteral / FloatLiteral / CharLiteral / StringLiteral (字面量)
+      └─> (Expression) (括号表达式)
+```
+
+**Expression** 出现在：
+- Statement 中
+- Declaration 的初始化器中
+- 其他表达式的操作数中
+
+#### 语法规则约束
+
+1. **顶层约束**：TranslationUnit 只能包含 Declaration，不能直接包含 Statement
+2. **作用域规则**：
+   - 顶层声明：全局作用域
+   - 函数体内语句：函数作用域
+   - 复合语句内声明：块作用域
+3. **嵌套关系**：
+   - Declaration 可以包含 Expression（初始化器）
+   - FunctionDecl 可以包含 Statement（函数体）
+   - Statement 可以包含 Expression（条件、表达式语句等）
+   - Statement 可以包含 Declaration（复合语句内的块作用域声明）
+   - Expression 可以嵌套 Expression（操作数）
+
 ---
 
 ## 五、语义分析与中间代码生成

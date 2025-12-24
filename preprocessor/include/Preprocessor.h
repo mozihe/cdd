@@ -84,11 +84,6 @@ public:
      */
     const std::vector<std::string>& includePaths() const { return includePaths_; }
     
-    /**
-     * @brief 生成预处理器使用文档
-     * @return 格式化的文档字符串
-     */
-    static std::string generateDocumentation();
 
 private:
     std::unordered_set<std::string> loadedFiles_;
