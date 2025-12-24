@@ -51,6 +51,12 @@ public:
     bool analyze(ast::TranslationUnit* unit);
 
     /**
+     * @brief 增量分析单个顶层声明（用于翻译驱动）
+     * @param decl AST 声明节点
+     */
+    void analyzeDeclaration(ast::Decl* decl);
+
+    /**
      * @brief 获取错误列表
      * @return 错误列表的常量引用
      */

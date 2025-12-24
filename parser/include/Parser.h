@@ -51,6 +51,17 @@ public:
     explicit Parser(Lexer& lexer);
 
     /**
+     * @brief 声明语义回调类型
+     */
+    using DeclCallback = std::function<void(ast::Decl*)>;
+
+    /**
+     * @brief 设置声明回调，用于翻译驱动的语义动作
+     * @param cb 在成功解析顶层声明后调用的回调
+     */
+    void setDeclCallback(DeclCallback cb);
+
+    /**
      * @brief 解析整个翻译单元
      * @return 翻译单元 AST 根节点
      */
@@ -76,6 +87,7 @@ private:
 
     std::vector<ParseError> errors_;
     std::set<std::string> typedefNames_;
+    DeclCallback declCallback_;
 
     // ==================== Token 操作 ====================
     

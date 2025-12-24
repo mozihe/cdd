@@ -165,6 +165,12 @@ int main(int argc, char *argv[]) {
         CDD_DBG_STAGE("Parsing");
         Lexer parserLexer(processedCode, filename);
         Parser parser(parserLexer);
+        semantic::SemanticAnalyzer analyzer;
+        if (!onlyAst) {
+            parser.setDeclCallback([&](ast::Decl* decl) {
+                analyzer.analyzeDeclaration(decl);
+            });
+        }
         auto ast = parser.parseTranslationUnit();
         
         // 检查词法分析错误
@@ -197,9 +203,9 @@ int main(int argc, char *argv[]) {
         // - 类型检查
         // - 符号解析和作用域管理
         // - 语义约束验证
+        // 语义分析在解析阶段同步执行，这里仅检查结果。
         CDD_DBG_STAGE("Semantic Analysis");
-        semantic::SemanticAnalyzer analyzer;
-        bool semanticOK = analyzer.analyze(ast.get());
+        bool semanticOK = !analyzer.hasErrors();
         CDD_DBG("Semantic analysis result: " << (semanticOK ? "OK" : "FAILED"));
         
         // Report semantic errors and warnings

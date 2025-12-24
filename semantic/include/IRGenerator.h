@@ -182,8 +182,8 @@ struct GlobalVar {
     std::string name;
     TypePtr type;
     bool hasInitializer = false;
-    bool isExtern = false;                      ///< 是否为 extern 声明（不生成定义）
-    std::vector<GlobalInitValue> initValues;    ///< 初始化值列表（支持数组/结构体）
+    bool isExtern = false;                      ///< 是否为 extern 声明
+    std::vector<GlobalInitValue> initValues;    ///< 初始化值列表
 };
 
 /**

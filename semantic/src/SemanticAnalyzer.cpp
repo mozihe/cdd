@@ -38,6 +38,10 @@ bool SemanticAnalyzer::analyze(ast::TranslationUnit* unit) {
     return errors_.empty();
 }
 
+void SemanticAnalyzer::analyzeDeclaration(ast::Decl* decl) {
+    analyzeDecl(decl);
+}
+
 //=============================================================================
 // 声明处理
 //=============================================================================

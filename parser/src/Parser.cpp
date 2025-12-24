@@ -14,6 +14,10 @@ Parser::Parser(Lexer& lexer) : lexer_(lexer) {
     advance();
 }
 
+void Parser::setDeclCallback(DeclCallback cb) {
+    declCallback_ = std::move(cb);
+}
+
 Token Parser::peek() {
     if (!hasLookahead_) {
         lookahead_ = lexer_.nextToken();
@@ -201,6 +205,9 @@ std::unique_ptr<ast::TranslationUnit> Parser::parseTranslationUnit() {
             auto decls = parseDeclaration();
             for (auto& decl : decls) {
                 if (decl) {
+                    if (declCallback_) {
+                        declCallback_(decl.get());
+                    }
                     unit->declarations.push_back(std::move(decl));
                 }
             }
