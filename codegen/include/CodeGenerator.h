@@ -11,7 +11,6 @@
 #define CDD_CODEGEN_CODE_GENERATOR_H
 
 #include "IRGenerator.h"
-#include "SymbolTable.h"
 #include <string>
 #include <vector>
 #include <unordered_map>
