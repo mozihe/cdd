@@ -14,8 +14,8 @@
 #include "SymbolTable.h"
 #include <string>
 #include <vector>
-#include <memory>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace cdd {
 namespace semantic {
@@ -227,9 +227,11 @@ private:
     int labelCounter_ = 0;
     int stringCounter_ = 0;
     int varCounter_ = 0;
+    int staticVarCounter_ = 0;
     
     std::unordered_map<Symbol*, std::string> varIRNames_;
     std::unordered_map<std::string, int64_t> enumConstValues_;
+    std::unordered_set<std::string> emittedGlobalNames_;
     
     std::vector<std::string> breakTargets_;
     std::vector<std::string> continueTargets_;
@@ -363,6 +365,12 @@ private:
     
     /** @brief 生成类型转换代码 */
     Operand convertType(Operand src, TypePtr targetType);
+
+    /** @brief 获取符号对应的全局标签 */
+    std::string symbolLabel(SymbolPtr sym, const std::string& fallback) const;
+    
+    /** @brief 发射静态局部变量定义 */
+    void emitStaticLocal(SymbolPtr sym, ast::VarDecl* decl, TypePtr type);
     
     /**
      * @brief 收集全局变量初始化值

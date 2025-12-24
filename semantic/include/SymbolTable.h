@@ -93,6 +93,7 @@ public:
     ScopeKind kind;
     Scope* parent = nullptr;
     std::unordered_map<std::string, SymbolPtr> symbols;
+    int id = -1;
     
     std::string functionName;      ///< 函数名（函数作用域）
     TypePtr returnType;            ///< 返回类型（函数作用域）
@@ -138,7 +139,7 @@ public:
      * @brief 进入新作用域
      * @param kind 作用域类型
      */
-    void enterScope(ScopeKind kind);
+    int enterScope(ScopeKind kind);
     
     /**
      * @brief 退出当前作用域
@@ -150,6 +151,7 @@ public:
      * @return 当前作用域指针
      */
     Scope* currentScope() { return currentScope_; }
+    const Scope* currentScope() const { return currentScope_; }
     
     /**
      * @brief 获取全局作用域
@@ -162,6 +164,11 @@ public:
      * @return 在全局作用域返回 true
      */
     bool isGlobalScope() const { return currentScope_ == globalScope_; }
+    
+    /**
+     * @brief 获取当前作用域 ID
+     */
+    int currentScopeId() const { return currentScope_ ? currentScope_->id : -1; }
 
     /**
      * @brief 添加符号
@@ -230,11 +237,30 @@ public:
      * @return 栈帧大小
      */
     int getCurrentStackSize() const;
+    
+    /**
+     * @brief 通过 ID 获取作用域
+     */
+    Scope* getScopeById(int id) const;
+    
+    /**
+     * @brief 切换到指定作用域 ID
+     * @return 之前的作用域指针
+     */
+    Scope* setCurrentScopeById(int id);
+    
+    /**
+     * @brief 直接切换到指定作用域
+     * @return 之前的作用域指针
+     */
+    Scope* setCurrentScope(Scope* scope);
 
 private:
     Scope* globalScope_;
     Scope* currentScope_;
     std::vector<std::unique_ptr<Scope>> allScopes_;
+    int nextScopeId_ = 0;
+    std::unordered_map<int, Scope*> scopeIndex_;
     std::unordered_map<std::string, SymbolPtr> tags_;
 };
 

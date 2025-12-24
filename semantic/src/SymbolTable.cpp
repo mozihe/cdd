@@ -17,17 +17,22 @@ namespace semantic {
 /** @brief 构造符号表，创建全局作用域 */
 SymbolTable::SymbolTable() {
     auto global = std::make_unique<Scope>(ScopeKind::Global);
+    global->id = nextScopeId_++;
     globalScope_ = global.get();
     currentScope_ = globalScope_;
+    scopeIndex_[global->id] = globalScope_;
     allScopes_.push_back(std::move(global));
 }
 
 SymbolTable::~SymbolTable() = default;
 
-void SymbolTable::enterScope(ScopeKind kind) {
+int SymbolTable::enterScope(ScopeKind kind) {
     auto scope = std::make_unique<Scope>(kind, currentScope_);
+    scope->id = nextScopeId_++;
+    scopeIndex_[scope->id] = scope.get();
     currentScope_ = scope.get();
     allScopes_.push_back(std::move(scope));
+    return currentScope_->id;
 }
 
 void SymbolTable::exitScope() {
@@ -162,6 +167,27 @@ int SymbolTable::getCurrentStackSize() const {
     // 对齐到 16 字节
     int size = funcScope->nextLocalOffset;
     return (size + 15) / 16 * 16;
+}
+
+Scope* SymbolTable::getScopeById(int id) const {
+    auto it = scopeIndex_.find(id);
+    return (it != scopeIndex_.end()) ? it->second : nullptr;
+}
+
+Scope* SymbolTable::setCurrentScopeById(int id) {
+    Scope* prev = currentScope_;
+    if (auto scope = getScopeById(id)) {
+        currentScope_ = scope;
+    }
+    return prev;
+}
+
+Scope* SymbolTable::setCurrentScope(Scope* scope) {
+    Scope* prev = currentScope_;
+    if (scope) {
+        currentScope_ = scope;
+    }
+    return prev;
 }
 
 } // namespace semantic

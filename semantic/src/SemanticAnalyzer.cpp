@@ -5,8 +5,6 @@
  */
 
 #include "SemanticAnalyzer.h"
-#include <sstream>
-#include <iostream>
 
 namespace cdd {
 namespace semantic {
@@ -205,7 +203,8 @@ void SemanticAnalyzer::analyzeFunctionDecl(ast::FunctionDecl* decl) {
     
     // 如果有函数体
     if (decl->body) {
-        symTable_.enterScope(ScopeKind::Function);
+        int funcScopeId = symTable_.enterScope(ScopeKind::Function);
+        decl->scopeId = funcScopeId;
         symTable_.setCurrentFunctionInfo(funcName, returnType);
         
         // 添加参数到作用域
@@ -408,7 +407,8 @@ void SemanticAnalyzer::analyzeStmt(ast::Stmt* stmt) {
 void SemanticAnalyzer::analyzeCompoundStmt(ast::CompoundStmt* stmt) {
     if (!stmt) return;
     
-    symTable_.enterScope(ScopeKind::Block);
+    int scopeId = symTable_.enterScope(ScopeKind::Block);
+    stmt->scopeId = scopeId;
     
     for (auto& item : stmt->items) {
         if (std::holds_alternative<ast::DeclPtr>(item)) {
@@ -456,7 +456,8 @@ void SemanticAnalyzer::analyzeDoWhileStmt(ast::DoWhileStmt* stmt) {
 void SemanticAnalyzer::analyzeForStmt(ast::ForStmt* stmt) {
     if (!stmt) return;
     
-    symTable_.enterScope(ScopeKind::Block);
+    int scopeId = symTable_.enterScope(ScopeKind::Block);
+    stmt->scopeId = scopeId;
     
     if (std::holds_alternative<ast::DeclList>(stmt->init)) {
         for (auto& decl : std::get<ast::DeclList>(stmt->init)) {

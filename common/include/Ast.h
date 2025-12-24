@@ -13,13 +13,11 @@
 #ifndef CDD_AST_NEW_H
 #define CDD_AST_NEW_H
 
-#include "TokenKind.h"
 #include "SourceLocation.h"
 #include <memory>
 #include <string>
 #include <vector>
 #include <variant>
-#include <optional>
 #include <iostream>
 
 namespace cdd {
@@ -487,6 +485,7 @@ struct ExprStmt : Stmt {
  */
 struct CompoundStmt : Stmt {
     std::vector<std::variant<StmtPtr, DeclPtr>> items;
+    int scopeId = -1;         ///< 语义分析记录的作用域 ID
 
     CompoundStmt(SourceLocation loc) : Stmt(loc) {}
 };
@@ -568,6 +567,7 @@ struct ForStmt : Stmt {
     ExprPtr condition;      ///< 可能为 nullptr
     ExprPtr increment;      ///< 可能为 nullptr
     StmtPtr body;
+    int scopeId = -1;       ///< 语义分析记录的作用域 ID
 
     ForStmt(SourceLocation loc) : Stmt(loc) {}
 };
@@ -669,6 +669,7 @@ struct FunctionDecl : Decl {
     std::vector<std::unique_ptr<ParamDecl>> params;
     bool isVariadic = false;
     std::unique_ptr<CompoundStmt> body;     ///< nullptr 表示只是声明
+    int scopeId = -1;                       ///< 函数体对应的作用域 ID（无函数体时为 -1）
 
     FunctionDecl(SourceLocation loc, std::string n, TypePtr ret)
         : Decl() {

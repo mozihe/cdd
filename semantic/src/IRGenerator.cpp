@@ -10,6 +10,51 @@
 namespace cdd {
 namespace semantic {
 
+namespace {
+
+class ExistingScopeGuard {
+public:
+    ExistingScopeGuard(SymbolTable& table, int scopeId)
+        : table_(table), active_(scopeId >= 0) {
+        if (active_) {
+            prev_ = table_.setCurrentScopeById(scopeId);
+        }
+    }
+    
+    ~ExistingScopeGuard() {
+        if (active_) {
+            table_.setCurrentScope(prev_);
+        }
+    }
+
+private:
+    SymbolTable& table_;
+    Scope* prev_ = nullptr;
+    bool active_ = false;
+};
+
+class NewScopeGuard {
+public:
+    NewScopeGuard(SymbolTable& table, ScopeKind kind, bool enable)
+        : table_(table), active_(enable) {
+        if (active_) {
+            table_.enterScope(kind);
+        }
+    }
+    
+    ~NewScopeGuard() {
+        if (active_) {
+            table_.exitScope();
+        }
+    }
+
+private:
+    SymbolTable& table_;
+    bool active_ = false;
+};
+
+} // namespace
+
 Operand Operand::temp(const std::string& name, TypePtr type) {
     Operand op;
     op.kind = OperandKind::Temp;
@@ -268,6 +313,9 @@ void IRGenerator::emitComment(const std::string& comment) {
 IRProgram IRGenerator::generate(ast::TranslationUnit* unit) {
     if (!unit) return program_;
     
+    emittedGlobalNames_.clear();
+    staticVarCounter_ = 0;
+    
     for (auto& decl : unit->declarations) {
         genDecl(decl.get());
     }
@@ -291,12 +339,14 @@ void IRGenerator::genDecl(ast::Decl* decl) {
     } else if (auto funcDecl = dynamic_cast<ast::FunctionDecl*>(decl)) {
         genFunctionDecl(funcDecl);
     } else if (auto typedefDecl = dynamic_cast<ast::TypedefDecl*>(decl)) {
-        // 添加 typedef 到符号表
-        TypePtr underlyingType = astTypeToSemType(typedefDecl->underlyingType.get());
-        if (underlyingType) {
-            auto sym = std::make_shared<Symbol>(typedefDecl->name, SymbolKind::TypeDef, 
-                                                underlyingType, typedefDecl->location);
-            symTable_.addSymbol(sym);
+        // 仅在语义阶段未注册时添加 typedef
+        if (!symTable_.lookup(typedefDecl->name)) {
+            TypePtr underlyingType = astTypeToSemType(typedefDecl->underlyingType.get());
+            if (underlyingType) {
+                auto sym = std::make_shared<Symbol>(typedefDecl->name, SymbolKind::TypeDef, 
+                                                    underlyingType, typedefDecl->location);
+                symTable_.addSymbol(sym);
+            }
         }
     } else if (auto enumDecl = dynamic_cast<ast::EnumDecl*>(decl)) {
         // 处理枚举常量值
@@ -327,29 +377,49 @@ void IRGenerator::genDecl(ast::Decl* decl) {
 void IRGenerator::genGlobalVar(ast::VarDecl* decl) {
     if (!decl) return;
     
-    // 从 AST 获取类型信息
+    SymbolPtr sym = symTable_.lookupLocal(decl->name);
     TypePtr varType = astTypeToSemType(decl->type.get());
+    if (!varType && sym) {
+        varType = sym->type;
+    }
     if (!varType) varType = makeInt();
     
-    bool isExtern = (decl->storage == ast::StorageClass::Extern);
+    bool isExtern = sym ? (sym->storage == StorageClass::Extern)
+                        : (decl->storage == ast::StorageClass::Extern);
     
-    // 添加到全局符号表
-    auto sym = std::make_shared<Symbol>(decl->name, SymbolKind::Variable, varType, decl->location);
-    sym->storage = isExtern ? StorageClass::Extern : StorageClass::Static;
-    symTable_.addSymbol(sym);
+    if (!sym) {
+        auto newSym = std::make_shared<Symbol>(decl->name, SymbolKind::Variable, varType, decl->location);
+        newSym->storage = isExtern ? StorageClass::Extern : StorageClass::Static;
+        newSym->globalLabel = decl->name;
+        symTable_.addSymbol(newSym);
+        sym = newSym;
+    } else {
+        sym->type = varType;
+        if (sym->globalLabel.empty()) {
+            sym->globalLabel = decl->name;
+        }
+    }
+    
+    if (isExtern) {
+        return;
+    }
+    
+    const std::string label = sym->globalLabel;
+    if (!emittedGlobalNames_.insert(label).second) {
+        return;
+    }
     
     GlobalVar gv;
-    gv.name = decl->name;
+    gv.name = label;
     gv.type = varType;
     gv.hasInitializer = (decl->initializer != nullptr);
-    gv.isExtern = isExtern;
     
-    // 处理初始化器
-    if (decl->initializer && !isExtern) {
+    if (decl->initializer) {
         collectGlobalInitializer(decl->initializer.get(), varType, gv.initValues);
     }
     
-    program_.globals.push_back(gv);
+    program_.globals.push_back(std::move(gv));
+    sym->isDefined = true;
 }
 
 /**
@@ -475,12 +545,13 @@ void IRGenerator::collectGlobalInitializer(ast::Expr* init, TypePtr type,
         // 查找符号
         auto sym = symTable_.lookup(identExpr->name);
         if (sym) {
+            std::string label = symbolLabel(sym, identExpr->name);
             if (sym->kind == SymbolKind::Function) {
-                values.push_back(GlobalInitValue::address(identExpr->name));
+                values.push_back(GlobalInitValue::address(label));
                 return;
             } else if (sym->storage == StorageClass::Static || 
                        sym->storage == StorageClass::Extern) {
-                values.push_back(GlobalInitValue::address(identExpr->name));
+                values.push_back(GlobalInitValue::address(label));
                 return;
             }
         }
@@ -496,7 +567,9 @@ void IRGenerator::collectGlobalInitializer(ast::Expr* init, TypePtr type,
     if (auto unaryExpr = dynamic_cast<ast::UnaryExpr*>(init)) {
         if (unaryExpr->op == ast::UnaryOp::AddrOf) {
             if (auto identExpr = dynamic_cast<ast::IdentExpr*>(unaryExpr->operand.get())) {
-                values.push_back(GlobalInitValue::address(identExpr->name));
+                auto sym = symTable_.lookup(identExpr->name);
+                std::string label = symbolLabel(sym, identExpr->name);
+                values.push_back(GlobalInitValue::address(label));
                 return;
             }
         }
@@ -518,8 +591,12 @@ void IRGenerator::collectGlobalInitializer(ast::Expr* init, TypePtr type,
 void IRGenerator::genVarDecl(ast::VarDecl* decl) {
     if (!decl) return;
     
-    // 1. 从AST类型获取语义类型
+    // 1. 找到语义阶段创建的符号（如果存在）
+    SymbolPtr sym = symTable_.lookupLocal(decl->name);
     TypePtr varType = astTypeToSemType(decl->type.get());
+    if (!varType && sym) {
+        varType = sym->type;
+    }
     if (!varType) varType = makeInt();
     
     // 2. 特殊处理：数组类型初始化，可能需要推导大小
@@ -538,9 +615,22 @@ void IRGenerator::genVarDecl(ast::VarDecl* decl) {
         }
     }
     
-    // 添加符号到符号表（IR生成阶段也需要）
-    auto sym = std::make_shared<Symbol>(decl->name, SymbolKind::Variable, varType, decl->location);
-    symTable_.addSymbol(sym);
+    if (!sym) {
+        sym = std::make_shared<Symbol>(decl->name, SymbolKind::Variable, varType, decl->location);
+        symTable_.addSymbol(sym);
+    } else {
+        sym->type = varType;
+    }
+    
+    if (sym->storage == StorageClass::Extern) {
+        // 块作用域的 extern 声明不需要生成代码
+        return;
+    }
+    
+    if (sym->storage == StorageClass::Static) {
+        emitStaticLocal(sym, decl, varType);
+        return;
+    }
     
     // 为局部变量生成唯一的 IR 名称（支持变量 shadowing）
     std::string irName = decl->name + "_" + std::to_string(varCounter_++);
@@ -699,9 +789,13 @@ void IRGenerator::genFunctionDecl(ast::FunctionDecl* decl) {
         funcType->paramNames.push_back(param->name);
     }
     
-    auto funcSym = std::make_shared<Symbol>(decl->name, SymbolKind::Function, funcType, decl->location);
-    funcSym->globalLabel = decl->name;
-    symTable_.addSymbol(funcSym);
+    auto funcSym = symTable_.lookup(decl->name);
+    if (!funcSym) {
+        funcSym = std::make_shared<Symbol>(decl->name, SymbolKind::Function, funcType, decl->location);
+        funcSym->globalLabel = decl->name;
+        symTable_.addSymbol(funcSym);
+    }
+    funcSym->type = funcType;
     
     // 3. 如果只是声明，返回
     if (!decl->body) return;
@@ -721,8 +815,9 @@ void IRGenerator::genFunctionDecl(ast::FunctionDecl* decl) {
     currentFunc_ = &func;
     tempCounter_ = 0;
     
-    // 进入函数作用域
-    symTable_.enterScope(ScopeKind::Function);
+    // 进入函数作用域（优先使用语义阶段记录的作用域）
+    ExistingScopeGuard existingScope(symTable_, decl->scopeId);
+    NewScopeGuard fallbackScope(symTable_, ScopeKind::Function, decl->scopeId < 0);
     symTable_.setCurrentFunctionInfo(decl->name, func.returnType);
     
     // 添加参数到符号表
@@ -730,9 +825,14 @@ void IRGenerator::genFunctionDecl(ast::FunctionDecl* decl) {
         if (!param->name.empty()) {
             TypePtr paramType = astTypeToSemType(param->type.get());
             if (!paramType) paramType = makeInt();
-            auto paramSym = std::make_shared<Symbol>(
-                param->name, SymbolKind::Parameter, paramType, param->location);
-            symTable_.addSymbol(paramSym);
+            auto paramSym = symTable_.lookupLocal(param->name);
+            if (!paramSym) {
+                paramSym = std::make_shared<Symbol>(
+                    param->name, SymbolKind::Parameter, paramType, param->location);
+                symTable_.addSymbol(paramSym);
+            } else {
+                paramSym->type = paramType;
+            }
             varIRNames_[paramSym.get()] = param->name;
         }
     }
@@ -748,7 +848,6 @@ void IRGenerator::genFunctionDecl(ast::FunctionDecl* decl) {
     
     // 7. 保存函数 IR
     func.stackSize = symTable_.getCurrentStackSize();
-    symTable_.exitScope();
     
     program_.functions.push_back(std::move(func));
     currentFunc_ = nullptr;
@@ -796,8 +895,8 @@ void IRGenerator::genStmt(ast::Stmt* stmt) {
 void IRGenerator::genCompoundStmt(ast::CompoundStmt* stmt) {
     if (!stmt) return;
     
-    // 复合语句创建新的块作用域
-    symTable_.enterScope(ScopeKind::Block);
+    ExistingScopeGuard existingScope(symTable_, stmt->scopeId);
+    NewScopeGuard fallbackScope(symTable_, ScopeKind::Block, stmt->scopeId < 0);
     
     for (auto& item : stmt->items) {
         if (std::holds_alternative<ast::DeclPtr>(item)) {
@@ -806,8 +905,6 @@ void IRGenerator::genCompoundStmt(ast::CompoundStmt* stmt) {
             genStmt(std::get<ast::StmtPtr>(item).get());
         }
     }
-    
-    symTable_.exitScope();
 }
 
 void IRGenerator::genIfStmt(ast::IfStmt* stmt) {
@@ -885,7 +982,8 @@ void IRGenerator::genForStmt(ast::ForStmt* stmt) {
     std::string endLabel = newLabel("endfor");
     
     // for 循环可能在初始化中声明变量，需要新作用域
-    symTable_.enterScope(ScopeKind::Block);
+    ExistingScopeGuard existingScope(symTable_, stmt->scopeId);
+    NewScopeGuard fallbackScope(symTable_, ScopeKind::Block, stmt->scopeId < 0);
     
     // 初始化
     if (std::holds_alternative<ast::DeclList>(stmt->init)) {
@@ -918,7 +1016,6 @@ void IRGenerator::genForStmt(ast::ForStmt* stmt) {
     
     breakTargets_.pop_back();
     continueTargets_.pop_back();
-    symTable_.exitScope();
 }
 
 void IRGenerator::genSwitchStmt(ast::SwitchStmt* stmt) {
@@ -1107,9 +1204,11 @@ Operand IRGenerator::genIdentExpr(ast::IdentExpr* expr) {
         return Operand::intConst(0);
     }
     
+    std::string label = symbolLabel(sym, expr->name);
+    
     // 函数名：返回函数标签
     if (sym->kind == SymbolKind::Function) {
-        return Operand::label(expr->name);
+        return Operand::label(label);
     }
     
     // 局部变量或参数：使用唯一的 IR 名称
@@ -1120,12 +1219,12 @@ Operand IRGenerator::genIdentExpr(ast::IdentExpr* expr) {
     
     // 显式的 static 或 extern 变量
     if (sym->storage == StorageClass::Static || sym->storage == StorageClass::Extern) {
-        return Operand::global(expr->name, sym->type);
+        return Operand::global(label, sym->type);
     }
     
     // 如果变量不在 varIRNames_ 中且不是局部变量，则是全局变量
     // （全局变量不会被添加到 varIRNames_，局部变量在 genVarDecl 中会被添加）
-    return Operand::global(expr->name, sym->type);
+    return Operand::global(label, sym->type);
 }
 
 Operand IRGenerator::genBinaryExpr(ast::BinaryExpr* expr) {
@@ -1721,13 +1820,15 @@ Operand IRGenerator::genLValueAddr(ast::Expr* expr) {
         if (!sym) return Operand::none();
 
         Operand addr = Operand::temp(newTemp(), makePointer(sym->type));
-        if (symTable_.isGlobalScope() || sym->storage == StorageClass::Static) {
-            emit(IROpcode::LoadAddr, addr, Operand::global(identExpr->name, sym->type));
+        std::string label = symbolLabel(sym, identExpr->name);
+        auto it = varIRNames_.find(sym.get());
+        bool isLocal = (it != varIRNames_.end()) &&
+                       sym->storage != StorageClass::Static &&
+                       sym->storage != StorageClass::Extern;
+        if (isLocal) {
+            emit(IROpcode::LoadAddr, addr, Operand::variable(it->second, sym->type));
         } else {
-            // 使用唯一的 IR 名称
-            auto it = varIRNames_.find(sym.get());
-            std::string irName = (it != varIRNames_.end()) ? it->second : identExpr->name;
-            emit(IROpcode::LoadAddr, addr, Operand::variable(irName, sym->type));
+            emit(IROpcode::LoadAddr, addr, Operand::global(label, sym->type));
         }
         return addr;
     }
@@ -1958,6 +2059,44 @@ TypePtr IRGenerator::astTypeToSemType(ast::Type* astType) {
     }
     
     return nullptr;
+}
+
+std::string IRGenerator::symbolLabel(SymbolPtr sym, const std::string& fallback) const {
+    if (sym && !sym->globalLabel.empty()) {
+        return sym->globalLabel;
+    }
+    return fallback;
+}
+
+void IRGenerator::emitStaticLocal(SymbolPtr sym, ast::VarDecl* decl, TypePtr type) {
+    if (!sym || !type) return;
+    
+    if (sym->globalLabel.empty()) {
+        std::string label = "__cdd_static_" + std::to_string(staticVarCounter_++);
+        if (currentFunc_ && !currentFunc_->name.empty()) {
+            label += "_" + currentFunc_->name;
+        }
+        if (decl && !decl->name.empty()) {
+            label += "_" + decl->name;
+        }
+        sym->globalLabel = label;
+    }
+    
+    const std::string label = sym->globalLabel;
+    if (!emittedGlobalNames_.insert(label).second) {
+        return;
+    }
+    
+    GlobalVar gv;
+    gv.name = label;
+    gv.type = type;
+    gv.hasInitializer = (decl && decl->initializer != nullptr);
+    if (decl && decl->initializer) {
+        collectGlobalInitializer(decl->initializer.get(), type, gv.initValues);
+    }
+    
+    program_.globals.push_back(std::move(gv));
+    sym->isDefined = true;
 }
 
 Operand IRGenerator::convertType(Operand src, TypePtr targetType) {
