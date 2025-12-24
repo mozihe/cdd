@@ -456,6 +456,8 @@ void CodeGenerator::emitFunction(const semantic::FunctionIR& func) {
     currentFunction_ = func.name;
     inFunction_ = true;
     locations_.clear();
+    raxSpillStack_.clear();
+    freeRaxSpillSlots_.clear();
     localOffset_ = -40;  // 跳过5个 callee-saved 寄存器（每个8字节）
     minLocalOffset_ = localOffset_;
     currentStackPlaceholder_.clear();
@@ -634,11 +636,53 @@ std::string CodeGenerator::operandToAsm(const semantic::Operand& operand, int si
     }
 }
 
-Register CodeGenerator::loadToRegister(const semantic::Operand& operand) {
+Register CodeGenerator::acquireRegister() {
     Register reg = regAlloc_.allocate();
-    if (reg == Register::NONE) {
-        reg = Register::RAX;
+    if (reg != Register::NONE) {
+        return reg;
     }
+    
+    int spillSlot = 0;
+    if (!raxSpillStack_.empty()) {
+        spillSlot = acquireRaxSpillSlot();
+        emitLine("movq %rax, " + std::to_string(spillSlot) + "(%rbp)");
+    }
+    
+    raxSpillStack_.push_back(spillSlot);
+    return Register::RAX;
+}
+
+void CodeGenerator::releaseRegister(Register reg) {
+    if (reg == Register::NONE) {
+        return;
+    }
+    
+    if (reg == Register::RAX) {
+        if (!raxSpillStack_.empty()) {
+            int spillSlot = raxSpillStack_.back();
+            raxSpillStack_.pop_back();
+            if (spillSlot != 0) {
+                emitLine("movq " + std::to_string(spillSlot) + "(%rbp), %rax");
+                freeRaxSpillSlots_.push_back(spillSlot);
+            }
+        }
+        return;
+    }
+    
+    regAlloc_.release(reg);
+}
+
+int CodeGenerator::acquireRaxSpillSlot() {
+    if (!freeRaxSpillSlots_.empty()) {
+        int slot = freeRaxSpillSlots_.back();
+        freeRaxSpillSlots_.pop_back();
+        return slot;
+    }
+    return allocateStack(8);
+}
+
+Register CodeGenerator::loadToRegister(const semantic::Operand& operand) {
+    Register reg = acquireRegister();
     
     using Kind = semantic::OperandKind;
     
@@ -921,15 +965,15 @@ void CodeGenerator::translateArithmetic(const semantic::Quadruple& quad) {
     }
     
     storeFromRegister(left, quad.result);
-    regAlloc_.release(left);
-    regAlloc_.release(right);
+    releaseRegister(right);
+    releaseRegister(left);
 }
 
 void CodeGenerator::translateNeg(const semantic::Quadruple& quad) {
     Register reg = loadToRegister(quad.arg1);
     emitLine("negq " + regName(reg));
     storeFromRegister(reg, quad.result);
-    regAlloc_.release(reg);
+    releaseRegister(reg);
 }
 
 // ============================================================================
@@ -963,18 +1007,18 @@ void CodeGenerator::translateBitwise(const semantic::Quadruple& quad) {
             default:
                 break;
         }
-        regAlloc_.release(right);
+        releaseRegister(right);
     }
     
     storeFromRegister(left, quad.result);
-    regAlloc_.release(left);
+    releaseRegister(left);
 }
 
 void CodeGenerator::translateBitNot(const semantic::Quadruple& quad) {
     Register reg = loadToRegister(quad.arg1);
     emitLine("notq " + regName(reg));
     storeFromRegister(reg, quad.result);
-    regAlloc_.release(reg);
+    releaseRegister(reg);
 }
 
 // ============================================================================
@@ -1008,8 +1052,8 @@ void CodeGenerator::translateComparison(const semantic::Quadruple& quad) {
     }
     
     storeFromRegister(left, quad.result);
-    regAlloc_.release(left);
-    regAlloc_.release(right);
+    releaseRegister(right);
+    releaseRegister(left);
 }
 
 // ============================================================================
@@ -1036,8 +1080,8 @@ void CodeGenerator::translateLogical(const semantic::Quadruple& quad) {
     emitLine("movzbq " + regName(left, 1) + ", " + regName(left));
     
     storeFromRegister(left, quad.result);
-    regAlloc_.release(left);
-    regAlloc_.release(right);
+    releaseRegister(right);
+    releaseRegister(left);
 }
 
 void CodeGenerator::translateLogNot(const semantic::Quadruple& quad) {
@@ -1046,7 +1090,7 @@ void CodeGenerator::translateLogNot(const semantic::Quadruple& quad) {
     emitLine("sete " + regName(reg, 1));
     emitLine("movzbq " + regName(reg, 1) + ", " + regName(reg));
     storeFromRegister(reg, quad.result);
-    regAlloc_.release(reg);
+    releaseRegister(reg);
 }
 
 // ============================================================================
@@ -1104,7 +1148,7 @@ void CodeGenerator::translateAssign(const semantic::Quadruple& quad) {
     } else {
         Register reg = loadToRegister(quad.arg1);
         storeFromRegister(reg, quad.result);
-        regAlloc_.release(reg);
+        releaseRegister(reg);
     }
 }
 
@@ -1122,7 +1166,7 @@ void CodeGenerator::translateLoad(const semantic::Quadruple& quad) {
         
         // 保存源地址到 %r11
         emitLine("movq " + regName(addr) + ", %r11");
-        regAlloc_.release(addr);
+        releaseRegister(addr);
         
         // 加载目标地址到 %rax
         if (dstLoc.type == Location::Type::Stack) {
@@ -1175,7 +1219,7 @@ void CodeGenerator::translateLoad(const semantic::Quadruple& quad) {
                 break;
         }
         storeFromRegister(addr, quad.result);
-        regAlloc_.release(addr);
+        releaseRegister(addr);
     }
 }
 
@@ -1200,7 +1244,7 @@ void CodeGenerator::translateStore(const semantic::Quadruple& quad) {
         
         // 将 dst 保存到 RAX
         emitLine("movq " + regName(dst) + ", %rax");
-        regAlloc_.release(dst);
+        releaseRegister(dst);
         
         switch (srcLoc.type) {
             case Location::Type::Stack:
@@ -1246,13 +1290,12 @@ void CodeGenerator::translateStore(const semantic::Quadruple& quad) {
     Register addr = loadToRegister(quad.result);
     std::string suffix = getSizeSuffix(size);
     emitLine("mov" + suffix + " " + regName(val, size) + ", (" + regName(addr) + ")");
-    regAlloc_.release(val);
-    regAlloc_.release(addr);
+    releaseRegister(addr);
+    releaseRegister(val);
 }
 
 void CodeGenerator::translateLoadAddr(const semantic::Quadruple& quad) {
-    Register reg = regAlloc_.allocate();
-    if (reg == Register::NONE) reg = Register::RAX;
+    Register reg = acquireRegister();
 
     using Kind = semantic::OperandKind;
     if (quad.arg1.kind == Kind::Global) {
@@ -1263,7 +1306,7 @@ void CodeGenerator::translateLoadAddr(const semantic::Quadruple& quad) {
     }
 
     storeFromRegister(reg, quad.result);
-    regAlloc_.release(reg);
+    releaseRegister(reg);
 }
 
 void CodeGenerator::translateIndexAddr(const semantic::Quadruple& quad) {
@@ -1285,8 +1328,8 @@ void CodeGenerator::translateIndexAddr(const semantic::Quadruple& quad) {
     emitLine("addq " + regName(index) + ", " + regName(base));
     
     storeFromRegister(base, quad.result);
-    regAlloc_.release(base);
-    regAlloc_.release(index);
+    releaseRegister(index);
+    releaseRegister(base);
 }
 
 void CodeGenerator::translateMemberAddr(const semantic::Quadruple& quad) {
@@ -1297,7 +1340,7 @@ void CodeGenerator::translateMemberAddr(const semantic::Quadruple& quad) {
     }
     
     storeFromRegister(base, quad.result);
-    regAlloc_.release(base);
+    releaseRegister(base);
 }
 
 /**
@@ -1323,20 +1366,19 @@ void CodeGenerator::translateCast(const semantic::Quadruple& quad) {
         emitLine("cvtsi2sdq " + regName(intReg) + ", " + xmmName(xmmReg));
         storeFromXmm(xmmReg, quad.result);
         
-        regAlloc_.release(intReg);
+        releaseRegister(intReg);
         xmmAlloc_.release(xmmReg);
     } else if (quad.opcode == Op::FloatToInt) {
         // 浮点转整数：加载到 XMM，然后转换到通用寄存器
         XmmRegister xmmReg = loadToXmm(quad.arg1);
-        Register intReg = regAlloc_.allocate();
-        if (intReg == Register::NONE) intReg = Register::RAX;
+        Register intReg = acquireRegister();
         
         // cvttsd2siq: 双精度浮点转 64 位有符号整数（截断，向零舍入）
         emitLine("cvttsd2siq " + xmmName(xmmReg) + ", " + regName(intReg));
         storeFromRegister(intReg, quad.result);
         
         xmmAlloc_.release(xmmReg);
-        regAlloc_.release(intReg);
+        releaseRegister(intReg);
     } else if (quad.opcode == Op::IntExtend) {
         // 整数符号扩展
         Register reg = loadToRegister(quad.arg1);
@@ -1353,17 +1395,17 @@ void CodeGenerator::translateCast(const semantic::Quadruple& quad) {
         // srcSize == 8 不需要扩展
         
         storeFromRegister(reg, quad.result);
-        regAlloc_.release(reg);
+        releaseRegister(reg);
     } else if (quad.opcode == Op::IntTrunc) {
         // 整数截断：直接加载和存储（高位自动丢弃）
         Register reg = loadToRegister(quad.arg1);
         storeFromRegister(reg, quad.result);
-        regAlloc_.release(reg);
+        releaseRegister(reg);
     } else if (quad.opcode == Op::PtrToInt || quad.opcode == Op::IntToPtr) {
         // 指针与整数互转：位模式不变，直接赋值
         Register reg = loadToRegister(quad.arg1);
         storeFromRegister(reg, quad.result);
-        regAlloc_.release(reg);
+        releaseRegister(reg);
     } else {
         // 其他转换作为简单赋值处理
         translateAssign(quad);
@@ -1382,14 +1424,14 @@ void CodeGenerator::translateJumpTrue(const semantic::Quadruple& quad) {
     Register reg = loadToRegister(quad.arg1);
     emitLine("testq " + regName(reg) + ", " + regName(reg));
     emitLine("jnz ." + currentFunction_ + "_lbl_" + quad.result.name);
-    regAlloc_.release(reg);
+    releaseRegister(reg);
 }
 
 void CodeGenerator::translateJumpFalse(const semantic::Quadruple& quad) {
     Register reg = loadToRegister(quad.arg1);
     emitLine("testq " + regName(reg) + ", " + regName(reg));
     emitLine("jz ." + currentFunction_ + "_lbl_" + quad.result.name);
-    regAlloc_.release(reg);
+    releaseRegister(reg);
 }
 
 void CodeGenerator::translateLabel(const semantic::Quadruple& quad) {
@@ -1478,7 +1520,7 @@ void CodeGenerator::translateCall(const semantic::Quadruple& quad) {
         } else {
             Register reg = loadToRegister(callParams_[idx]);
             emitLine("pushq " + regName(reg));
-            regAlloc_.release(reg);
+            releaseRegister(reg);
         }
     }
     
@@ -1547,7 +1589,7 @@ void CodeGenerator::translateCall(const semantic::Quadruple& quad) {
     } else {
         Register funcReg = loadToRegister(quad.arg1);
         emitLine("call *" + regName(funcReg));
-        regAlloc_.release(funcReg);
+        releaseRegister(funcReg);
     }
     
     // 7. 清理栈参数
@@ -1609,7 +1651,7 @@ void CodeGenerator::translateReturn(const semantic::Quadruple& quad) {
                 if (reg != Register::RAX) {
                     emitLine("movq " + regName(reg) + ", %rax");
                 }
-                regAlloc_.release(reg);
+                releaseRegister(reg);
             }
         }
     }
@@ -1777,8 +1819,7 @@ void CodeGenerator::translateFloatComparison(const semantic::Quadruple& quad) {
     XmmRegister left = loadToXmm(quad.arg1);
     XmmRegister right = loadToXmm(quad.arg2);
     
-    Register result = regAlloc_.allocate();
-    if (result == Register::NONE) result = Register::RAX;
+    Register result = acquireRegister();
     
     // 清零结果寄存器（必须在 ucomisd 之前，否则会破坏标志位）
     emitLine("xorl " + regName(result, 4) + ", " + regName(result, 4));
@@ -1806,7 +1847,7 @@ void CodeGenerator::translateFloatComparison(const semantic::Quadruple& quad) {
     
     xmmAlloc_.release(left);
     xmmAlloc_.release(right);
-    regAlloc_.release(result);
+    releaseRegister(result);
 }
 
 // ============================================================================

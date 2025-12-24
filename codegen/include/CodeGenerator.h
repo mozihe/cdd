@@ -249,6 +249,8 @@ private:
     
     std::unordered_map<std::string, Location> locations_;
     std::vector<semantic::Operand> callParams_;
+    std::vector<int> raxSpillStack_;        ///< 记录 RAX 回退的嵌套信息
+    std::vector<int> freeRaxSpillSlots_;    ///< 可复用的 RAX 溢出槽位
     
     std::unordered_map<double, std::string> floatLiterals_;  ///< 浮点数常量标签映射
     int floatLabelCounter_ = 0;
@@ -323,6 +325,15 @@ private:
      * @param dest 目标操作数
      */
     void storeFromRegister(Register reg, const semantic::Operand& dest);
+    
+    /** @brief 分配一个通用寄存器，必要时回退到 RAX */
+    Register acquireRegister();
+    
+    /** @brief 释放通用寄存器，处理 RAX 回退恢复 */
+    void releaseRegister(Register reg);
+    
+    /** @brief 获取或创建一个 RAX 溢出槽位 */
+    int acquireRaxSpillSlot();
     
     /**
      * @brief 翻译单条四元式

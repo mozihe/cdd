@@ -1,0 +1,64 @@
+// Quicksort example using a struct array and cddlib printf
+#include <cddlib.hdd>
+
+struct Item {
+    int key;
+    const char *name;
+};
+
+void swap(struct Item *a, struct Item *b) {
+    struct Item temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+int partition(struct Item *arr, int low, int high) {
+    int pivot = arr[high].key;
+    int i = low - 1;
+    for (int j = low; j < high; j++) {
+        if (arr[j].key <= pivot) {
+            i++;
+            swap(&arr[i], &arr[j]);
+        }
+    }
+    swap(&arr[i + 1], &arr[high]);
+    return i + 1;
+}
+
+void quicksort(struct Item *arr, int low, int high) {
+    if (low < high) {
+        int pivot_index = partition(arr, low, high);
+        quicksort(arr, low, pivot_index - 1);
+        quicksort(arr, pivot_index + 1, high);
+    }
+}
+
+void print_items(struct Item *arr, int count) {
+    for (int i = 0; i < count; i++) {
+        printf("%d %s\n", arr[i].key, arr[i].name);
+    }
+}
+
+int main() {
+    struct Item items[8] = {
+        {42, "pear"},
+        {7, "apple"},
+        {19, "plum"},
+        {3, "fig"},
+        {88, "mango"},
+        {55, "grape"},
+        {1, "kiwi"},
+        {34, "melon"}
+    };
+    int count = 8;
+
+    printf("Before sort:\n");
+    print_items(items, count);
+
+    quicksort(items, 0, count - 1);
+
+    printf("\nAfter sort:\n");
+    print_items(items, count);
+
+    return 0;
+}

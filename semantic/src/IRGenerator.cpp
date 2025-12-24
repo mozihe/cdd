@@ -815,7 +815,7 @@ void IRGenerator::genFunctionDecl(ast::FunctionDecl* decl) {
     currentFunc_ = &func;
     tempCounter_ = 0;
     
-    // 进入函数作用域（优先使用语义阶段记录的作用域）
+    // 进入函数作用域
     ExistingScopeGuard existingScope(symTable_, decl->scopeId);
     NewScopeGuard fallbackScope(symTable_, ScopeKind::Function, decl->scopeId < 0);
     symTable_.setCurrentFunctionInfo(decl->name, func.returnType);
